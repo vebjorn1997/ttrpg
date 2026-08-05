@@ -31,4 +31,5 @@ lerna-debug.log*
 # misc
 .DS_Store
 
-backend/data/
+# local postgres volume (docker-compose)
+data/
