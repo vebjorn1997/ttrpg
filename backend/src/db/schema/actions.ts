@@ -4,6 +4,9 @@
 */
 
 import { pgTable, uuid, integer, varchar, text } from 'drizzle-orm/pg-core';
+import { primaryKey } from 'drizzle-orm/pg-core';
+
+import { traitsTable } from './traits';
 
 export const actionsTable = pgTable('actions', {
     id: uuid('id').primaryKey().defaultRandom(),
@@ -11,5 +14,11 @@ export const actionsTable = pgTable('actions', {
     type: varchar({ length: 255 }).notNull(),
     cost: integer().notNull(),
     description: text().notNull(),
-    traits: uuid().array(),
 });
+
+export const actionsTraitsTable = pgTable('action_traits', {
+    actionId: uuid('action_id').notNull().references(() => actionsTable.id, { onDelete: 'cascade' }),
+    traitId: uuid('trait_id').notNull().references(() => traitsTable.id, { onDelete: 'cascade' }),
+},
+(t) => [primaryKey({ columns: [t.actionId, t.traitId] })],
+);

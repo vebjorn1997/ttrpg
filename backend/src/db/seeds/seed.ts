@@ -16,7 +16,7 @@ import { criticalInjuryTable } from '../schema/criticalInjury';
 import { healingTable } from '../schema/healing';
 import { featsTable } from '../schema/feats';
 import { traitsTable } from '../schema/traits';
-import { npcCatalogTable } from '../schema/npcCatalog';
+import { npcCatalogTable, npcCatalogTraitsTable } from '../schema/npcCatalog';
 
 const db = drizzle(process.env.DATABASE_URL!);
 
@@ -29,19 +29,37 @@ const seed = async () => {
     await db.insert(healingTable).values(healing).onConflictDoNothing();
     await db.insert(featsTable).values(feats).onConflictDoNothing();
 
-    // Resolve trait names → UUIDs, then insert NPCs
-    const neededTraitNames = [...new Set(npcCatalog.flatMap((npc) => npc.traitNames))];
-    const traitRows = neededTraitNames.length
-        ? await db.select().from(traitsTable).where(inArray(traitsTable.name, neededTraitNames))
-        : [];
-    const traitIdByName = Object.fromEntries(traitRows.map((t) => [t.name, t.id]));
-
+    // Insert NPCs without trait links (traitNames is seed-only, not a DB column)
     await db.insert(npcCatalogTable).values(
-        npcCatalog.map(({ traitNames, ...npc }) => ({
-            ...npc,
-            traits: traitNames.map((name) => traitIdByName[name]).filter(Boolean),
-        })),
+        npcCatalog.map(({ traitNames: _traitNames, ...npc }) => npc),
     ).onConflictDoNothing();
+
+    // Resolve trait / NPC names → UUIDs, then fill the join table
+    const neededTraitNames = [...new Set(npcCatalog.flatMap((npc) => npc.traitNames))];
+    const npcNames = npcCatalog.map((npc) => npc.name);
+
+    const [traitRows, npcRows] = await Promise.all([
+        neededTraitNames.length
+            ? db.select().from(traitsTable).where(inArray(traitsTable.name, neededTraitNames))
+            : Promise.resolve([]),
+        db.select().from(npcCatalogTable).where(inArray(npcCatalogTable.name, npcNames)),
+    ]);
+
+    const traitIdByName = Object.fromEntries(traitRows.map((t) => [t.name, t.id]));
+    const npcIdByName = Object.fromEntries(npcRows.map((n) => [n.name, n.id]));
+
+    const traitLinks = npcCatalog.flatMap((npc) =>
+        npc.traitNames
+            .map((name) => ({
+                npcCatalogId: npcIdByName[npc.name],
+                traitId: traitIdByName[name],
+            }))
+            .filter((link) => link.npcCatalogId && link.traitId),
+    );
+
+    if (traitLinks.length) {
+        await db.insert(npcCatalogTraitsTable).values(traitLinks).onConflictDoNothing();
+    }
 
     process.exit(0);
 }
