@@ -6,13 +6,13 @@
  * Tags is an array of text.
  */
 
-import { pgTable, integer, text, varchar } from 'drizzle-orm/pg-core';
+import { pgTable, uuid, text, varchar, integer } from 'drizzle-orm/pg-core';
 
 export const calledShotsTable = pgTable('called_shots', {
-    id: integer().primaryKey().generatedAlwaysAsIdentity(),
+    id: uuid('id').primaryKey().defaultRandom(),
     location: varchar({ length: 255 }).notNull().unique(),
     cost: integer().notNull(),
     penalty: integer().notNull(),
     description: text().notNull(),
-    tags: text().array(),
+    traits: uuid().array(),
 });
