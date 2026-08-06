@@ -155,12 +155,12 @@
     background-image:
       linear-gradient(
         to right,
-        color-mix(in oklch, var(--ochre), transparent 94%) 1px,
+        color-mix(in oklch, var(--ochre), transparent 96%) 1px,
         transparent 1px
       ),
       linear-gradient(
         to bottom,
-        color-mix(in oklch, var(--ochre), transparent 94%) 1px,
+        color-mix(in oklch, var(--ochre), transparent 96%) 1px,
         transparent 1px
       );
     background-size: 44px 44px;
@@ -170,19 +170,28 @@
   .crt-overlay {
     background-image: repeating-linear-gradient(
       to bottom,
-      color-mix(in oklch, black, transparent 88%) 0px,
-      color-mix(in oklch, black, transparent 88%) 1px,
+      color-mix(in oklch, black, transparent 94%) 0px,
+      color-mix(in oklch, black, transparent 94%) 1px,
       transparent 1px,
-      transparent 3px
+      transparent 4px
     );
   }
 
   .crt-vignette {
     background: radial-gradient(
       ellipse at center,
-      transparent 55%,
-      color-mix(in oklch, black, transparent 70%) 100%
+      transparent 62%,
+      color-mix(in oklch, black, transparent 82%) 100%
     );
+  }
+
+  /* Field-manual body copy: calmer than console chrome, higher contrast. */
+  .rule-prose {
+    @apply text-[0.9375rem] leading-[1.7] text-foreground/90;
+  }
+
+  .rule-prose strong {
+    @apply font-semibold text-ochre;
   }
 
   /* Diagonal hatching used on panel header strips and dividers. */

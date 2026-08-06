@@ -28,6 +28,7 @@ export type Action = {
   type: string
   cost: number
   description: string
+  requiredFeat: { id: string; name: string } | null
 }
 
 export type Condition = {

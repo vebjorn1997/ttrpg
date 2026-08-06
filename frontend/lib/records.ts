@@ -1,7 +1,7 @@
 /**
  * Normalised shape every dataset is mapped into before it reaches the
- * explorer. Keeping one serialisable record type lets a single Client
- * Component handle search, filtering and both view modes for all eight
+ * rule browser. Keeping one serialisable record type lets a single Client
+ * Component handle search, filtering and list/detail for all eight
  * endpoints, while each page decides how its columns map onto it.
  */
 
@@ -12,12 +12,14 @@ export type RecordTag = {
   description?: string | null
   /** Hex colour from the backend `traits` table, if any. */
   color?: string | null
+  /** Trait id for deep-linking to the traits glossary. */
+  id?: string
 }
 
 export type RecordStat = {
   label: string
   value: string
-  /** Emphasise this stat in the dense table view. */
+  /** Emphasise this stat in dense readouts. */
   primary?: boolean
 }
 
@@ -35,7 +37,20 @@ export type DataRecord = {
   bullets?: string[]
   /** Renders as filled/empty pips, used for action point cost. */
   pips?: { value: number; max: number; label: string } | null
+  /** Trait colour swatch for glossary rows. */
+  swatch?: string | null
 }
+
+/** How the index row and detail panel should present a dataset. */
+export type RuleLayout =
+  | "actions"
+  | "called-shots"
+  | "glossary"
+  | "feats"
+  | "critical-injuries"
+  | "healing"
+  | "npcs"
+  | "traits"
 
 /** Lookup from trait id to trait, for resolving `traits: uuid[]` columns. */
 export function indexTraits(traits: Trait[]): Map<string, Trait> {
@@ -56,7 +71,12 @@ export function traitTags(
     const trait = index.get(id)
     if (!trait) return []
     return [
-      { label: trait.name, description: trait.description, color: trait.color },
+      {
+        label: trait.name,
+        description: trait.description,
+        color: trait.color,
+        id: trait.id,
+      },
     ]
   })
 }
@@ -84,4 +104,21 @@ export function collectGroups(records: DataRecord[]): string[] {
     if (record.group) seen.add(record.group)
   }
   return [...seen]
+}
+
+/** One-line preview for index rows (strips light markup). */
+export function previewText(
+  text: string | null | undefined,
+  max = 110
+): string {
+  if (!text) return ""
+  const plain = text
+    .replace(/<br\s*\/?>/gi, " ")
+    .replace(/\*\*([^*]+)\*\*/g, "$1")
+    .replace(/^[-•]\s+/gm, "")
+    .replace(/\s+/g, " ")
+    .trim()
+
+  if (plain.length <= max) return plain
+  return `${plain.slice(0, max).trimEnd()}…`
 }

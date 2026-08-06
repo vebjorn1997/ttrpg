@@ -4,6 +4,7 @@ import { DatasetView } from "@/components/dataset-view"
 import { getActions } from "@/lib/api"
 import { getModule } from "@/lib/modules"
 import type { DataRecord } from "@/lib/records"
+import { buildRuleLinkCatalog } from "@/lib/rule-links"
 
 const dataset = getModule("actions")
 
@@ -13,7 +14,10 @@ export const metadata: Metadata = {
 }
 
 export default async function ActionsPage() {
-  const result = await getActions()
+  const [result, links] = await Promise.all([
+    getActions(),
+    buildRuleLinkCatalog(),
+  ])
 
   const records: DataRecord[] = (result.data ?? []).map((action) => {
     const isReaction = action.type.toLowerCase() === "reaction"
@@ -32,6 +36,14 @@ export default async function ActionsPage() {
           value: isReaction ? "1 reaction" : `${action.cost} AP`,
           primary: true,
         },
+        ...(action.requiredFeat
+          ? [
+              {
+                label: "Requires",
+                value: action.requiredFeat.name,
+              },
+            ]
+          : []),
       ],
       pips: isReaction
         ? null
@@ -48,7 +60,10 @@ export default async function ActionsPage() {
       module={dataset}
       error={result.error}
       records={records}
+      layout="actions"
       facetLabel="Cost"
+      sectionByGroup
+      links={links}
     />
   )
 }

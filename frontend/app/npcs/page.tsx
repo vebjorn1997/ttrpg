@@ -5,6 +5,7 @@ import { DatasetView } from "@/components/dataset-view"
 import { getNpcs } from "@/lib/api"
 import { getModule } from "@/lib/modules"
 import type { DataRecord } from "@/lib/records"
+import { buildRuleLinkCatalog } from "@/lib/rule-links"
 
 const dataset = getModule("npcs")
 
@@ -14,7 +15,7 @@ export const metadata: Metadata = {
 }
 
 export default async function NpcsPage() {
-  const result = await getNpcs()
+  const [result, links] = await Promise.all([getNpcs(), buildRuleLinkCatalog()])
 
   const records: DataRecord[] = (result.data ?? []).map((npc) => ({
     id: npc.id,
@@ -33,6 +34,7 @@ export default async function NpcsPage() {
       label: trait.name,
       description: trait.description,
       color: trait.color,
+      id: trait.id,
     })),
   }))
 
@@ -41,8 +43,9 @@ export default async function NpcsPage() {
       module={dataset}
       error={result.error}
       records={records}
+      layout="npcs"
       facetLabel="Rank"
-      gridClassName="sm:grid-cols-1 xl:grid-cols-2"
+      links={links}
       footnote={
         <ConsolePanel label="Reading a stat block" code="NOTE" accent="signal">
           <p className="text-sm leading-relaxed text-muted-foreground">

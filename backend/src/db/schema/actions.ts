@@ -6,6 +6,7 @@
 import { pgTable, uuid, integer, varchar, text } from 'drizzle-orm/pg-core';
 import { primaryKey } from 'drizzle-orm/pg-core';
 
+import { featsTable } from './feats';
 import { traitsTable } from './traits';
 
 export const actionsTable = pgTable('actions', {
@@ -14,6 +15,7 @@ export const actionsTable = pgTable('actions', {
     type: varchar({ length: 255 }).notNull(),
     cost: integer().notNull(),
     description: text().notNull(),
+    requiredFeatId: uuid('required_feat_id').references(() => featsTable.id, { onDelete: 'set null' }),
 });
 
 export const actionsTraitsTable = pgTable('action_traits', {

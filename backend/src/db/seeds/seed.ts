@@ -1,6 +1,6 @@
 import 'dotenv/config';
 import { drizzle } from 'drizzle-orm/node-postgres';
-import { inArray } from 'drizzle-orm';
+import { eq, inArray } from 'drizzle-orm';
 import conditions from './conditions';
 import actions from './actions';
 import calledShots from './calledShots';
@@ -22,12 +22,42 @@ const db = drizzle(process.env.DATABASE_URL!);
 
 const seed = async () => {
     await db.insert(conditionsTable).values(conditions).onConflictDoNothing();
-    await db.insert(actionsTable).values(actions).onConflictDoNothing();
+    await db.insert(actionsTable).values(
+        actions.map(({ requiredFeatName: _requiredFeatName, ...action }) => action),
+    ).onConflictDoNothing();
     await db.insert(calledShotsTable).values(calledShots).onConflictDoNothing();
     await db.insert(traitsTable).values(traits).onConflictDoNothing();
     await db.insert(criticalInjuryTable).values(criticalInjury).onConflictDoNothing();
     await db.insert(healingTable).values(healing).onConflictDoNothing();
     await db.insert(featsTable).values(feats).onConflictDoNothing();
+
+    // Resolve action → required feat names to UUIDs and backfill FKs
+    const actionsWithFeat = actions.filter(
+        (action): action is typeof action & { requiredFeatName: string } =>
+            Boolean(action.requiredFeatName),
+    );
+    const actionNames = actionsWithFeat.map((a) => a.name);
+    const featNames = [...new Set(actionsWithFeat.map((a) => a.requiredFeatName))];
+
+    if (actionNames.length) {
+        const [actionRows, featRows] = await Promise.all([
+            db.select().from(actionsTable).where(inArray(actionsTable.name, actionNames)),
+            db.select().from(featsTable).where(inArray(featsTable.name, featNames)),
+        ]);
+
+        const actionIdByName = Object.fromEntries(actionRows.map((a) => [a.name, a.id]));
+        const featIdByName = Object.fromEntries(featRows.map((f) => [f.name, f.id]));
+
+        for (const action of actionsWithFeat) {
+            const actionId = actionIdByName[action.name];
+            const featId = featIdByName[action.requiredFeatName];
+            if (!actionId || !featId) continue;
+            await db
+                .update(actionsTable)
+                .set({ requiredFeatId: featId })
+                .where(eq(actionsTable.id, actionId));
+        }
+    }
 
     // Insert NPCs without trait links (traitNames is seed-only, not a DB column)
     await db.insert(npcCatalogTable).values(

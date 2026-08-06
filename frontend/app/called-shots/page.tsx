@@ -5,6 +5,7 @@ import { DatasetView } from "@/components/dataset-view"
 import { getCalledShots, getTraits } from "@/lib/api"
 import { getModule } from "@/lib/modules"
 import { indexTraits, traitTags, type DataRecord } from "@/lib/records"
+import { buildRuleLinkCatalog } from "@/lib/rule-links"
 
 const dataset = getModule("called-shots")
 
@@ -14,9 +15,10 @@ export const metadata: Metadata = {
 }
 
 export default async function CalledShotsPage() {
-  const [result, traitsResult] = await Promise.all([
+  const [result, traitsResult, links] = await Promise.all([
     getCalledShots(),
     getTraits(),
+    buildRuleLinkCatalog(),
   ])
   const traitIndex = indexTraits(traitsResult.data ?? [])
 
@@ -43,8 +45,9 @@ export default async function CalledShotsPage() {
       module={dataset}
       error={result.error}
       records={records}
+      layout="called-shots"
       facetLabel="Cost"
-      gridClassName="sm:grid-cols-2 xl:grid-cols-4"
+      links={links}
       footnote={
         <ConsolePanel label="Sequencing" code="NOTE" accent="oxide">
           <p className="text-sm leading-relaxed text-muted-foreground">

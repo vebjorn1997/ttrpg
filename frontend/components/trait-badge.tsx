@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link"
 import { Badge } from "@/components/ui/badge"
 import {
   Tooltip,
@@ -32,12 +33,17 @@ export function TraitBadge({
   tag: RecordTag
   className?: string
 }) {
+  const href = tag.id
+    ? `/traits?id=${encodeURIComponent(tag.id)}`
+    : undefined
+
   const badge = (
     <Badge
       variant="outline"
       style={toneFor(tag.color)}
       className={cn(
         "h-5 rounded-none border font-mono text-[0.65rem] tracking-[0.14em] uppercase",
+        href && "transition-colors hover:border-viridian/70 hover:text-viridian",
         className
       )}
     >
@@ -45,7 +51,15 @@ export function TraitBadge({
     </Badge>
   )
 
-  if (!tag.description) return badge
+  const linked = href ? (
+    <Link href={href} className="inline-flex" onClick={(event) => event.stopPropagation()}>
+      {badge}
+    </Link>
+  ) : (
+    badge
+  )
+
+  if (!tag.description) return linked
 
   return (
     <Tooltip>
@@ -53,7 +67,7 @@ export function TraitBadge({
         render={<span className="cursor-help" />}
         aria-label={`${tag.label}: ${tag.description}`}
       >
-        {badge}
+        {linked}
       </TooltipTrigger>
       <TooltipContent className="max-w-xs rounded-none text-left leading-relaxed">
         <span>

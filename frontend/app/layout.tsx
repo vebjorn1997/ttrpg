@@ -23,11 +23,11 @@ const terminal = JetBrains_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "Traveller · Own Universe — Rules Console",
-    template: "%s · Traveller Rules Console",
+    default: "Traveller · Own Universe — Field Manual",
+    template: "%s · Traveller Field Manual",
   },
   description:
-    "Public reference console for a homebrew Traveller 2e ruleset: actions, conditions, called shots, critical injuries, healing, feats, NPCs and traits.",
+    "Public field manual for a homebrew Traveller 2e ruleset: actions, conditions, called shots, critical injuries, healing, feats, NPCs and traits.",
 }
 
 export default function RootLayout({

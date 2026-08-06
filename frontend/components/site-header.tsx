@@ -32,7 +32,7 @@ export function SiteHeader() {
               Traveller
             </span>
             <span className="console-label mt-1 text-muted-foreground">
-              Own Universe · Rules Console
+              Own Universe · Field Manual
             </span>
           </span>
         </Link>
@@ -49,7 +49,7 @@ export function SiteHeader() {
             )}
           >
             <LayoutDashboard className="size-3.5" />
-            Dashboard
+            Manual
           </Link>
         </nav>
 
@@ -87,7 +87,7 @@ export function SiteHeader() {
               >
                 <LayoutDashboard className="size-4 text-ochre" />
                 <span className="font-heading text-sm tracking-wide">
-                  Dashboard
+                  Field Manual
                 </span>
               </Link>
 

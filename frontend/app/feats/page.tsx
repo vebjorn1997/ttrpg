@@ -9,6 +9,7 @@ import {
   type DataRecord,
   type RecordStat,
 } from "@/lib/records"
+import { buildRuleLinkCatalog } from "@/lib/rule-links"
 
 const dataset = getModule("feats")
 
@@ -18,7 +19,11 @@ export const metadata: Metadata = {
 }
 
 export default async function FeatsPage() {
-  const [result, traitsResult] = await Promise.all([getFeats(), getTraits()])
+  const [result, traitsResult, links] = await Promise.all([
+    getFeats(),
+    getTraits(),
+    buildRuleLinkCatalog(),
+  ])
   const traitIndex = indexTraits(traitsResult.data ?? [])
 
   const records: DataRecord[] = (result.data ?? []).map((feat) => {
@@ -50,7 +55,10 @@ export default async function FeatsPage() {
       module={dataset}
       error={result.error}
       records={records}
+      layout="feats"
       facetLabel="Type"
+      sectionByGroup
+      links={links}
     />
   )
 }

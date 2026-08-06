@@ -4,6 +4,7 @@ import { DatasetView } from "@/components/dataset-view"
 import { getConditions, getTraits } from "@/lib/api"
 import { getModule } from "@/lib/modules"
 import { indexTraits, traitTags, type DataRecord } from "@/lib/records"
+import { buildRuleLinkCatalog } from "@/lib/rule-links"
 
 const dataset = getModule("conditions")
 
@@ -13,7 +14,11 @@ export const metadata: Metadata = {
 }
 
 export default async function ConditionsPage() {
-  const [result, traitsResult] = await Promise.all([getConditions(), getTraits()])
+  const [result, traitsResult, links] = await Promise.all([
+    getConditions(),
+    getTraits(),
+    buildRuleLinkCatalog(),
+  ])
   const traitIndex = indexTraits(traitsResult.data ?? [])
 
   const records: DataRecord[] = (result.data ?? []).map((condition) => ({
@@ -23,5 +28,13 @@ export default async function ConditionsPage() {
     tags: traitTags(condition.traits, traitIndex),
   }))
 
-  return <DatasetView module={dataset} error={result.error} records={records} />
+  return (
+    <DatasetView
+      module={dataset}
+      error={result.error}
+      records={records}
+      layout="glossary"
+      links={links}
+    />
+  )
 }

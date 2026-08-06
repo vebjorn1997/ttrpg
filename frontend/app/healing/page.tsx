@@ -4,6 +4,7 @@ import { DatasetView } from "@/components/dataset-view"
 import { getHealing, getTraits } from "@/lib/api"
 import { getModule } from "@/lib/modules"
 import { indexTraits, traitTags, type DataRecord } from "@/lib/records"
+import { buildRuleLinkCatalog } from "@/lib/rule-links"
 
 const dataset = getModule("healing")
 
@@ -13,7 +14,11 @@ export const metadata: Metadata = {
 }
 
 export default async function HealingPage() {
-  const [result, traitsResult] = await Promise.all([getHealing(), getTraits()])
+  const [result, traitsResult, links] = await Promise.all([
+    getHealing(),
+    getTraits(),
+    buildRuleLinkCatalog(),
+  ])
   const traitIndex = indexTraits(traitsResult.data ?? [])
 
   const records: DataRecord[] = (result.data ?? []).map((procedure) => ({
@@ -30,7 +35,8 @@ export default async function HealingPage() {
       module={dataset}
       error={result.error}
       records={records}
-      gridClassName="sm:grid-cols-2 xl:grid-cols-3"
+      layout="healing"
+      links={links}
     />
   )
 }

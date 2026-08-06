@@ -5,6 +5,7 @@ import { DatasetView } from "@/components/dataset-view"
 import { getTraits } from "@/lib/api"
 import { getModule } from "@/lib/modules"
 import type { DataRecord } from "@/lib/records"
+import { buildRuleLinkCatalog } from "@/lib/rule-links"
 
 const dataset = getModule("traits")
 
@@ -14,13 +15,17 @@ export const metadata: Metadata = {
 }
 
 export default async function TraitsPage() {
-  const result = await getTraits()
+  const [result, links] = await Promise.all([
+    getTraits(),
+    buildRuleLinkCatalog(),
+  ])
 
   const records: DataRecord[] = (result.data ?? []).map((trait) => ({
     id: trait.id,
     title: trait.name,
     kicker: "Trait",
     description: trait.description,
+    swatch: trait.color,
   }))
 
   return (
@@ -28,6 +33,8 @@ export default async function TraitsPage() {
       module={dataset}
       error={result.error}
       records={records}
+      layout="traits"
+      links={links}
       footnote={
         <ConsolePanel label="Where traits appear" code="NOTE" accent="viridian">
           <p className="text-sm leading-relaxed text-muted-foreground">
