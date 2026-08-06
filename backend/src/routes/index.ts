@@ -6,8 +6,22 @@ import criticalInjury from './criticalInjury'
 import healing from './healing'
 import feats from './feats'
 import npcCatalog from './npcCatalog'
+import traits from './traits'
 
 const api = new Hono()
+
+export const endpoints = [
+  '/actions',
+  '/conditions',
+  '/called-shots',
+  '/critical-injury',
+  '/healing',
+  '/feats',
+  '/npc-catalog',
+  '/traits',
+] as const
+
+api.get('/', (c) => c.json({ status: 'ok', endpoints }))
 
 api.route('/conditions', conditions)
 api.route('/actions', actions)
@@ -16,5 +30,6 @@ api.route('/critical-injury', criticalInjury)
 api.route('/healing', healing)
 api.route('/feats', feats)
 api.route('/npc-catalog', npcCatalog)
+api.route('/traits', traits)
 
 export default api

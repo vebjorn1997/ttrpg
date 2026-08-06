@@ -1,36 +1,69 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Rules Console — frontend
 
-## Getting Started
+Public, read-only reference site for the homebrew Traveller 2e ruleset held in
+`../backend`. The landing page is a dashboard that links to every dataset the
+API serves; each dataset page offers search, filtering and a dense table view.
 
-First, run the development server:
+## Running it
+
+The site reads from the Hono API in `../backend`, so start that first:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+cd ../backend
+docker compose up -d        # Postgres on :5432
+npm install
+npm run db:push             # sync schema
+npm run db:seed             # load the rules data
+npm run dev                 # API on :5000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Then, in this directory:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npm install
+npm run dev                 # site on :3000
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+If the API is unreachable the site still renders: the dashboard marks the
+affected datasets offline and each page shows the transport error along with the
+commands above.
 
-## Learn More
+## Configuration
 
-To learn more about Next.js, take a look at the following resources:
+| Variable       | Default                 | Purpose                        |
+| -------------- | ----------------------- | ------------------------------ |
+| `API_BASE_URL` | `http://localhost:5000` | Base URL of the rules API      |
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Copy `.env.example` to `.env.local` to override it.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## How it fits together
 
-## Deploy on Vercel
+Data is fetched in Server Components, so the browser never calls the API
+directly and no CORS round trip is involved (the backend also sends
+`Access-Control-Allow-Origin: *` for anyone who wants to read it directly).
+Pages are server-rendered on demand so the site always reflects the current
+database.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+| Path                    | Endpoint           |
+| ----------------------- | ------------------ |
+| `/`                     | dashboard, reads all of the below |
+| `/actions`              | `/actions`         |
+| `/conditions`           | `/conditions`      |
+| `/called-shots`         | `/called-shots`    |
+| `/critical-injuries`    | `/critical-injury` |
+| `/healing`              | `/healing`         |
+| `/feats`                | `/feats`           |
+| `/npcs`                 | `/npc-catalog`     |
+| `/traits`               | `/traits`          |
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Key modules:
+
+- `lib/api.ts` — typed fetchers; never throw, return `{ ok, data, error }`.
+- `lib/modules.ts` — single registry of datasets driving the dashboard, the
+  navigation rail, the footer and each page header.
+- `lib/records.ts` — the normalised `DataRecord` shape every dataset maps onto.
+- `components/data-explorer.tsx` — client-side search, filter and view switching.
+- `components/ui/` — shadcn components; everything else in `components/` is
+  bespoke console chrome.
+
+Add more shadcn primitives with `npx shadcn@latest add <name>`.

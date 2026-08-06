@@ -1,0 +1,206 @@
+import {
+  Activity,
+  Award,
+  Crosshair,
+  HeartPulse,
+  Skull,
+  Swords,
+  Tags,
+  Users,
+  type LucideIcon,
+} from "lucide-react"
+
+import type { ModuleId } from "@/lib/api"
+
+/** Signal colour assigned to each subsystem, used for borders/badges/icons. */
+export type Accent = "ochre" | "signal" | "oxide" | "viridian"
+
+export type DataModule = {
+  id: ModuleId
+  /** Short designation shown in the console chrome, e.g. "ACT". */
+  code: string
+  title: string
+  /** Frontend route. */
+  href: string
+  /** Backend route this page reads from. */
+  endpoint: string
+  /** One-line description for dashboard tiles. */
+  synopsis: string
+  /** Longer description for the page header. */
+  detail: string
+  /** Noun for a single row, e.g. "action". */
+  unit: string
+  /** Plural of `unit`; spelled out because several are irregular. */
+  units: string
+  icon: LucideIcon
+  accent: Accent
+}
+
+export const dataModules: DataModule[] = [
+  {
+    id: "actions",
+    code: "ACT",
+    title: "Actions & Reactions",
+    href: "/actions",
+    endpoint: "/actions",
+    synopsis: "Turn economy: every action by cost, plus the reaction list.",
+    detail:
+      "Each combatant spends three action points per turn and may take a single reaction per round. Costs below are the action point price; reactions cost nothing but consume your one reaction.",
+    unit: "action",
+    units: "actions",
+    icon: Swords,
+    accent: "ochre",
+  },
+  {
+    id: "conditions",
+    code: "CND",
+    title: "Conditions",
+    href: "/conditions",
+    endpoint: "/conditions",
+    synopsis: "Status effects, cover states and the rules they impose.",
+    detail:
+      "Conditions stack unless a description says otherwise. Values written with an X — Stunned X, Fatigued X — scale with whatever inflicted them.",
+    unit: "condition",
+    units: "conditions",
+    icon: Activity,
+    accent: "signal",
+  },
+  {
+    id: "called-shots",
+    code: "CLS",
+    title: "Called Shots",
+    href: "/called-shots",
+    endpoint: "/called-shots",
+    synopsis: "Hit locations with their action cost and to-hit penalty.",
+    detail:
+      "Called shots trade accuracy for effect. Pay the action cost, accept the penalty to your attack roll, and apply the location effect on a hit.",
+    unit: "location",
+    units: "locations",
+    icon: Crosshair,
+    accent: "oxide",
+  },
+  {
+    id: "critical-injuries",
+    code: "CRT",
+    title: "Critical Injuries",
+    href: "/critical-injuries",
+    endpoint: "/critical-injury",
+    synopsis: "Lasting wounds, grouped by the characteristic they cripple.",
+    detail:
+      "When a characteristic is driven to zero, roll a critical injury against it. These persist until properly treated — first aid will not clear them.",
+    unit: "injury",
+    units: "injuries",
+    icon: Skull,
+    accent: "oxide",
+  },
+  {
+    id: "healing",
+    code: "MED",
+    title: "Healing & Medical",
+    href: "/healing",
+    endpoint: "/healing",
+    synopsis: "Recovery procedures and what each one costs in time or care.",
+    detail:
+      "Recovery methods do not combine: a patient under hospital care does not also gain natural healing for that day.",
+    unit: "procedure",
+    units: "procedures",
+    icon: HeartPulse,
+    accent: "viridian",
+  },
+  {
+    id: "feats",
+    code: "FTS",
+    title: "Feats",
+    href: "/feats",
+    endpoint: "/feats",
+    synopsis: "Combat and general feats with their skill prerequisites.",
+    detail:
+      "Most combat feats unlock an action you otherwise cannot take. General feats grant out-of-combat leverage. Prerequisites list the minimum skill level required.",
+    unit: "feat",
+    units: "feats",
+    icon: Award,
+    accent: "ochre",
+  },
+  {
+    id: "npcs",
+    code: "NPC",
+    title: "NPC Catalog",
+    href: "/npcs",
+    endpoint: "/npc-catalog",
+    synopsis: "Ready-to-run stat blocks with movement, hits, armour and features.",
+    detail:
+      "Rank traits set expectations: Normal opponents carry one or two features, Elites up to five, Legendary any number.",
+    unit: "NPC",
+    units: "NPCs",
+    icon: Users,
+    accent: "signal",
+  },
+  {
+    id: "traits",
+    code: "TRT",
+    title: "Traits Index",
+    href: "/traits",
+    endpoint: "/traits",
+    synopsis: "Shared tag glossary for weapons, gear and NPC ranks.",
+    detail:
+      "Traits are the vocabulary the rest of the system reuses. Weapons, NPC ranks and damage tags all reference these entries.",
+    unit: "trait",
+    units: "traits",
+    icon: Tags,
+    accent: "viridian",
+  },
+]
+
+export const moduleById = Object.fromEntries(
+  dataModules.map((module) => [module.id, module])
+) as Record<ModuleId, DataModule>
+
+export function getModule(id: ModuleId): DataModule {
+  return moduleById[id]
+}
+
+/** Tailwind class sets per accent, kept static so they survive purging. */
+export const accentClasses: Record<
+  Accent,
+  {
+    text: string
+    border: string
+    hoverBorder: string
+    bg: string
+    dot: string
+    glow: string
+  }
+> = {
+  ochre: {
+    text: "text-ochre",
+    border: "border-ochre/45",
+    hoverBorder: "hover:border-ochre/70",
+    bg: "bg-ochre/10",
+    dot: "bg-ochre",
+    glow: "hover:shadow-[0_0_2.5rem_-1rem_var(--ochre)]",
+  },
+  signal: {
+    text: "text-signal",
+    border: "border-signal/45",
+    hoverBorder: "hover:border-signal/70",
+    bg: "bg-signal/10",
+    dot: "bg-signal",
+    glow: "hover:shadow-[0_0_2.5rem_-1rem_var(--signal)]",
+  },
+  oxide: {
+    text: "text-oxide",
+    border: "border-oxide/45",
+    hoverBorder: "hover:border-oxide/70",
+    bg: "bg-oxide/10",
+    dot: "bg-oxide",
+    glow: "hover:shadow-[0_0_2.5rem_-1rem_var(--oxide)]",
+  },
+  viridian: {
+    text: "text-viridian",
+    border: "border-viridian/45",
+    hoverBorder: "hover:border-viridian/70",
+    bg: "bg-viridian/10",
+    dot: "bg-viridian",
+    glow: "hover:shadow-[0_0_2.5rem_-1rem_var(--viridian)]",
+  },
+}
