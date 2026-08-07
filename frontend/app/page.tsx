@@ -23,7 +23,7 @@ export default async function DashboardPage() {
         <div className="grid gap-8 p-6 sm:p-10 lg:grid-cols-[1.6fr_1fr]">
           <div>
             <p className="console-label text-ochre">
-              Homebrew Traveller 2e · Mongoose
+              Homebrew Traveller 2e · Mongoose 
             </p>
             <button></button>
             <h1 className="mt-3 font-heading text-4xl leading-[0.95] font-semibold tracking-[0.06em] uppercase text-glow sm:text-6xl">
