@@ -25,6 +25,7 @@ export default async function DashboardPage() {
             <p className="console-label text-ochre">
               Homebrew Traveller 2e · Mongoose
             </p>
+            <button></button>
             <h1 className="mt-3 font-heading text-4xl leading-[0.95] font-semibold tracking-[0.06em] uppercase text-glow sm:text-6xl">
               Field
               <br />

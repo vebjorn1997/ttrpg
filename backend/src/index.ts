@@ -6,11 +6,13 @@ import api from './routes'
 
 const app = new Hono()
 
-// The rules reference is public read-only data, so any origin may read it.
 app.use('*', cors({ origin: '*', allowMethods: ['GET', 'OPTIONS'] }))
 
 app.route('/', api)
 
-serve({ fetch: app.fetch, port: 5000 })
+// Local dev only — skip this when running inside Lambda
+if (!process.env.AWS_LAMBDA_FUNCTION_NAME) {
+  serve({ fetch: app.fetch, port: 5000 })
+}
 
 export const handler = handle(app)
