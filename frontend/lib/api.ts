@@ -1,10 +1,9 @@
 /**
- * Read-only client for the Traveller rules API (Hono backend, default :5000).
+ * Client for the Traveller rules API (Hono backend, default :5000).
  *
- * Every dataset is public, so requests carry no credentials. Fetches run in
- * Server Components, which means the browser never needs to reach the API
- * directly and a missing backend degrades to an on-screen notice instead of a
- * crashed page.
+ * Catalog datasets are public and read-only. Character sheets support create
+ * via server actions. Fetches run on the server so the browser does not need
+ * direct API access; a missing backend degrades to an on-screen notice.
  */
 
 export const API_BASE_URL = (
@@ -84,6 +83,78 @@ export type Npc = {
   traits: Trait[]
 }
 
+export type CharacteristicPair = {
+  max: number
+  current: number
+}
+
+export type CharacterSkill = {
+  name: string
+  level: number
+}
+
+export type CharacterSummary = {
+  id: string
+  name: string
+  playerName: string | null
+  str: CharacteristicPair
+  dex: CharacteristicPair
+  end: CharacteristicPair
+  armorTotal: number
+}
+
+export type CharacterDetail = {
+  id: string
+  name: string
+  playerName: string | null
+  str: CharacteristicPair
+  dex: CharacteristicPair
+  end: CharacteristicPair
+  int: number
+  soc: number
+  edu: number
+  skills: CharacterSkill[]
+  movement: string | null
+  armor: {
+    total: number
+    bottom: string | null
+    top: string | null
+    outer: string | null
+  }
+  weapons: string[]
+  equipment: string[]
+  credits: number
+  notes: string | null
+  createdAt: string
+  updatedAt: string
+  feats: Feat[]
+  conditions: (Condition & { value: number | null })[]
+  criticalInjuries: (CriticalInjury & { notes: string | null })[]
+}
+
+export type CreateCharacterInput = {
+  name: string
+  playerName?: string | null
+  str: CharacteristicPair
+  dex: CharacteristicPair
+  end: CharacteristicPair
+  int?: number
+  soc?: number
+  edu?: number
+  skills?: CharacterSkill[]
+  movement?: string | null
+  armor?: {
+    total?: number
+    bottom?: string | null
+    top?: string | null
+    outer?: string | null
+  }
+  weapons?: string[]
+  equipment?: string[]
+  credits?: number
+  notes?: string | null
+}
+
 export type ApiResult<T> =
   | { ok: true; data: T; error: null }
   | { ok: false; data: null; error: string }
@@ -140,6 +211,70 @@ export const getHealing = () => getCollection<Healing>("/healing")
 export const getFeats = () => getCollection<Feat>("/feats")
 export const getNpcs = () => getCollection<Npc>("/npc-catalog")
 export const getTraits = () => getCollection<Trait>("/traits")
+export const getCharacters = () => getCollection<CharacterSummary>("/characters")
+
+export async function getCharacter(
+  id: string
+): Promise<ApiResult<CharacterDetail>> {
+  try {
+    const response = await fetch(`${API_BASE_URL}/characters/${id}`, {
+      headers: { accept: "application/json" },
+      cache: "no-store",
+      signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+    })
+
+    if (response.status === 404) {
+      return { ok: false, data: null, error: "Character not found." }
+    }
+
+    if (!response.ok) {
+      return {
+        ok: false,
+        data: null,
+        error: `/characters/${id} responded ${response.status} ${response.statusText}.`,
+      }
+    }
+
+    const payload: unknown = await response.json()
+    return { ok: true, data: payload as CharacterDetail, error: null }
+  } catch (cause) {
+    return { ok: false, data: null, error: describeFailure(cause) }
+  }
+}
+
+export async function createCharacter(
+  input: CreateCharacterInput
+): Promise<ApiResult<CharacterDetail>> {
+  try {
+    const response = await fetch(`${API_BASE_URL}/characters`, {
+      method: "POST",
+      headers: {
+        accept: "application/json",
+        "content-type": "application/json",
+      },
+      cache: "no-store",
+      signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+      body: JSON.stringify(input),
+    })
+
+    const payload: unknown = await response.json().catch(() => null)
+
+    if (!response.ok) {
+      const message =
+        payload &&
+        typeof payload === "object" &&
+        "error" in payload &&
+        typeof (payload as { error: unknown }).error === "string"
+          ? (payload as { error: string }).error
+          : `/characters responded ${response.status} ${response.statusText}.`
+      return { ok: false, data: null, error: message }
+    }
+
+    return { ok: true, data: payload as CharacterDetail, error: null }
+  } catch (cause) {
+    return { ok: false, data: null, error: describeFailure(cause) }
+  }
+}
 
 export type ModuleId =
   | "actions"
@@ -150,6 +285,7 @@ export type ModuleId =
   | "feats"
   | "npcs"
   | "traits"
+  | "characters"
 
 /** Record count per dataset, or null when that dataset could not be read. */
 export type ModuleTelemetry = Record<ModuleId, number | null>
@@ -164,6 +300,7 @@ const collectionLoaders: Record<ModuleId, () => Promise<ApiResult<unknown[]>>> =
     feats: getFeats,
     npcs: getNpcs,
     traits: getTraits,
+    characters: getCharacters,
   }
 
 export type DashboardSnapshot = {

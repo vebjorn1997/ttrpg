@@ -1,6 +1,7 @@
 import {
   Activity,
   Award,
+  ClipboardList,
   Crosshair,
   HeartPulse,
   Skull,
@@ -148,6 +149,20 @@ export const dataModules: DataModule[] = [
     units: "traits",
     icon: Tags,
     accent: "viridian",
+  },
+  {
+    id: "characters",
+    code: "CHR",
+    title: "Character Sheets",
+    href: "/characters",
+    endpoint: "/characters",
+    synopsis: "Player sheets: characteristics, skills, armour and gear.",
+    detail:
+      "Shared sheets for the table. Physical characteristics track current and max — damage lowers current, and a stat at zero means a critical injury.",
+    unit: "character",
+    units: "characters",
+    icon: ClipboardList,
+    accent: "ochre",
   },
 ]
 

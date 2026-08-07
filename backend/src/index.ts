@@ -6,7 +6,13 @@ import api from './routes'
 
 const app = new Hono()
 
-app.use('*', cors({ origin: '*', allowMethods: ['GET', 'OPTIONS'] }))
+app.use(
+  '*',
+  cors({
+    origin: '*',
+    allowMethods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'OPTIONS'],
+  }),
+)
 
 app.route('/', api)
 

@@ -1,0 +1,1722 @@
+{
+  "version": "8",
+  "dialect": "postgres",
+  "id": "a04b7453-d556-43b2-a831-e19007c5237d",
+  "prevIds": [
+    "b1983421-87ce-45c5-8d73-cec7662b5a79"
+  ],
+  "ddl": [
+    {
+      "isRlsEnabled": false,
+      "name": "actions",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "action_traits",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "called_shots",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "character_conditions",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "character_critical_injuries",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "character_feats",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "characters",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "conditions",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "conditions_traits",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "critical_injury",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "feats",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "feats_traits",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "healing",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "npc_catalog",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "npc_catalog_traits",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "traits",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "gen_random_uuid()",
+      "generated": null,
+      "identity": null,
+      "name": "id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "actions"
+    },
+    {
+      "type": "varchar(255)",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "name",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "actions"
+    },
+    {
+      "type": "varchar(255)",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "type",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "actions"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "cost",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "actions"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "description",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "actions"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "required_feat_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "actions"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "action_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "action_traits"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "trait_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "action_traits"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "gen_random_uuid()",
+      "generated": null,
+      "identity": null,
+      "name": "id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "called_shots"
+    },
+    {
+      "type": "varchar(255)",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "location",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "called_shots"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "cost",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "called_shots"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "penalty",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "called_shots"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "description",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "called_shots"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 1,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "traits",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "called_shots"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "character_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "character_conditions"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "condition_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "character_conditions"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "value",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "character_conditions"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "character_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "character_critical_injuries"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "critical_injury_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "character_critical_injuries"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "notes",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "character_critical_injuries"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "character_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "character_feats"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "feat_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "character_feats"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "gen_random_uuid()",
+      "generated": null,
+      "identity": null,
+      "name": "id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "characters"
+    },
+    {
+      "type": "varchar(255)",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "name",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "characters"
+    },
+    {
+      "type": "varchar(255)",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "player_name",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "characters"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "str_max",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "characters"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "str_current",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "characters"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "dex_max",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "characters"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "dex_current",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "characters"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "end_max",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "characters"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "end_current",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "characters"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "0",
+      "generated": null,
+      "identity": null,
+      "name": "int",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "characters"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "0",
+      "generated": null,
+      "identity": null,
+      "name": "soc",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "characters"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "0",
+      "generated": null,
+      "identity": null,
+      "name": "edu",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "characters"
+    },
+    {
+      "type": "jsonb",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "'[]'",
+      "generated": null,
+      "identity": null,
+      "name": "skills",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "characters"
+    },
+    {
+      "type": "varchar(255)",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "movement",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "characters"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "0",
+      "generated": null,
+      "identity": null,
+      "name": "armor_total",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "characters"
+    },
+    {
+      "type": "varchar(255)",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "armor_bottom",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "characters"
+    },
+    {
+      "type": "varchar(255)",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "armor_top",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "characters"
+    },
+    {
+      "type": "varchar(255)",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "armor_outer",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "characters"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 1,
+      "default": "'{}'",
+      "generated": null,
+      "identity": null,
+      "name": "weapons",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "characters"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 1,
+      "default": "'{}'",
+      "generated": null,
+      "identity": null,
+      "name": "equipment",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "characters"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "0",
+      "generated": null,
+      "identity": null,
+      "name": "credits",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "characters"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "notes",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "characters"
+    },
+    {
+      "type": "timestamp with time zone",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "now()",
+      "generated": null,
+      "identity": null,
+      "name": "created_at",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "characters"
+    },
+    {
+      "type": "timestamp with time zone",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "now()",
+      "generated": null,
+      "identity": null,
+      "name": "updated_at",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "characters"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "gen_random_uuid()",
+      "generated": null,
+      "identity": null,
+      "name": "id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "conditions"
+    },
+    {
+      "type": "varchar(255)",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "name",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "conditions"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "description",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "conditions"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 1,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "traits",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "conditions"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "condition_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "conditions_traits"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "trait_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "conditions_traits"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "gen_random_uuid()",
+      "generated": null,
+      "identity": null,
+      "name": "id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "critical_injury"
+    },
+    {
+      "type": "varchar(255)",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "name",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "critical_injury"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "description",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "critical_injury"
+    },
+    {
+      "type": "varchar(255)",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "characteristic",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "critical_injury"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 1,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "traits",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "critical_injury"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "gen_random_uuid()",
+      "generated": null,
+      "identity": null,
+      "name": "id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "feats"
+    },
+    {
+      "type": "varchar(255)",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "name",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "feats"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "description",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "feats"
+    },
+    {
+      "type": "varchar(255)",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "type",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "feats"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "prerequisites",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "feats"
+    },
+    {
+      "type": "varchar(255)",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "cost",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "feats"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 1,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "traits",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "feats"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "feat_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "feats_traits"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "trait_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "feats_traits"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "gen_random_uuid()",
+      "generated": null,
+      "identity": null,
+      "name": "id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "healing"
+    },
+    {
+      "type": "varchar(255)",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "name",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "healing"
+    },
+    {
+      "type": "varchar(255)",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "cost",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "healing"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "description",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "healing"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 1,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "traits",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "healing"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "gen_random_uuid()",
+      "generated": null,
+      "identity": null,
+      "name": "id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "npc_catalog"
+    },
+    {
+      "type": "varchar(255)",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "name",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "npc_catalog"
+    },
+    {
+      "type": "varchar(255)",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "movement",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "npc_catalog"
+    },
+    {
+      "type": "varchar(255)",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "hp",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "npc_catalog"
+    },
+    {
+      "type": "varchar(255)",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "armor",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "npc_catalog"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 1,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "features",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "npc_catalog"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "description",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "npc_catalog"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 1,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "traits",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "npc_catalog"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "npc_catalog_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "npc_catalog_traits"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "trait_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "npc_catalog_traits"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "gen_random_uuid()",
+      "generated": null,
+      "identity": null,
+      "name": "id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "traits"
+    },
+    {
+      "type": "varchar(255)",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "name",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "traits"
+    },
+    {
+      "type": "varchar(255)",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "'#420D09'",
+      "generated": null,
+      "identity": null,
+      "name": "color",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "traits"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "description",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "traits"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "required_feat_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "feats",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "SET NULL",
+      "name": "actions_required_feat_id_feats_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "actions"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "action_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "actions",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "action_traits_action_id_actions_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "action_traits"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "trait_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "traits",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "action_traits_trait_id_traits_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "action_traits"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "character_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "characters",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "character_conditions_character_id_characters_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "character_conditions"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "condition_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "conditions",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "character_conditions_condition_id_conditions_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "character_conditions"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "character_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "characters",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "character_critical_injuries_character_id_characters_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "character_critical_injuries"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "critical_injury_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "critical_injury",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "character_critical_injuries_B78hEotx1fQx_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "character_critical_injuries"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "character_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "characters",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "character_feats_character_id_characters_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "character_feats"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "feat_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "feats",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "character_feats_feat_id_feats_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "character_feats"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "condition_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "conditions",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "conditions_traits_condition_id_conditions_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "conditions_traits"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "trait_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "traits",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "conditions_traits_trait_id_traits_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "conditions_traits"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "feat_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "feats",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "feats_traits_feat_id_feats_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "feats_traits"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "trait_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "traits",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "feats_traits_trait_id_traits_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "feats_traits"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "npc_catalog_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "npc_catalog",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "npc_catalog_traits_npc_catalog_id_npc_catalog_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "npc_catalog_traits"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "trait_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "traits",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "npc_catalog_traits_trait_id_traits_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "npc_catalog_traits"
+    },
+    {
+      "columns": [
+        "action_id",
+        "trait_id"
+      ],
+      "nameExplicit": false,
+      "name": "action_traits_pkey",
+      "entityType": "pks",
+      "schema": "public",
+      "table": "action_traits"
+    },
+    {
+      "columns": [
+        "character_id",
+        "condition_id"
+      ],
+      "nameExplicit": false,
+      "name": "character_conditions_pkey",
+      "entityType": "pks",
+      "schema": "public",
+      "table": "character_conditions"
+    },
+    {
+      "columns": [
+        "character_id",
+        "critical_injury_id"
+      ],
+      "nameExplicit": false,
+      "name": "character_critical_injuries_pkey",
+      "entityType": "pks",
+      "schema": "public",
+      "table": "character_critical_injuries"
+    },
+    {
+      "columns": [
+        "character_id",
+        "feat_id"
+      ],
+      "nameExplicit": false,
+      "name": "character_feats_pkey",
+      "entityType": "pks",
+      "schema": "public",
+      "table": "character_feats"
+    },
+    {
+      "columns": [
+        "condition_id",
+        "trait_id"
+      ],
+      "nameExplicit": false,
+      "name": "conditions_traits_pkey",
+      "entityType": "pks",
+      "schema": "public",
+      "table": "conditions_traits"
+    },
+    {
+      "columns": [
+        "feat_id",
+        "trait_id"
+      ],
+      "nameExplicit": false,
+      "name": "feats_traits_pkey",
+      "entityType": "pks",
+      "schema": "public",
+      "table": "feats_traits"
+    },
+    {
+      "columns": [
+        "npc_catalog_id",
+        "trait_id"
+      ],
+      "nameExplicit": false,
+      "name": "npc_catalog_traits_pkey",
+      "entityType": "pks",
+      "schema": "public",
+      "table": "npc_catalog_traits"
+    },
+    {
+      "columns": [
+        "id"
+      ],
+      "nameExplicit": false,
+      "name": "actions_pkey",
+      "schema": "public",
+      "table": "actions",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        "id"
+      ],
+      "nameExplicit": false,
+      "name": "called_shots_pkey",
+      "schema": "public",
+      "table": "called_shots",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        "id"
+      ],
+      "nameExplicit": false,
+      "name": "characters_pkey",
+      "schema": "public",
+      "table": "characters",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        "id"
+      ],
+      "nameExplicit": false,
+      "name": "conditions_pkey",
+      "schema": "public",
+      "table": "conditions",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        "id"
+      ],
+      "nameExplicit": false,
+      "name": "critical_injury_pkey",
+      "schema": "public",
+      "table": "critical_injury",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        "id"
+      ],
+      "nameExplicit": false,
+      "name": "feats_pkey",
+      "schema": "public",
+      "table": "feats",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        "id"
+      ],
+      "nameExplicit": false,
+      "name": "healing_pkey",
+      "schema": "public",
+      "table": "healing",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        "id"
+      ],
+      "nameExplicit": false,
+      "name": "npc_catalog_pkey",
+      "schema": "public",
+      "table": "npc_catalog",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        "id"
+      ],
+      "nameExplicit": false,
+      "name": "traits_pkey",
+      "schema": "public",
+      "table": "traits",
+      "entityType": "pks"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "name"
+      ],
+      "nullsNotDistinct": false,
+      "name": "actions_name_key",
+      "schema": "public",
+      "table": "actions",
+      "entityType": "uniques"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "location"
+      ],
+      "nullsNotDistinct": false,
+      "name": "called_shots_location_key",
+      "schema": "public",
+      "table": "called_shots",
+      "entityType": "uniques"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "name"
+      ],
+      "nullsNotDistinct": false,
+      "name": "conditions_name_key",
+      "schema": "public",
+      "table": "conditions",
+      "entityType": "uniques"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "name"
+      ],
+      "nullsNotDistinct": false,
+      "name": "critical_injury_name_key",
+      "schema": "public",
+      "table": "critical_injury",
+      "entityType": "uniques"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "name"
+      ],
+      "nullsNotDistinct": false,
+      "name": "feats_name_key",
+      "schema": "public",
+      "table": "feats",
+      "entityType": "uniques"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "name"
+      ],
+      "nullsNotDistinct": false,
+      "name": "healing_name_key",
+      "schema": "public",
+      "table": "healing",
+      "entityType": "uniques"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "name"
+      ],
+      "nullsNotDistinct": false,
+      "name": "npc_catalog_name_key",
+      "schema": "public",
+      "table": "npc_catalog",
+      "entityType": "uniques"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "name"
+      ],
+      "nullsNotDistinct": false,
+      "name": "traits_name_key",
+      "schema": "public",
+      "table": "traits",
+      "entityType": "uniques"
+    }
+  ],
+  "renames": []
+}

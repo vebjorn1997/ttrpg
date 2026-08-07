@@ -1,0 +1,54 @@
+import type { Metadata } from "next"
+import Link from "next/link"
+import { ChevronRight } from "lucide-react"
+
+import { CharacterCreateForm } from "@/components/character-create-form"
+import { ConsolePanel } from "@/components/console-panel"
+import { CornerBrackets } from "@/components/corner-brackets"
+import { getModule } from "@/lib/modules"
+
+const dataset = getModule("characters")
+
+export const metadata: Metadata = {
+  title: `New · ${dataset.title}`,
+  description: "File a new player character sheet.",
+}
+
+export default function NewCharacterPage() {
+  return (
+    <div className="space-y-6">
+      <section className="relative border border-hairline bg-card/50 p-5 sm:p-6">
+        <CornerBrackets />
+        <nav
+          aria-label="Breadcrumb"
+          className="console-label flex items-center gap-1.5 text-muted-foreground"
+        >
+          <Link href="/" className="transition-colors hover:text-ochre">
+            Field manual
+          </Link>
+          <ChevronRight aria-hidden className="size-3" />
+          <Link
+            href="/characters"
+            className="transition-colors hover:text-ochre"
+          >
+            {dataset.code}
+          </Link>
+          <ChevronRight aria-hidden className="size-3" />
+          <span className="text-ochre">NEW</span>
+        </nav>
+        <h1 className="mt-4 font-heading text-2xl font-semibold tracking-wide uppercase sm:text-3xl">
+          New character sheet
+        </h1>
+        <p className="mt-2 max-w-2xl text-sm leading-relaxed text-foreground/75">
+          Set max physicals first — current defaults to max. Skills are one
+          per line as{" "}
+          <span className="font-mono text-foreground">Name level</span>.
+        </p>
+      </section>
+
+      <ConsolePanel label="Sheet intake" code="CHR · CREATE" brackets>
+        <CharacterCreateForm />
+      </ConsolePanel>
+    </div>
+  )
+}
