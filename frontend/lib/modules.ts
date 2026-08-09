@@ -182,6 +182,7 @@ export const accentClasses: Record<
     border: string
     hoverBorder: string
     bg: string
+    hoverBg: string
     dot: string
     glow: string
   }
@@ -191,6 +192,7 @@ export const accentClasses: Record<
     border: "border-ochre/45",
     hoverBorder: "hover:border-ochre/70",
     bg: "bg-ochre/10",
+    hoverBg: "hover:bg-ochre/18 focus-visible:bg-ochre/18",
     dot: "bg-ochre",
     glow: "hover:shadow-[0_0_2.5rem_-1rem_var(--ochre)]",
   },
@@ -199,6 +201,7 @@ export const accentClasses: Record<
     border: "border-signal/45",
     hoverBorder: "hover:border-signal/70",
     bg: "bg-signal/10",
+    hoverBg: "hover:bg-signal/18 focus-visible:bg-signal/18",
     dot: "bg-signal",
     glow: "hover:shadow-[0_0_2.5rem_-1rem_var(--signal)]",
   },
@@ -207,6 +210,7 @@ export const accentClasses: Record<
     border: "border-oxide/45",
     hoverBorder: "hover:border-oxide/70",
     bg: "bg-oxide/10",
+    hoverBg: "hover:bg-oxide/18 focus-visible:bg-oxide/18",
     dot: "bg-oxide",
     glow: "hover:shadow-[0_0_2.5rem_-1rem_var(--oxide)]",
   },
@@ -215,6 +219,7 @@ export const accentClasses: Record<
     border: "border-viridian/45",
     hoverBorder: "hover:border-viridian/70",
     bg: "bg-viridian/10",
+    hoverBg: "hover:bg-viridian/18 focus-visible:bg-viridian/18",
     dot: "bg-viridian",
     glow: "hover:shadow-[0_0_2.5rem_-1rem_var(--viridian)]",
   },

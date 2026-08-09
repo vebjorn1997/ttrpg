@@ -43,6 +43,7 @@ export function RuleIndexRow({
   const tone = accentClasses[accent]
   const preview = previewText(record.description)
   const primaryStat = record.stats?.find((stat) => stat.primary) ?? record.stats?.[0]
+  const highlighted = Boolean(record.highlight)
 
   return (
     <button
@@ -51,8 +52,13 @@ export function RuleIndexRow({
       aria-current={selected ? "true" : undefined}
       className={cn(
         "flex w-full items-start gap-3 border-b border-hairline px-3 py-2.5 text-left transition-colors",
-        "hover:bg-card/80 focus-visible:bg-card/80 focus-visible:outline-none",
-        selected ? cn("bg-card", tone.border, "border-l-2") : "border-l-2 border-l-transparent"
+        "focus-visible:outline-none",
+        highlighted
+          ? cn(tone.bg, tone.hoverBg)
+          : "hover:bg-card/80 focus-visible:bg-card/80",
+        selected
+          ? cn(highlighted ? undefined : "bg-card", tone.border, "border-l-2")
+          : "border-l-2 border-l-transparent"
       )}
     >
       <span className="console-label mt-0.5 w-5 shrink-0 text-muted-foreground/60">

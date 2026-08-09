@@ -39,6 +39,11 @@ export type DataRecord = {
   pips?: { value: number; max: number; label: string } | null
   /** Trait colour swatch for glossary rows. */
   swatch?: string | null
+  /**
+   * Soft accent wash on the index row / detail pane.
+   * Used for basic actions (no feat prerequisite).
+   */
+  highlight?: boolean
 }
 
 /** How the index row and detail panel should present a dataset. */

@@ -21,15 +21,17 @@ export default async function ActionsPage() {
 
   const records: DataRecord[] = (result.data ?? []).map((action) => {
     const isReaction = action.type.toLowerCase() === "reaction"
+    const isBasic = !action.requiredFeat
 
     return {
       id: action.id,
       title: action.name,
-      kicker: isReaction ? "Reaction" : "Action",
+      kicker: isReaction ? "Reaction" : isBasic ? "Basic action" : "Action",
       group: isReaction
         ? "Reaction"
         : `${action.cost} ${action.cost === 1 ? "point" : "points"}`,
       description: action.description,
+      highlight: isBasic,
       stats: [
         {
           label: "Cost",

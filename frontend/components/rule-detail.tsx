@@ -28,7 +28,12 @@ export function RuleDetail({
   const isGlossary = layout === "glossary" || layout === "traits"
 
   return (
-    <article className="flex h-full flex-col">
+    <article
+      className={cn(
+        "flex h-full flex-col",
+        record.highlight && tone.bg
+      )}
+    >
       <header className="border-b border-hairline px-4 py-4 sm:px-5">
         <div className="flex items-start gap-3">
           {layout === "traits" && record.swatch && HEX.test(record.swatch) && (

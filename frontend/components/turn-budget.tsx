@@ -40,14 +40,23 @@ export function TurnBudget({ actions }: { actions: Action[] }) {
             </span>
           </div>
           <ul className="mt-2.5 flex flex-wrap gap-1">
-            {tier.actions.map((action) => (
-              <li
-                key={action.id}
-                className="border border-hairline px-1.5 py-0.5 text-xs text-foreground/80"
-              >
-                {action.name}
-              </li>
-            ))}
+            {tier.actions.map((action) => {
+              const isBasic = !action.requiredFeat
+              return (
+                <li
+                  key={action.id}
+                  title={isBasic ? "Basic action (no feat required)" : undefined}
+                  className={cn(
+                    "border px-1.5 py-0.5 text-xs",
+                    isBasic
+                      ? "border-ochre/35 bg-ochre/15 text-foreground"
+                      : "border-hairline text-foreground/80"
+                  )}
+                >
+                  {action.name}
+                </li>
+              )
+            })}
           </ul>
         </div>
       ))}
