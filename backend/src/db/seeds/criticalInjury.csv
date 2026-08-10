@@ -1,0 +1,9 @@
+characteristic,name,description
+STR,Shattered Spine,"Partial or Total paralysis. Fully immobilized or hobbled until treated. Up to DM to decide."
+STR,Severed Limb,"Total loss of limb, requires a replacement. Can't use that hand/leg."
+DEX,Destroyed Eyes,"Permanent blinded until replaced."
+DEX,Nerve Damage,"Random twitches in arms, suffer a -4 to anything requiring fine manipulation such as electronics or shooting a gun."
+DEX,Ruptured Eardrum,"Deafened. Off-guard to any check requiring hearing; can't receive verbal commands (Inspiring Speech doesn't work on them) until treated."
+END,Ruptured Artery,"Bleeding upgrades to 2 damage/round, ignoring armor, until treated"
+END,Crushed Trachea,"END check each round or lose one action gasping for air, until treated."
+END,Internal Organ Damage,"Fatigued 1, permanent and stacking with any other Fatigued source, until treated."

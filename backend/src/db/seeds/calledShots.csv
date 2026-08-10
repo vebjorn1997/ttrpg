@@ -1,0 +1,5 @@
+location,cost,penalty,description
+Head,2,-4,"Damage x2, END check or be stunned 5 and prone, and drop everything in hands."
+Vitals,3,-5,"Damage x2, Ignore armor"
+Leg,2,-2,"Hobbled until medical ""treat light wound"". END check or fall prone."
+Arm,2,-2,"Drop weapon/equipment, anything that has to do with that arm. Can't use arm until treated (light wound)."

@@ -1,202 +1,26 @@
-const actions = [
-    {
-      name: 'Move',
-      cost: 1,
-      type: 'action',
-      description: 'Move up to speed',
-    },
-    {
-      name: 'Attack',
-      cost: 1,
-      type: 'action',
-      description: 'Each subsequent attack imposes a Multiple Attack Penalty (MAP) which is an attack penalty of -2/-4 and so on to hit.',
-    },
-    {
-      name: 'Draw/Holster',
-      cost: 1,
-      type: 'action',
-      description: 'Draw or holster any item',
-    },
-    {
-      name: 'Use Item',
-      cost: 1,
-      type: 'action',
-      description: 'Apply stims or combat drugs or similar item',
-    },
-    {
-      name: 'Change Stance',
-      cost: 1,
-      type: 'action',
-      description: 'Prone/Stand/Crouch',
-    },
-    {
-      name: 'Reload (simple)',
-      cost: 1,
-      type: 'action',
-      description: 'Reload Weapon or clear simple jam',
-    },
-    {
-      name: 'Take Cover',
-      cost: 1,
-      type: 'action',
-      description: 'Gives either cover, or heavy cover condition.',
-    },
-    {
-      name: 'Hide',
-      cost: 1,
-      type: 'action',
-      description: 'Successful stealth roll makes you hidden from enemy.',
-    },
-    {
-      name: 'Aim',
-      cost: 1,
-      type: 'action',
-      description: '+1 to hit',
-      requiredFeatName: 'Take Aim',
-    },
-    {
-      name: 'Identify Enemy',
-      cost: 1,
-      type: 'action',
-      description: 'Identify enemy, Recon 8+ or relevant skill (any markings, factions, weapons, feats, or skills of enemy etc...)',
-      requiredFeatName: 'Keen Eye',
-    },
-    {
-      name: 'Reload (complex)',
-      cost: 2,
-      type: 'action',
-      description: 'Reload more complex weapons, or clear complex jams',
-    },
-    {
-      name: 'First Aid',
-      cost: 2,
-      type: 'action',
-      description: 'Provides first aid to someone during combat. Treats a light wound, also cures bleed, also heals/damage target for medic roll effect. Requires medical kit and a successful DM+8 medic roll.',
-    },
-    {
-      name: 'Disengage',
-      cost: 2,
-      type: 'action',
-      description: 'Moves away from enemy without triggering attack of opportunity',
-      requiredFeatName: 'Disengage',
-    },
-    {
-      name: 'Inspiring Speech',
-      cost: 2,
-      type: 'action',
-      description: 'One ally (including self) who can hear you receives a boon die.',
-      requiredFeatName: 'Inspiring Speech',
-    },
-    {
-      name: 'Called Shots',
-      cost: 2,
-      type: 'action',
-      description: 'Target specific hit location (head, hands, legs)',
-      requiredFeatName: 'Called Shot',
-    },
-    {
-      name: 'Grapple',
-      cost: 2,
-      type: 'action',
-      description: 'Makes athletics or melee attack against target. On success, target becomes grabbed until end of your next turn. Crit, target becomes restrained. On crit fail, target escapes and grabs you instead. Subject to MAP.',
-      requiredFeatName: 'Grapple',
-    },
-    {
-      name: 'Disarm',
-      cost: 2,
-      type: 'action',
-      description: 'Makes an attack roll against target. On success, makes target loose any held item, and drop on ground. If crit, you can pick up item or choose where the item lands (up to 6m). If crit fail, you drop your weapon. Subject to MAP.',
-      requiredFeatName: 'Disarm',
-    },
-    {
-      name: 'Charge',
-      cost: 2,
-      type: 'action',
-      description: 'Move & attack, gives a +2 to attack roll',
-      requiredFeatName: 'Charge',
-    },
-    {
-      name: 'Combat Hack',
-      cost: 2,
-      type: 'action',
-      description: 'Can hack any electronic object/enemy at distance (30m). Choose one<br>- Turn object to your side (DM 10+)<br>- Turn object off (DM 8+)<br>- Make object run away (DM 8+)',
-      requiredFeatName: 'Combat Hack',
-    },
-    {
-      name: 'Combat Sprint',
-      cost: 2,
-      type: 'action',
-      description: 'Move 2x, and give Dodge condition',
-      requiredFeatName: 'Combat Sprint',
-    },
-    {
-      name: 'Controlled Burst',
-      cost: 2,
-      type: 'action',
-      description: 'Choose One: <br> - Ignore Cover, or turn Heavy Cover -> Cover <br> - Give a +2 to attack roll, and +2 to damage.',
-      requiredFeatName: 'Controlled Burst',
-    },
-    {
-      name: 'Overwatch',
-      cost: 2,
-      type: 'action',
-      description: 'Requires Auto X. Attacks all enemies in that area when they enter or end their turn in the area (subject to ammo constraints). No MAP.',
-      requiredFeatName: 'Overwatch',
-    },
-    {
-      name: 'Advanced Strike',
-      cost: 3,
-      type: 'action',
-      description: 'Lets you use 2 or 3 actions to make an attack, giving a +1 or +2 to your attack roll.',
-    },
-    {
-      name: 'Full Auto Attack',
-      cost: 3,
-      type: 'action',
-      description: '3x ammo usage, attacks equal to Auto score',
-      requiredFeatName: 'Sustained Fire',
-    },
-    {
-      name: 'Called Shot (Advanced)',
-      cost: 3,
-      type: 'action',
-      description: 'Target specific hit location (head, hands, legs, or Vitals)',
-      requiredFeatName: 'Called Shot (Adv.)',
-    },
-    {
-      name: 'Suppressive Fire',
-      cost: 3,
-      type: 'action',
-      description: 'Targets a 6x6 meters area, any enemy who remains in the area suffers -1 DM to all actions. If enemy is out of cover, suffers an attack by the player subject to a -1 DM, at end of enemy turn.',
-    },
-    {
-      name: 'Dodge',
-      cost: 0,
-      type: 'reaction',
-      description: 'Gives the condition Dodge',
-      requiredFeatName: 'Experienced Brawler',
-    },
-    {
-      name: 'Dive for Cover',
-      cost: 0,
-      type: 'reaction',
-      description: 'Dive up to 2x (Athletics skill) meters to any nearby area, if diving behind cover, also counts as take cover action. Has to be standing.',
-      requiredFeatName: 'Dive for Cover',
-    },
-    {
-      name: 'Parry',
-      cost: 0,
-      type: 'reaction',
-      description: 'In close combat, apply melee skill as negative DM to attack roll.',
-      requiredFeatName: 'Duelist',
-    },
-    {
-      name: 'Attack of Opportunity',
-      cost: 0,
-      type: 'reaction',
-      description: 'Attack any enemy trying to run away from character form melee range. Requires an available reaction, has to make attack with one handed ranged weapon, or melee weapon.',
-      requiredFeatName: 'Opportunist',
-    },
-  ];
+import { loadCsv } from './loadCsv';
+
+type ActionSeed = {
+    name: string;
+    cost: number;
+    type: string;
+    description: string;
+    requiredFeatName?: string;
+};
+
+const actions: ActionSeed[] = loadCsv('actions.csv', import.meta.url).map((row) => {
+    const action: ActionSeed = {
+        name: row.action,
+        cost: Number(row.cost),
+        type: row.type,
+        description: row.description,
+    };
+
+    if (row.requiredFeatName) {
+        action.requiredFeatName = row.requiredFeatName;
+    }
+
+    return action;
+});
 
 export default actions;

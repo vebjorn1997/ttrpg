@@ -1,0 +1,17 @@
+name,description,color
+Heavy,"Heavy weapons require 10+ STR modifier to wield effortlessly. Otherwise, -4 to all attacks.",#420D09
+Super Heavy,"Heavy weapons require 12+ STR modifier to wield effortlessly. Otherwise, -6 to all attacks.",#420D09
+Auto X,Allows for Full Auto Attack action.,#420D09
+Concealable,Gives +2 to conceal any weapon form any search electronic or physical.,#420D09
+Vac Suit X,"Works in space, contains life support. X is the life support x12, so Vac Suit 2 is 24hrs of life support.",#420D09
+Zero-G,"Weapon does not produce any recoil, can be used in <0.1g without any noticeable problems.",#420D09
+Complex Reload,Requires a complex reload skill to reload weapon in combat.,#420D09
+Normal,The most common form of NPC encountered. Regular goons. Will have 1-2 special features.,#420D09
+Elite,"Slightly more rare to encounter. They are upgraded goons, police sergeants, or sicarios. Will have between 1-5 features.",#420D09
+Legendary,"Very unique NPC's, usually vital to the story. Represents strong opponents, capable of outstanding feats. Can have any number of unique features attached.",#420D09
+Fire,"Target takes d3 damage at start of turn, ignore armor (unless outer layer equipped). Can put out fire with END DM6+.",#420D09
+Small,Targeting Small creatures give a -1 DM to hit,#420D09
+Medium,Average sized creature,#420D09
+Large,Targeting Large creatures give a +1 DM to hit,#420D09
+Ancient,A device of the Ancients.,#420D09
+Walker,"This creature is a walker, it walks on two legs.",#420D09
