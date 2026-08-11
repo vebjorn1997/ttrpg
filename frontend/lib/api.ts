@@ -6,6 +6,8 @@
  * not need direct API access; a missing backend degrades to an on-screen notice.
  */
 
+import type { FeatRequirement } from "@/lib/feat-requirements"
+
 export const API_BASE_URL = (
   process.env.API_BASE_URL ??
   process.env.NEXT_PUBLIC_API_BASE_URL ??
@@ -68,6 +70,7 @@ export type Feat = {
   description: string
   type: string
   prerequisites: string | null
+  requirements: FeatRequirement | null
   cost: string
   traits: string[] | null
 }
@@ -149,6 +152,7 @@ export type CreateCharacterInput = {
   soc?: number
   edu?: number
   skills?: CharacterSkill[]
+  featIds?: string[]
   movement?: string | null
   armor?: {
     total?: number

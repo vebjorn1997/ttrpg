@@ -32,6 +32,19 @@ const seed = async () => {
     await db.insert(criticalInjuryTable).values(criticalInjury).onConflictDoNothing();
     await db.insert(healingTable).values(healing).onConflictDoNothing();
     await db.insert(featsTable).values(feats).onConflictDoNothing();
+    // Refresh structured requirements / display text on existing feat rows
+    for (const feat of feats) {
+        await db
+            .update(featsTable)
+            .set({
+                prerequisites: feat.prerequisites,
+                requirements: feat.requirements,
+                description: feat.description,
+                type: feat.type,
+                cost: feat.cost,
+            })
+            .where(eq(featsTable.name, feat.name));
+    }
     await db.insert(skillsTable).values(skills).onConflictDoNothing();
 
     // Resolve action → required feat names to UUIDs and backfill FKs

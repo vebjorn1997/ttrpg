@@ -21,16 +21,23 @@ type PickedSkill = {
 type CharacterSkillPickerProps = {
   catalog: Skill[]
   error?: string | null
+  onChange?: (skills: PickedSkill[]) => void
 }
 
 /** Pick catalog skills + levels for character intake; submits as paired form fields. */
 export function CharacterSkillPicker({
   catalog,
   error,
+  onChange,
 }: CharacterSkillPickerProps) {
   const [picked, setPicked] = useState<PickedSkill[]>([])
   const [pendingName, setPendingName] = useState("")
   const [pendingLevel, setPendingLevel] = useState(0)
+
+  function commit(next: PickedSkill[]) {
+    setPicked(next)
+    onChange?.(next)
+  }
 
   const grouped = useMemo(() => {
     const byChar = new Map<string, Skill[]>()
@@ -53,20 +60,19 @@ export function CharacterSkillPicker({
     const level = Number.isInteger(pendingLevel) && pendingLevel >= 0
       ? pendingLevel
       : 0
-    setPicked((current) =>
-      current.some((skill) => skill.name === pendingName)
-        ? current
-        : [...current, { name: pendingName, level }].sort((a, b) =>
-            a.name.localeCompare(b.name)
-          )
+    if (picked.some((skill) => skill.name === pendingName)) return
+    commit(
+      [...picked, { name: pendingName, level }].sort((a, b) =>
+        a.name.localeCompare(b.name)
+      )
     )
     setPendingName("")
     setPendingLevel(0)
   }
 
   function updateLevel(name: string, level: number) {
-    setPicked((current) =>
-      current.map((skill) =>
+    commit(
+      picked.map((skill) =>
         skill.name === name
           ? { ...skill, level: Number.isFinite(level) && level >= 0 ? level : 0 }
           : skill
@@ -75,7 +81,7 @@ export function CharacterSkillPicker({
   }
 
   function removeSkill(name: string) {
-    setPicked((current) => current.filter((skill) => skill.name !== name))
+    commit(picked.filter((skill) => skill.name !== name))
   }
 
   return (

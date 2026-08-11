@@ -77,6 +77,20 @@ function parseSkills(formData: FormData): CharacterSkill[] | { error: string } {
   return skills
 }
 
+function parseFeatIds(formData: FormData): string[] | { error: string } {
+  const ids = formData
+    .getAll("featId")
+    .filter((value): value is string => typeof value === "string")
+    .map((value) => value.trim())
+    .filter(Boolean)
+
+  const unique = [...new Set(ids)]
+  if (unique.length !== ids.length) {
+    return { error: "A feat was selected more than once." }
+  }
+  return unique
+}
+
 export async function createCharacterAction(
   _prev: CreateCharacterState,
   formData: FormData
@@ -121,6 +135,11 @@ export async function createCharacterAction(
     return { error: skillsResult.error }
   }
 
+  const featIdsResult = parseFeatIds(formData)
+  if ("error" in featIdsResult) {
+    return { error: featIdsResult.error }
+  }
+
   const input: CreateCharacterInput = {
     name,
     playerName: readOptionalString(formData, "playerName"),
@@ -131,6 +150,7 @@ export async function createCharacterAction(
     soc,
     edu,
     skills: skillsResult,
+    featIds: featIdsResult,
     movement: readOptionalString(formData, "movement"),
     armor: {
       total: armorTotal,

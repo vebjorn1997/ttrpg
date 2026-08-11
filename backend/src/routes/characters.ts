@@ -11,6 +11,10 @@ import {
 import { featsTable } from '../db/schema/feats'
 import { conditionsTable } from '../db/schema/conditions'
 import { criticalInjuryTable } from '../db/schema/criticalInjury'
+import {
+  validateFeatSelections,
+  type FeatRequirement,
+} from '../lib/feat-requirements'
 
 const characters = new Hono()
 
@@ -46,6 +50,33 @@ function parseStringArray(value: unknown): string[] | null {
   if (!Array.isArray(value)) return null
   if (!value.every((v) => typeof v === 'string')) return null
   return value
+}
+
+function parseFeatIds(value: unknown): string[] | null {
+  if (value === undefined) return []
+  if (!Array.isArray(value)) return null
+  if (!value.every(isUuid)) return null
+  return [...new Set(value)]
+}
+
+async function loadFeatsByIds(featIds: string[]) {
+  if (featIds.length === 0) return []
+  return db.select().from(featsTable).where(inArray(featsTable.id, featIds))
+}
+
+function assertFeatRequirements(
+  featRows: { name: string; requirements: FeatRequirement | null }[],
+  skills: CharacterSkill[],
+): string | null {
+  const result = validateFeatSelections(
+    featRows.map((feat) => ({
+      name: feat.name,
+      requirements: feat.requirements ?? null,
+    })),
+    skills,
+  )
+  if (result.ok) return null
+  return `Prerequisites not met for: ${result.unmet.join(', ')}`
 }
 
 function clampCurrent(current: number, max: number): number | null {
@@ -230,6 +261,21 @@ characters.post('/', async (c) => {
     return c.json({ error: 'credits must be a non-negative integer' }, 400)
   }
 
+  const featIds = parseFeatIds(b.featIds)
+  if (featIds === null) {
+    return c.json({ error: 'featIds must be an array of UUIDs' }, 400)
+  }
+
+  const featRows = await loadFeatsByIds(featIds)
+  if (featRows.length !== featIds.length) {
+    return c.json({ error: 'One or more feat ids do not exist' }, 400)
+  }
+
+  const requirementError = assertFeatRequirements(featRows, skills)
+  if (requirementError) {
+    return c.json({ error: requirementError }, 400)
+  }
+
   const playerName =
     b.playerName === undefined || b.playerName === null
       ? null
@@ -275,6 +321,12 @@ characters.post('/', async (c) => {
       notes: typeof b.notes === 'string' ? b.notes : null,
     })
     .returning()
+
+  if (featIds.length > 0) {
+    await db.insert(characterFeatsTable).values(
+      featIds.map((featId) => ({ characterId: created.id, featId })),
+    )
+  }
 
   const detail = await loadDetail(created.id)
   return c.json(detail, 201)
@@ -458,7 +510,7 @@ characters.put('/:id/feats', async (c) => {
   if (!isUuid(id)) return c.json({ error: 'Invalid character id' }, 400)
 
   const [existing] = await db
-    .select({ id: charactersTable.id })
+    .select({ id: charactersTable.id, skills: charactersTable.skills })
     .from(charactersTable)
     .where(eq(charactersTable.id, id))
     .limit(1)
@@ -471,25 +523,25 @@ characters.put('/:id/feats', async (c) => {
     return c.json({ error: 'Invalid JSON body' }, 400)
   }
 
-  const featIds = Array.isArray(body)
+  const rawFeatIds = Array.isArray(body)
     ? body
     : body && typeof body === 'object' && Array.isArray((body as { featIds?: unknown }).featIds)
       ? (body as { featIds: unknown[] }).featIds
       : null
 
-  if (!featIds || !featIds.every(isUuid)) {
+  if (!rawFeatIds || !rawFeatIds.every(isUuid)) {
     return c.json({ error: 'Body must be a UUID array or { featIds: UUID[] }' }, 400)
   }
 
-  const uniqueIds = [...new Set(featIds)]
-  if (uniqueIds.length > 0) {
-    const found = await db
-      .select({ id: featsTable.id })
-      .from(featsTable)
-      .where(inArray(featsTable.id, uniqueIds))
-    if (found.length !== uniqueIds.length) {
-      return c.json({ error: 'One or more feat ids do not exist' }, 400)
-    }
+  const uniqueIds = [...new Set(rawFeatIds)]
+  const featRows = await loadFeatsByIds(uniqueIds)
+  if (featRows.length !== uniqueIds.length) {
+    return c.json({ error: 'One or more feat ids do not exist' }, 400)
+  }
+
+  const requirementError = assertFeatRequirements(featRows, existing.skills)
+  if (requirementError) {
+    return c.json({ error: requirementError }, 400)
   }
 
   await db.delete(characterFeatsTable).where(eq(characterFeatsTable.characterId, id))

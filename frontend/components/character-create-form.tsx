@@ -1,16 +1,18 @@
 "use client"
 
-import { useActionState, type ReactNode } from "react"
+import { useActionState, useState, type ReactNode } from "react"
 import Link from "next/link"
 
 import {
   createCharacterAction,
   type CreateCharacterState,
 } from "@/app/characters/actions"
+import { CharacterFeatPicker } from "@/components/character-feat-picker"
 import { CharacterSkillPicker } from "@/components/character-skill-picker"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import type { Skill } from "@/lib/api"
+import type { CharacterSkill, Feat, Skill } from "@/lib/api"
+import { meetsFeatRequirement } from "@/lib/feat-requirements"
 import { cn } from "@/lib/utils"
 
 const fieldClass =
@@ -79,17 +81,50 @@ function CharPair({
   )
 }
 
+function pruneInvalidFeats(
+  featIds: string[],
+  catalog: Feat[],
+  skills: CharacterSkill[]
+): string[] {
+  let next = featIds
+  // Iterate until stable — dropping a feat may invalidate dependents.
+  for (let pass = 0; pass < catalog.length + 1; pass++) {
+    const names = new Set(
+      catalog.filter((feat) => next.includes(feat.id)).map((feat) => feat.name)
+    )
+    const pruned = next.filter((id) => {
+      const feat = catalog.find((row) => row.id === id)
+      if (!feat) return false
+      return meetsFeatRequirement(feat.requirements, skills, names)
+    })
+    if (pruned.length === next.length) return pruned
+    next = pruned
+  }
+  return next
+}
+
 export function CharacterCreateForm({
   skills = [],
   skillsError = null,
+  feats = [],
+  featsError = null,
 }: {
   skills?: Skill[]
   skillsError?: string | null
+  feats?: Feat[]
+  featsError?: string | null
 }) {
   const [state, formAction, pending] = useActionState(
     createCharacterAction,
     initialState
   )
+  const [pickedSkills, setPickedSkills] = useState<CharacterSkill[]>([])
+  const [selectedFeatIds, setSelectedFeatIds] = useState<string[]>([])
+
+  function handleSkillsChange(nextSkills: CharacterSkill[]) {
+    setPickedSkills(nextSkills)
+    setSelectedFeatIds((current) => pruneInvalidFeats(current, feats, nextSkills))
+  }
 
   return (
     <form action={formAction} className="space-y-6">
@@ -211,7 +246,19 @@ export function CharacterCreateForm({
         </div>
       </div>
 
-      <CharacterSkillPicker catalog={skills} error={skillsError} />
+      <CharacterSkillPicker
+        catalog={skills}
+        error={skillsError}
+        onChange={handleSkillsChange}
+      />
+
+      <CharacterFeatPicker
+        catalog={feats}
+        skills={pickedSkills}
+        selectedIds={selectedFeatIds}
+        onChange={setSelectedFeatIds}
+        error={featsError}
+      />
 
       <div className="grid gap-4 sm:grid-cols-2">
         <Field label="Weapons (comma or line separated)">
