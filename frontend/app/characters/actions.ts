@@ -4,11 +4,16 @@ import { redirect } from "next/navigation"
 
 import {
   createCharacter,
+  deleteCharacter,
   type CharacterSkill,
   type CreateCharacterInput,
 } from "@/lib/api"
 
 export type CreateCharacterState = {
+  error: string | null
+}
+
+export type DeleteCharacterState = {
   error: string | null
 }
 
@@ -145,4 +150,21 @@ export async function createCharacterAction(
   }
 
   redirect(`/characters/${result.data.id}`)
+}
+
+export async function deleteCharacterAction(
+  _prev: DeleteCharacterState,
+  formData: FormData
+): Promise<DeleteCharacterState> {
+  const id = formData.get("id")
+  if (typeof id !== "string" || id.trim() === "") {
+    return { error: "Missing character id." }
+  }
+
+  const result = await deleteCharacter(id.trim())
+  if (!result.ok) {
+    return { error: result.error }
+  }
+
+  redirect("/characters")
 }

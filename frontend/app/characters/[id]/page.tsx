@@ -3,6 +3,7 @@ import Link from "next/link"
 import { ChevronRight } from "lucide-react"
 import { notFound } from "next/navigation"
 
+import { CharacterDeleteButton } from "@/components/character-delete-button"
 import { ConsolePanel } from "@/components/console-panel"
 import { CornerBrackets } from "@/components/corner-brackets"
 import { OfflineNotice } from "@/components/offline-notice"
@@ -89,12 +90,18 @@ export default async function CharacterDetailPage({ params }: PageProps) {
               </p>
             )}
           </div>
-          <Link
-            href="/characters"
-            className="console-label inline-flex items-center gap-1.5 text-muted-foreground transition-colors hover:text-ochre"
-          >
-            All sheets
-          </Link>
+          <div className="flex flex-wrap items-center gap-3">
+            <Link
+              href="/characters"
+              className="console-label inline-flex items-center gap-1.5 text-muted-foreground transition-colors hover:text-ochre"
+            >
+              All sheets
+            </Link>
+            <CharacterDeleteButton
+              characterId={character.id}
+              characterName={character.name}
+            />
+          </div>
         </div>
       </section>
 
