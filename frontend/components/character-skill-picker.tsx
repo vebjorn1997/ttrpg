@@ -22,6 +22,7 @@ type CharacterSkillPickerProps = {
   catalog: Skill[]
   error?: string | null
   onChange?: (skills: PickedSkill[]) => void
+  initialSkills?: PickedSkill[]
 }
 
 /** Pick catalog skills + levels for character intake; submits as paired form fields. */
@@ -29,8 +30,11 @@ export function CharacterSkillPicker({
   catalog,
   error,
   onChange,
+  initialSkills = [],
 }: CharacterSkillPickerProps) {
-  const [picked, setPicked] = useState<PickedSkill[]>([])
+  const [picked, setPicked] = useState<PickedSkill[]>(() =>
+    [...initialSkills].sort((a, b) => a.name.localeCompare(b.name))
+  )
   const [pendingName, setPendingName] = useState("")
   const [pendingLevel, setPendingLevel] = useState(0)
 
@@ -97,8 +101,8 @@ export function CharacterSkillPicker({
 
       {error ? (
         <p className="border border-oxide/40 bg-oxide/10 px-3 py-2 text-sm text-oxide">
-          Skill catalog unavailable ({error}). You can still create the sheet
-          without skills.
+          Skill catalog unavailable ({error}). You can still save skills already
+          on the sheet.
         </p>
       ) : catalog.length === 0 ? (
         <p className="text-sm text-muted-foreground">

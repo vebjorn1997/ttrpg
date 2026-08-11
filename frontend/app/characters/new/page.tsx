@@ -46,8 +46,8 @@ export default async function NewCharacterPage() {
           New character sheet
         </h1>
         <p className="mt-2 max-w-2xl text-sm leading-relaxed text-foreground/75">
-          Set max physicals first — current defaults to max. Add skills from the
-          catalog, then pick feats that your skills (and other feats) unlock.
+          Fill the Sheet tab first, then switch to Feats to pick options unlocked
+          by your skills.
         </p>
       </section>
 

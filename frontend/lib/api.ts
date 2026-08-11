@@ -166,6 +166,16 @@ export type CreateCharacterInput = {
   notes?: string | null
 }
 
+/** Partial sheet update — only send fields that should change. */
+export type UpdateCharacterInput = {
+  name?: string
+  strMax?: number
+  dexMax?: number
+  endMax?: number
+  skills?: CharacterSkill[]
+  featIds?: string[]
+}
+
 export type ApiResult<T> =
   | { ok: true; data: T; error: null }
   | { ok: false; data: null; error: string }
@@ -279,6 +289,45 @@ export async function createCharacter(
         typeof (payload as { error: unknown }).error === "string"
           ? (payload as { error: string }).error
           : `/characters responded ${response.status} ${response.statusText}.`
+      return { ok: false, data: null, error: message }
+    }
+
+    return { ok: true, data: payload as CharacterDetail, error: null }
+  } catch (cause) {
+    return { ok: false, data: null, error: describeFailure(cause) }
+  }
+}
+
+export async function updateCharacter(
+  id: string,
+  input: UpdateCharacterInput
+): Promise<ApiResult<CharacterDetail>> {
+  try {
+    const response = await fetch(`${API_BASE_URL}/characters/${id}`, {
+      method: "PATCH",
+      headers: {
+        accept: "application/json",
+        "content-type": "application/json",
+      },
+      cache: "no-store",
+      signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+      body: JSON.stringify(input),
+    })
+
+    const payload: unknown = await response.json().catch(() => null)
+
+    if (response.status === 404) {
+      return { ok: false, data: null, error: "Character not found." }
+    }
+
+    if (!response.ok) {
+      const message =
+        payload &&
+        typeof payload === "object" &&
+        "error" in payload &&
+        typeof (payload as { error: unknown }).error === "string"
+          ? (payload as { error: string }).error
+          : `/characters/${id} responded ${response.status} ${response.statusText}.`
       return { ok: false, data: null, error: message }
     }
 

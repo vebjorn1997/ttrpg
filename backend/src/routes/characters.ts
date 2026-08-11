@@ -389,14 +389,25 @@ characters.patch('/:id', async (c) => {
     return c.json({ error: 'str/dex/end max must be non-negative integers' }, 400)
   }
 
-  const nextStrCurrent =
+  let nextStrCurrent =
     strCurrent === undefined ? existing.strCurrent : asNonNegInt(strCurrent)
-  const nextDexCurrent =
+  let nextDexCurrent =
     dexCurrent === undefined ? existing.dexCurrent : asNonNegInt(dexCurrent)
-  const nextEndCurrent =
+  let nextEndCurrent =
     endCurrent === undefined ? existing.endCurrent : asNonNegInt(endCurrent)
   if (nextStrCurrent === null || nextDexCurrent === null || nextEndCurrent === null) {
     return c.json({ error: 'str/dex/end current must be non-negative integers' }, 400)
+  }
+
+  // When only max is lowered, clamp current so the sheet stays valid.
+  if (strCurrent === undefined && nextStrCurrent > nextStrMax) {
+    nextStrCurrent = nextStrMax
+  }
+  if (dexCurrent === undefined && nextDexCurrent > nextDexMax) {
+    nextDexCurrent = nextDexMax
+  }
+  if (endCurrent === undefined && nextEndCurrent > nextEndMax) {
+    nextEndCurrent = nextEndMax
   }
 
   if (
@@ -500,7 +511,39 @@ characters.patch('/:id', async (c) => {
     updates.notes = b.notes as string | null
   }
 
+  const featIds =
+    b.featIds === undefined ? null : parseFeatIds(b.featIds)
+  if (b.featIds !== undefined && featIds === null) {
+    return c.json({ error: 'featIds must be an array of UUIDs' }, 400)
+  }
+
+  let featRows: Awaited<ReturnType<typeof loadFeatsByIds>> | null = null
+  if (featIds !== null) {
+    featRows = await loadFeatsByIds(featIds)
+    if (featRows.length !== featIds.length) {
+      return c.json({ error: 'One or more feat ids do not exist' }, 400)
+    }
+    const skillsForReqs =
+      updates.skills !== undefined
+        ? (updates.skills as CharacterSkill[])
+        : existing.skills
+    const requirementError = assertFeatRequirements(featRows, skillsForReqs)
+    if (requirementError) {
+      return c.json({ error: requirementError }, 400)
+    }
+  }
+
   await db.update(charactersTable).set(updates).where(eq(charactersTable.id, id))
+
+  if (featIds !== null) {
+    await db.delete(characterFeatsTable).where(eq(characterFeatsTable.characterId, id))
+    if (featIds.length > 0) {
+      await db.insert(characterFeatsTable).values(
+        featIds.map((featId) => ({ characterId: id, featId })),
+      )
+    }
+  }
+
   const detail = await loadDetail(id)
   return c.json(detail)
 })

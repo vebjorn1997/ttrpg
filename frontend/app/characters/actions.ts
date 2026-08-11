@@ -5,11 +5,17 @@ import { redirect } from "next/navigation"
 import {
   createCharacter,
   deleteCharacter,
+  updateCharacter,
   type CharacterSkill,
   type CreateCharacterInput,
+  type UpdateCharacterInput,
 } from "@/lib/api"
 
 export type CreateCharacterState = {
+  error: string | null
+}
+
+export type UpdateCharacterState = {
   error: string | null
 }
 
@@ -165,6 +171,61 @@ export async function createCharacterAction(
   }
 
   const result = await createCharacter(input)
+  if (!result.ok) {
+    return { error: result.error }
+  }
+
+  redirect(`/characters/${result.data.id}`)
+}
+
+export async function updateCharacterAction(
+  _prev: UpdateCharacterState,
+  formData: FormData
+): Promise<UpdateCharacterState> {
+  const id = readOptionalString(formData, "id")
+  if (!id) {
+    return { error: "Missing character id." }
+  }
+
+  const name = readOptionalString(formData, "name")
+  if (!name) {
+    return { error: "Name is required." }
+  }
+
+  const strMax = readInt(formData, "strMax", 7)
+  const dexMax = readInt(formData, "dexMax", 7)
+  const endMax = readInt(formData, "endMax", 7)
+
+  for (const [label, value] of [
+    ["STR max", strMax],
+    ["DEX max", dexMax],
+    ["END max", endMax],
+  ] as const) {
+    if (Number.isNaN(value)) {
+      return { error: `${label} must be a non-negative whole number.` }
+    }
+  }
+
+  const skillsResult = parseSkills(formData)
+  if ("error" in skillsResult) {
+    return { error: skillsResult.error }
+  }
+
+  const featIdsResult = parseFeatIds(formData)
+  if ("error" in featIdsResult) {
+    return { error: featIdsResult.error }
+  }
+
+  const input: UpdateCharacterInput = {
+    name,
+    strMax,
+    dexMax,
+    endMax,
+    skills: skillsResult,
+    featIds: featIdsResult,
+  }
+
+  const result = await updateCharacter(id, input)
   if (!result.ok) {
     return { error: result.error }
   }
