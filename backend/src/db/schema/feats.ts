@@ -8,7 +8,6 @@ export const featsTable = pgTable('feats', {
     type: varchar({ length: 255 }).notNull(),
     prerequisites: text(),
     cost: varchar({ length: 255 }).notNull(),
-    traits: uuid().array(),
 })
 
 export const featsTraitsTable = pgTable('feats_traits', {

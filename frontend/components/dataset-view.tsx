@@ -31,7 +31,7 @@ function BrowserFallback({ unit }: { unit: string }) {
 }
 
 /**
- * Shared frame for the eight dataset pages: header, then either the field
+ * Shared frame for the dataset pages: header, then either the field
  * manual browser or an offline notice. Each page only has to map its API
  * shape onto `DataRecord`.
  */

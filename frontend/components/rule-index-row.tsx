@@ -106,7 +106,8 @@ export function RuleIndexRow({
         {(layout === "glossary" ||
           layout === "traits" ||
           layout === "actions" ||
-          layout === "critical-injuries") &&
+          layout === "critical-injuries" ||
+          layout === "skills") &&
           preview && (
             <p className="mt-0.5 line-clamp-1 text-xs leading-relaxed text-muted-foreground">
               {preview}

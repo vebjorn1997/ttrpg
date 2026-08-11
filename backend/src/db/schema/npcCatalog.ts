@@ -9,7 +9,6 @@ export const npcCatalogTable = pgTable('npc_catalog', {
     armor: varchar({ length: 255 }).notNull(),
     features: text().array().notNull(),
     description: text(),
-    traits: uuid().array(),
 })
 
 export const npcCatalogTraitsTable = pgTable('npc_catalog_traits', {

@@ -8,6 +8,7 @@ import feats from './feats'
 import npcCatalog from './npcCatalog'
 import traits from './traits'
 import characters from './characters'
+import skills from './skills'
 
 const api = new Hono()
 
@@ -18,6 +19,7 @@ export const endpoints = [
   '/critical-injury',
   '/healing',
   '/feats',
+  '/skills',
   '/npc-catalog',
   '/traits',
   '/characters',
@@ -31,6 +33,7 @@ api.route('/called-shots', calledShots)
 api.route('/critical-injury', criticalInjury)
 api.route('/healing', healing)
 api.route('/feats', feats)
+api.route('/skills', skills)
 api.route('/npc-catalog', npcCatalog)
 api.route('/traits', traits)
 api.route('/characters', characters)

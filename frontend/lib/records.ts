@@ -1,7 +1,7 @@
 /**
  * Normalised shape every dataset is mapped into before it reaches the
  * rule browser. Keeping one serialisable record type lets a single Client
- * Component handle search, filtering and list/detail for all eight
+ * Component handle search, filtering and list/detail for all catalog
  * endpoints, while each page decides how its columns map onto it.
  */
 
@@ -55,6 +55,7 @@ export type RuleLayout =
   | "critical-injuries"
   | "healing"
   | "npcs"
+  | "skills"
   | "traits"
 
 /** Lookup from trait id to trait, for resolving `traits: uuid[]` columns. */

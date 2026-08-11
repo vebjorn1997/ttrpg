@@ -1,0 +1,40 @@
+name,description,primaryCharacteristic
+Admin,"Bureaucratic navigation, permits, record searches, and cutting through red tape.",EDU
+Advocate,"Legal knowledge, interpreting laws, contracts, and rights.",INT
+Animals,"Handling, riding, training, and veterinary care for animals.",INT
+Art,"Creative work including performance, writing, visual media, holography, and instruments.",INT
+Astrogation,Jump plotting and safe navigation through jumpspace.,EDU
+Athletics,"Physical activities including lifting, climbing, balance, and stamina.",STR
+Broker,"Buying, selling, and negotiating prices for trade goods and cargo.",SOC
+Carouse,"Socializing, partying, drinking, and blending into local cultures.",END
+Deception,"Bluffing, lying, impersonation, cover stories, and forged credentials.",INT
+Diplomat,"Formal negotiation, peacekeeping, and navigating high-level social encounters.",INT
+Drive,Operating ground vehicles.,DEX
+Electronics,"Computers, sensors, communications, and remote operations.",INT
+Engineer,"Operation and repair of power plants, drives, and ship systems.",INT
+Explosives,"Setting, placing, disarming, and surviving explosive devices and demolition charges.",EDU
+Flyer,Operating atmospheric vehicles.,DEX
+Gambler,"Games of chance, betting, probability, and reading opponents.",INT
+Gun Combat,Personal firearms proficiency.,DEX
+Gunner,Operating ship-mounted weapons in space combat.,DEX
+Heavy Weapons,"Man-portable and larger weapons such as rocket launchers, artillery, and vehicle-mounted weapons.",DEX
+Investigate,"Searching, analyzing clues, interviewing, and connecting evidence.",INT
+Jack of All Trades,Reduces the unskilled penalty when using skills you do not have.,INT
+Language,Communication in specific languages.,EDU
+Leadership,"Command, morale, team cohesion, and keeping a group together under pressure.",SOC
+Mechanic,"General maintenance, repair, and jury-rigging of mechanical systems.",INT
+Medic,"First aid, surgery, trauma care, and emergency medical treatment.",EDU
+Melee,Close-quarters combat.,STR
+Navigation,"Overland, planetary, or space navigation outside of jump plotting.",INT
+Persuade,"Convincing NPCs, diplomacy, charm, rhetoric, and social pressure.",SOC
+Pilot,Operating spacecraft and small craft.,DEX
+Profession,Civilian trades and jobs.,INT
+Recon,"Spotting hidden dangers, scouting, observation, and avoiding ambush.",INT
+Science,Academic and technical fields.,INT
+Seafarer,Operating watercraft.,DEX
+Stealth,"Moving silently, hiding, sneaking, and infiltration.",DEX
+Steward,"Passenger service, hospitality, etiquette, and comfort aboard ship.",EDU
+Streetwise,"Criminal contacts, underworld knowledge, black markets, and urban survival.",INT
+Survival,"Foraging, tracking, shelter, and surviving harsh wilderness environments.",INT
+Tactics,Military or naval combat coordination and planning.,INT
+Vacc Suit,"EVA operations, vacuum survival, and zero-gravity work.",EDU

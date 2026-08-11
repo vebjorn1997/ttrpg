@@ -1,6 +1,7 @@
 import {
   Activity,
   Award,
+  BookOpen,
   ClipboardList,
   Crosshair,
   HeartPulse,
@@ -121,6 +122,20 @@ export const dataModules: DataModule[] = [
     units: "feats",
     icon: Award,
     accent: "ochre",
+  },
+  {
+    id: "skills",
+    code: "SKL",
+    title: "Skills",
+    href: "/skills",
+    endpoint: "/skills",
+    synopsis: "Core skill list grouped by primary characteristic.",
+    detail:
+      "Each skill checks against a primary characteristic. Untrained use typically applies a penalty — Jack of All Trades softens that for skills you do not have.",
+    unit: "skill",
+    units: "skills",
+    icon: BookOpen,
+    accent: "viridian",
   },
   {
     id: "npcs",

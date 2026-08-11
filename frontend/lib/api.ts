@@ -72,6 +72,13 @@ export type Feat = {
   traits: string[] | null
 }
 
+export type Skill = {
+  id: string
+  name: string
+  description: string | null
+  primaryCharacteristic: string
+}
+
 export type Npc = {
   id: string
   name: string
@@ -209,6 +216,7 @@ export const getCriticalInjuries = () =>
   getCollection<CriticalInjury>("/critical-injury")
 export const getHealing = () => getCollection<Healing>("/healing")
 export const getFeats = () => getCollection<Feat>("/feats")
+export const getSkills = () => getCollection<Skill>("/skills")
 export const getNpcs = () => getCollection<Npc>("/npc-catalog")
 export const getTraits = () => getCollection<Trait>("/traits")
 export const getCharacters = () => getCollection<CharacterSummary>("/characters")
@@ -283,6 +291,7 @@ export type ModuleId =
   | "critical-injuries"
   | "healing"
   | "feats"
+  | "skills"
   | "npcs"
   | "traits"
   | "characters"
@@ -298,6 +307,7 @@ const collectionLoaders: Record<ModuleId, () => Promise<ApiResult<unknown[]>>> =
     "critical-injuries": getCriticalInjuries,
     healing: getHealing,
     feats: getFeats,
+    skills: getSkills,
     npcs: getNpcs,
     traits: getTraits,
     characters: getCharacters,

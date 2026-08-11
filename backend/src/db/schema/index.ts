@@ -15,3 +15,4 @@ export {
   characterCriticalInjuriesTable,
 } from './characters';
 export type { CharacterSkill } from './characters';
+export { skillsTable, skillsFeatsTable } from './skills';

@@ -17,6 +17,8 @@ import { healingTable } from '../schema/healing';
 import { featsTable } from '../schema/feats';
 import { traitsTable } from '../schema/traits';
 import { npcCatalogTable, npcCatalogTraitsTable } from '../schema/npcCatalog';
+import skills from './skills';
+import { skillsTable } from '../schema/skills';
 
 const db = drizzle(process.env.DATABASE_URL!);
 
@@ -30,6 +32,7 @@ const seed = async () => {
     await db.insert(criticalInjuryTable).values(criticalInjury).onConflictDoNothing();
     await db.insert(healingTable).values(healing).onConflictDoNothing();
     await db.insert(featsTable).values(feats).onConflictDoNothing();
+    await db.insert(skillsTable).values(skills).onConflictDoNothing();
 
     // Resolve action → required feat names to UUIDs and backfill FKs
     const actionsWithFeat = actions.filter(
