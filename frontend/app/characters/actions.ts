@@ -34,20 +34,41 @@ function parseLineList(value: string | null): string[] {
     .filter(Boolean)
 }
 
-function parseSkills(raw: string | null): CharacterSkill[] | { error: string } {
-  if (!raw) return []
+function parseSkills(formData: FormData): CharacterSkill[] | { error: string } {
+  const names = formData
+    .getAll("skillName")
+    .filter((value): value is string => typeof value === "string")
+    .map((value) => value.trim())
+    .filter(Boolean)
+  const levels = formData.getAll("skillLevel")
+
+  if (names.length === 0) return []
+
   const skills: CharacterSkill[] = []
-  for (const line of raw.split("\n")) {
-    const trimmed = line.trim()
-    if (!trimmed) continue
-    const match = trimmed.match(/^(.+?)\s+(\d+)\s*$/)
-    if (!match) {
+  const seen = new Set<string>()
+
+  for (let i = 0; i < names.length; i++) {
+    const name = names[i]
+    if (seen.has(name)) {
+      return { error: `Skill "${name}" was added more than once.` }
+    }
+    seen.add(name)
+
+    const rawLevel = levels[i]
+    const level =
+      typeof rawLevel === "string" && rawLevel.trim() !== ""
+        ? Number(rawLevel)
+        : NaN
+
+    if (!Number.isInteger(level) || level < 0) {
       return {
-        error: `Skill line "${trimmed}" must look like "Gun 2".`,
+        error: `Skill "${name}" needs a non-negative whole-number level.`,
       }
     }
-    skills.push({ name: match[1].trim(), level: Number(match[2]) })
+
+    skills.push({ name, level })
   }
+
   return skills
 }
 
@@ -90,7 +111,7 @@ export async function createCharacterAction(
     }
   }
 
-  const skillsResult = parseSkills(readOptionalString(formData, "skills"))
+  const skillsResult = parseSkills(formData)
   if ("error" in skillsResult) {
     return { error: skillsResult.error }
   }

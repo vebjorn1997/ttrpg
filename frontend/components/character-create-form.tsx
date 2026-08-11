@@ -7,8 +7,10 @@ import {
   createCharacterAction,
   type CreateCharacterState,
 } from "@/app/characters/actions"
+import { CharacterSkillPicker } from "@/components/character-skill-picker"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import type { Skill } from "@/lib/api"
 import { cn } from "@/lib/utils"
 
 const fieldClass =
@@ -77,7 +79,13 @@ function CharPair({
   )
 }
 
-export function CharacterCreateForm() {
+export function CharacterCreateForm({
+  skills = [],
+  skillsError = null,
+}: {
+  skills?: Skill[]
+  skillsError?: string | null
+}) {
   const [state, formAction, pending] = useActionState(
     createCharacterAction,
     initialState
@@ -203,17 +211,7 @@ export function CharacterCreateForm() {
         </div>
       </div>
 
-      <Field label='Skills (one per line: "Gun 2")'>
-        <textarea
-          name="skills"
-          rows={4}
-          placeholder={"Gun 2\nAthletics 1\nMedic 0"}
-          className={cn(
-            fieldClass,
-            "min-h-24 w-full resize-y px-2.5 py-2 outline-none focus-visible:ring-3"
-          )}
-        />
-      </Field>
+      <CharacterSkillPicker catalog={skills} error={skillsError} />
 
       <div className="grid gap-4 sm:grid-cols-2">
         <Field label="Weapons (comma or line separated)">

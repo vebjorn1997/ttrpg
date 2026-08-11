@@ -5,6 +5,7 @@ import { ChevronRight } from "lucide-react"
 import { CharacterCreateForm } from "@/components/character-create-form"
 import { ConsolePanel } from "@/components/console-panel"
 import { CornerBrackets } from "@/components/corner-brackets"
+import { getSkills } from "@/lib/api"
 import { getModule } from "@/lib/modules"
 
 const dataset = getModule("characters")
@@ -14,7 +15,9 @@ export const metadata: Metadata = {
   description: "File a new player character sheet.",
 }
 
-export default function NewCharacterPage() {
+export default async function NewCharacterPage() {
+  const skillsResult = await getSkills()
+
   return (
     <div className="space-y-6">
       <section className="relative border border-hairline bg-card/50 p-5 sm:p-6">
@@ -40,14 +43,16 @@ export default function NewCharacterPage() {
           New character sheet
         </h1>
         <p className="mt-2 max-w-2xl text-sm leading-relaxed text-foreground/75">
-          Set max physicals first — current defaults to max. Skills are one
-          per line as{" "}
-          <span className="font-mono text-foreground">Name level</span>.
+          Set max physicals first — current defaults to max. Pull skills from
+          the catalog and set each level when you add them.
         </p>
       </section>
 
       <ConsolePanel label="Sheet intake" code="CHR · CREATE" brackets>
-        <CharacterCreateForm />
+        <CharacterCreateForm
+          skills={skillsResult.data ?? []}
+          skillsError={skillsResult.error}
+        />
       </ConsolePanel>
     </div>
   )
