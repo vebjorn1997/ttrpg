@@ -17,7 +17,7 @@ import type {
   Feat,
   Language,
   Skill,
-} from "@/lib/api"
+} from "@/lib/api-types"
 import { pruneInvalidFeats } from "@/lib/prune-feats"
 import { cn } from "@/lib/utils"
 

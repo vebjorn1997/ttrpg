@@ -3,7 +3,8 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 
-import { accentClasses, dataModules } from "@/lib/modules"
+import { authClient } from "@/lib/auth-client"
+import { accentClasses, modulesVisibleTo } from "@/lib/modules"
 import { cn } from "@/lib/utils"
 
 /**
@@ -12,6 +13,18 @@ import { cn } from "@/lib/utils"
  */
 export function ModuleRail() {
   const pathname = usePathname()
+  const { data: session } = authClient.useSession()
+
+  const role =
+    session?.user &&
+    "role" in session.user &&
+    session.user.role === "admin"
+      ? "admin"
+      : session?.user
+        ? "player"
+        : null
+
+  const modules = modulesVisibleTo(role)
 
   return (
     <div className="border-b border-hairline bg-panel/40">
@@ -19,7 +32,7 @@ export function ModuleRail() {
         aria-label="Datasets"
         className="mx-auto flex max-w-7xl gap-px overflow-x-auto px-4"
       >
-        {dataModules.map((module) => {
+        {modules.map((module) => {
           const Icon = module.icon
           const tone = accentClasses[module.accent]
           const active = pathname === module.href

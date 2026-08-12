@@ -1,4 +1,4 @@
-import type { Action } from "@/lib/api"
+import type { Action } from "@/lib/api-types"
 
 function isReaction(action: Action): boolean {
   return action.type.toLowerCase() === "reaction"

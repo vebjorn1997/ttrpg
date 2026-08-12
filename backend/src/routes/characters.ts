@@ -15,8 +15,15 @@ import {
   validateFeatSelections,
   type FeatRequirement,
 } from '../lib/feat-requirements'
+import {
+  canAccessCharacter,
+  requireInternalAuth,
+  type AuthVariables,
+} from '../lib/internal-auth'
 
-const characters = new Hono()
+const characters = new Hono<{ Variables: AuthVariables }>()
+
+characters.use('*', requireInternalAuth)
 
 const UUID_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
@@ -113,6 +120,7 @@ function toSummary(row: CharacterRow) {
     id: row.id,
     name: row.name,
     playerName: row.playerName,
+    userId: row.userId,
     str: { max: row.strMax, current: row.strCurrent },
     dex: { max: row.dexMax, current: row.dexCurrent },
     end: { max: row.endMax, current: row.endCurrent },
@@ -125,6 +133,7 @@ function toCore(row: CharacterRow) {
     id: row.id,
     name: row.name,
     playerName: row.playerName,
+    userId: row.userId,
     str: { max: row.strMax, current: row.strCurrent },
     dex: { max: row.dexMax, current: row.dexCurrent },
     end: { max: row.endMax, current: row.endCurrent },
@@ -193,13 +202,34 @@ async function loadDetail(characterId: string) {
 }
 
 characters.get('/', async (c) => {
-  const rows = await db.select().from(charactersTable)
+  const userId = c.get('userId')
+  const userRole = c.get('userRole')
+
+  const rows =
+    userRole === 'admin'
+      ? await db.select().from(charactersTable)
+      : await db
+          .select()
+          .from(charactersTable)
+          .where(eq(charactersTable.userId, userId))
+
   return c.json(rows.map(toSummary))
 })
 
 characters.get('/:id', async (c) => {
   const id = c.req.param('id')
   if (!isUuid(id)) return c.json({ error: 'Invalid character id' }, 400)
+
+  const [row] = await db
+    .select({ userId: charactersTable.userId })
+    .from(charactersTable)
+    .where(eq(charactersTable.id, id))
+    .limit(1)
+  if (!row) return c.json({ error: 'Character not found' }, 404)
+
+  if (!canAccessCharacter(c.get('userRole'), c.get('userId'), row.userId)) {
+    return c.json({ error: 'Forbidden' }, 403)
+  }
 
   const detail = await loadDetail(id)
   if (!detail) return c.json({ error: 'Character not found' }, 404)
@@ -311,6 +341,7 @@ characters.post('/', async (c) => {
   const [created] = await db
     .insert(charactersTable)
     .values({
+      userId: c.get('userId'),
       name: b.name.trim(),
       playerName,
       strMax,
@@ -364,6 +395,10 @@ characters.patch('/:id', async (c) => {
     .where(eq(charactersTable.id, id))
     .limit(1)
   if (!existing) return c.json({ error: 'Character not found' }, 404)
+
+  if (!canAccessCharacter(c.get('userRole'), c.get('userId'), existing.userId)) {
+    return c.json({ error: 'Forbidden' }, 403)
+  }
 
   let body: unknown
   try {
@@ -575,11 +610,19 @@ characters.put('/:id/feats', async (c) => {
   if (!isUuid(id)) return c.json({ error: 'Invalid character id' }, 400)
 
   const [existing] = await db
-    .select({ id: charactersTable.id, skills: charactersTable.skills })
+    .select({
+      id: charactersTable.id,
+      skills: charactersTable.skills,
+      userId: charactersTable.userId,
+    })
     .from(charactersTable)
     .where(eq(charactersTable.id, id))
     .limit(1)
   if (!existing) return c.json({ error: 'Character not found' }, 404)
+
+  if (!canAccessCharacter(c.get('userRole'), c.get('userId'), existing.userId)) {
+    return c.json({ error: 'Forbidden' }, 403)
+  }
 
   let body: unknown
   try {
@@ -629,11 +672,15 @@ characters.put('/:id/conditions', async (c) => {
   if (!isUuid(id)) return c.json({ error: 'Invalid character id' }, 400)
 
   const [existing] = await db
-    .select({ id: charactersTable.id })
+    .select({ id: charactersTable.id, userId: charactersTable.userId })
     .from(charactersTable)
     .where(eq(charactersTable.id, id))
     .limit(1)
   if (!existing) return c.json({ error: 'Character not found' }, 404)
+
+  if (!canAccessCharacter(c.get('userRole'), c.get('userId'), existing.userId)) {
+    return c.json({ error: 'Forbidden' }, 403)
+  }
 
   let body: unknown
   try {
@@ -711,11 +758,15 @@ characters.put('/:id/critical-injuries', async (c) => {
   if (!isUuid(id)) return c.json({ error: 'Invalid character id' }, 400)
 
   const [existing] = await db
-    .select({ id: charactersTable.id })
+    .select({ id: charactersTable.id, userId: charactersTable.userId })
     .from(charactersTable)
     .where(eq(charactersTable.id, id))
     .limit(1)
   if (!existing) return c.json({ error: 'Character not found' }, 404)
+
+  if (!canAccessCharacter(c.get('userRole'), c.get('userId'), existing.userId)) {
+    return c.json({ error: 'Forbidden' }, 403)
+  }
 
   let body: unknown
   try {
@@ -794,12 +845,18 @@ characters.delete('/:id', async (c) => {
   const id = c.req.param('id')
   if (!isUuid(id)) return c.json({ error: 'Invalid character id' }, 400)
 
-  const deleted = await db
-    .delete(charactersTable)
+  const [existing] = await db
+    .select({ id: charactersTable.id, userId: charactersTable.userId })
+    .from(charactersTable)
     .where(eq(charactersTable.id, id))
-    .returning({ id: charactersTable.id })
+    .limit(1)
+  if (!existing) return c.json({ error: 'Character not found' }, 404)
 
-  if (deleted.length === 0) return c.json({ error: 'Character not found' }, 404)
+  if (!canAccessCharacter(c.get('userRole'), c.get('userId'), existing.userId)) {
+    return c.json({ error: 'Forbidden' }, 403)
+  }
+
+  await db.delete(charactersTable).where(eq(charactersTable.id, id))
   return c.json({ ok: true, id })
 })
 

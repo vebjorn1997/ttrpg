@@ -1,4 +1,4 @@
-import type { CharacterSkill } from "@/lib/api"
+import type { CharacterSkill } from "@/lib/api-types"
 
 /** Catalog skill that specializes into a spoken language. */
 export function isLanguageSkill(name: string): boolean {

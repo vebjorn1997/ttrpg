@@ -1,207 +1,44 @@
 /**
- * Client for the Traveller rules API (Hono backend, default :5000).
+ * Server-only client for the Traveller rules API (Hono backend, default :5000).
  *
- * Catalog datasets are public and read-only. Character sheets support create
- * and delete via server actions. Fetches run on the server so the browser does
- * not need direct API access; a missing backend degrades to an on-screen notice.
+ * Catalog datasets are public and read-only. Character sheets require a logged-in
+ * session; the Next.js server attaches identity headers when calling the API.
+ *
+ * Client components must import types from `@/lib/api-types` and the base URL
+ * from `@/lib/api-config` — never this module.
  */
 
-import type { FeatRequirement } from "@/lib/feat-requirements"
+import "server-only"
 
-export const API_BASE_URL = (
-  process.env.API_BASE_URL ??
-  process.env.NEXT_PUBLIC_API_BASE_URL ??
-  "http://localhost:5000"
-).replace(/\/+$/, "")
+import { API_BASE_URL } from "@/lib/api-config"
+import type {
+  Action,
+  ApiResult,
+  CalledShot,
+  CharacterDetail,
+  CharacterSummary,
+  Condition,
+  CreateCharacterInput,
+  CriticalInjury,
+  DashboardSnapshot,
+  Feat,
+  Healing,
+  Language,
+  LawLevel,
+  ModuleId,
+  ModuleTelemetry,
+  Npc,
+  Skill,
+  TechLevel,
+  Trait,
+  UpdateCharacterInput,
+} from "@/lib/api-types"
+import { getCurrentUser } from "@/lib/session"
+
+export { API_BASE_URL } from "@/lib/api-config"
+export type * from "@/lib/api-types"
 
 const REQUEST_TIMEOUT_MS = 6_000
-
-export type Trait = {
-  id: string
-  name: string
-  type: string
-  color: string
-  description: string
-}
-
-export type Action = {
-  id: string
-  name: string
-  type: string
-  cost: number
-  description: string
-  requiredFeat: { id: string; name: string } | null
-}
-
-export type Condition = {
-  id: string
-  name: string
-  description: string
-  traits: string[] | null
-}
-
-export type CalledShot = {
-  id: string
-  location: string
-  cost: number
-  penalty: number
-  description: string
-  traits: string[] | null
-}
-
-export type CriticalInjury = {
-  id: string
-  name: string
-  description: string
-  characteristic: string
-  traits: string[] | null
-}
-
-export type Healing = {
-  id: string
-  name: string
-  cost: string
-  description: string
-  traits: string[] | null
-}
-
-export type Feat = {
-  id: string
-  name: string
-  description: string
-  type: string
-  prerequisites: string | null
-  requirements: FeatRequirement | null
-  cost: string
-  traits: string[] | null
-}
-
-export type Skill = {
-  id: string
-  name: string
-  description: string | null
-  primaryCharacteristic: string
-}
-
-export type TechLevel = {
-  id: string
-  name: string
-  level: number
-  description: string | null
-}
-
-export type Language = {
-  id: string
-  name: string
-  description: string | null
-}
-
-export type LawLevel = {
-  id: string
-  lawlevel: number
-  name: string
-  description: string | null
-}
-
-export type Npc = {
-  id: string
-  name: string
-  movement: string
-  hp: string
-  armor: string
-  features: string[]
-  description: string | null
-  traits: Trait[]
-}
-
-export type CharacteristicPair = {
-  max: number
-  current: number
-}
-
-export type CharacterSkill = {
-  name: string
-  level: number
-  /** Set when `name` is Language — which tongue this rating applies to. */
-  language?: string | null
-}
-
-export type CharacterSummary = {
-  id: string
-  name: string
-  playerName: string | null
-  str: CharacteristicPair
-  dex: CharacteristicPair
-  end: CharacteristicPair
-  armorTotal: number
-}
-
-export type CharacterDetail = {
-  id: string
-  name: string
-  playerName: string | null
-  str: CharacteristicPair
-  dex: CharacteristicPair
-  end: CharacteristicPair
-  int: number
-  soc: number
-  edu: number
-  skills: CharacterSkill[]
-  movement: string | null
-  armor: {
-    total: number
-    bottom: string | null
-    top: string | null
-    outer: string | null
-  }
-  weapons: string[]
-  equipment: string[]
-  credits: number
-  notes: string | null
-  createdAt: string
-  updatedAt: string
-  feats: Feat[]
-  conditions: (Condition & { value: number | null })[]
-  criticalInjuries: (CriticalInjury & { notes: string | null })[]
-}
-
-export type CreateCharacterInput = {
-  name: string
-  playerName?: string | null
-  str: CharacteristicPair
-  dex: CharacteristicPair
-  end: CharacteristicPair
-  int?: number
-  soc?: number
-  edu?: number
-  skills?: CharacterSkill[]
-  featIds?: string[]
-  movement?: string | null
-  armor?: {
-    total?: number
-    bottom?: string | null
-    top?: string | null
-    outer?: string | null
-  }
-  weapons?: string[]
-  equipment?: string[]
-  credits?: number
-  notes?: string | null
-}
-
-/** Partial sheet update — only send fields that should change. */
-export type UpdateCharacterInput = {
-  name?: string
-  strMax?: number
-  dexMax?: number
-  endMax?: number
-  skills?: CharacterSkill[]
-  featIds?: string[]
-}
-
-export type ApiResult<T> =
-  | { ok: true; data: T; error: null }
-  | { ok: false; data: null; error: string }
 
 function describeFailure(cause: unknown): string {
   if (cause instanceof DOMException && cause.name === "TimeoutError") {
@@ -213,11 +50,73 @@ function describeFailure(cause: unknown): string {
   return "Unknown transport failure."
 }
 
+async function characterAuthHeaders(): Promise<
+  | { ok: true; headers: Record<string, string> }
+  | { ok: false; error: string }
+> {
+  const user = await getCurrentUser()
+  if (!user) {
+    return { ok: false, error: "You must be signed in." }
+  }
+
+  const key = process.env.INTERNAL_API_KEY
+  if (!key) {
+    return { ok: false, error: "INTERNAL_API_KEY is not configured." }
+  }
+
+  return {
+    ok: true,
+    headers: {
+      accept: "application/json",
+      "x-internal-key": key,
+      "x-user-id": user.id,
+      "x-user-role": user.role,
+    },
+  }
+}
+
 async function getCollection<T>(path: string): Promise<ApiResult<T[]>> {
   try {
     const response = await fetch(`${API_BASE_URL}${path}`, {
       headers: { accept: "application/json" },
       // Always read through to the API; this is a live reference tool.
+      cache: "no-store",
+      signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+    })
+
+    if (!response.ok) {
+      return {
+        ok: false,
+        data: null,
+        error: `${path} responded ${response.status} ${response.statusText}.`,
+      }
+    }
+
+    const payload: unknown = await response.json()
+
+    if (!Array.isArray(payload)) {
+      return {
+        ok: false,
+        data: null,
+        error: `${path} returned ${typeof payload}, expected an array.`,
+      }
+    }
+
+    return { ok: true, data: payload as T[], error: null }
+  } catch (cause) {
+    return { ok: false, data: null, error: describeFailure(cause) }
+  }
+}
+
+async function getAuthedCollection<T>(path: string): Promise<ApiResult<T[]>> {
+  const auth = await characterAuthHeaders()
+  if (!auth.ok) {
+    return { ok: false, data: null, error: auth.error }
+  }
+
+  try {
+    const response = await fetch(`${API_BASE_URL}${path}`, {
+      headers: auth.headers,
       cache: "no-store",
       signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
     })
@@ -259,20 +158,34 @@ export const getTraits = () => getCollection<Trait>("/traits")
 export const getTechLevels = () => getCollection<TechLevel>("/tl")
 export const getLanguages = () => getCollection<Language>("/languages")
 export const getLawLevels = () => getCollection<LawLevel>("/lawlevel")
-export const getCharacters = () => getCollection<CharacterSummary>("/characters")
+export const getCharacters = () =>
+  getAuthedCollection<CharacterSummary>("/characters")
 
 export async function getCharacter(
   id: string
 ): Promise<ApiResult<CharacterDetail>> {
+  const auth = await characterAuthHeaders()
+  if (!auth.ok) {
+    return { ok: false, data: null, error: auth.error }
+  }
+
   try {
     const response = await fetch(`${API_BASE_URL}/characters/${id}`, {
-      headers: { accept: "application/json" },
+      headers: auth.headers,
       cache: "no-store",
       signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
     })
 
     if (response.status === 404) {
       return { ok: false, data: null, error: "Character not found." }
+    }
+
+    if (response.status === 403) {
+      return {
+        ok: false,
+        data: null,
+        error: "You do not have access to this character.",
+      }
     }
 
     if (!response.ok) {
@@ -293,11 +206,16 @@ export async function getCharacter(
 export async function createCharacter(
   input: CreateCharacterInput
 ): Promise<ApiResult<CharacterDetail>> {
+  const auth = await characterAuthHeaders()
+  if (!auth.ok) {
+    return { ok: false, data: null, error: auth.error }
+  }
+
   try {
     const response = await fetch(`${API_BASE_URL}/characters`, {
       method: "POST",
       headers: {
-        accept: "application/json",
+        ...auth.headers,
         "content-type": "application/json",
       },
       cache: "no-store",
@@ -328,11 +246,16 @@ export async function updateCharacter(
   id: string,
   input: UpdateCharacterInput
 ): Promise<ApiResult<CharacterDetail>> {
+  const auth = await characterAuthHeaders()
+  if (!auth.ok) {
+    return { ok: false, data: null, error: auth.error }
+  }
+
   try {
     const response = await fetch(`${API_BASE_URL}/characters/${id}`, {
       method: "PATCH",
       headers: {
-        accept: "application/json",
+        ...auth.headers,
         "content-type": "application/json",
       },
       cache: "no-store",
@@ -344,6 +267,14 @@ export async function updateCharacter(
 
     if (response.status === 404) {
       return { ok: false, data: null, error: "Character not found." }
+    }
+
+    if (response.status === 403) {
+      return {
+        ok: false,
+        data: null,
+        error: "You do not have access to this character.",
+      }
     }
 
     if (!response.ok) {
@@ -366,10 +297,15 @@ export async function updateCharacter(
 export async function deleteCharacter(
   id: string
 ): Promise<ApiResult<{ ok: true; id: string }>> {
+  const auth = await characterAuthHeaders()
+  if (!auth.ok) {
+    return { ok: false, data: null, error: auth.error }
+  }
+
   try {
     const response = await fetch(`${API_BASE_URL}/characters/${id}`, {
       method: "DELETE",
-      headers: { accept: "application/json" },
+      headers: auth.headers,
       cache: "no-store",
       signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
     })
@@ -397,24 +333,6 @@ export async function deleteCharacter(
   }
 }
 
-export type ModuleId =
-  | "actions"
-  | "conditions"
-  | "called-shots"
-  | "critical-injuries"
-  | "healing"
-  | "feats"
-  | "skills"
-  | "npcs"
-  | "traits"
-  | "tl"
-  | "languages"
-  | "lawlevel"
-  | "characters"
-
-/** Record count per dataset, or null when that dataset could not be read. */
-export type ModuleTelemetry = Record<ModuleId, number | null>
-
 const collectionLoaders: Record<ModuleId, () => Promise<ApiResult<unknown[]>>> =
   {
     actions: getActions,
@@ -432,24 +350,38 @@ const collectionLoaders: Record<ModuleId, () => Promise<ApiResult<unknown[]>>> =
     characters: getCharacters,
   }
 
-export type DashboardSnapshot = {
-  /** Record count per dataset for the status tiles. */
-  telemetry: ModuleTelemetry
-  /** Actions are reused for the turn-budget summary, so they come back whole. */
-  actions: Action[]
-}
-
 /**
  * Reads every dataset in parallel for the dashboard: one pass produces both
  * the per-endpoint record counts and the action list, so nothing is fetched
  * twice while rendering the landing page.
  */
 export async function getDashboardSnapshot(): Promise<DashboardSnapshot> {
+  const user = await getCurrentUser()
   const ids = Object.keys(collectionLoaders) as ModuleId[]
-  const results = await Promise.all(ids.map((id) => collectionLoaders[id]()))
+
+  const results = await Promise.all(
+    ids.map(async (id) => {
+      if (id === "characters" && !user) {
+        return { ok: true as const, data: [], error: null }
+      }
+      if (id === "npcs" && user?.role !== "admin") {
+        return { ok: true as const, data: [], error: null }
+      }
+      return collectionLoaders[id]()
+    })
+  )
 
   const telemetry = ids.reduce((counts, id, index) => {
     const result = results[index]
+    // Hide gated datasets from telemetry when the viewer cannot access them.
+    if (id === "characters" && !user) {
+      counts[id] = null
+      return counts
+    }
+    if (id === "npcs" && user?.role !== "admin") {
+      counts[id] = null
+      return counts
+    }
     counts[id] = result.ok ? result.data.length : null
     return counts
   }, {} as ModuleTelemetry)

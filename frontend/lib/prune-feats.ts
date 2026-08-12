@@ -1,4 +1,4 @@
-import type { CharacterSkill, Feat } from "@/lib/api"
+import type { CharacterSkill, Feat } from "@/lib/api-types"
 import { meetsFeatRequirement } from "@/lib/feat-requirements"
 
 /** Drop feats that no longer meet skills / dependent-feat prerequisites. */

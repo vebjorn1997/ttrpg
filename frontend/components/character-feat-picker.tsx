@@ -8,7 +8,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import type { Feat, CharacterSkill } from "@/lib/api"
+import type { Feat, CharacterSkill } from "@/lib/api-types"
 import {
   describeFeatRequirement,
   meetsFeatRequirement,

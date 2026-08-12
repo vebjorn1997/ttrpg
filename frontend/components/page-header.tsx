@@ -2,7 +2,7 @@ import Link from "next/link"
 import { ChevronRight, ExternalLink } from "lucide-react"
 
 import { CornerBrackets } from "@/components/corner-brackets"
-import { API_BASE_URL } from "@/lib/api"
+import { API_BASE_URL } from "@/lib/api-config"
 import { accentClasses, type DataModule } from "@/lib/modules"
 import { cn } from "@/lib/utils"
 

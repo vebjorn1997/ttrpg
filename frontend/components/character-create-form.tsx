@@ -11,7 +11,7 @@ import { CharacterFeatPicker } from "@/components/character-feat-picker"
 import { CharacterSkillPicker } from "@/components/character-skill-picker"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import type { CharacterSkill, Feat, Language, Skill } from "@/lib/api"
+import type { CharacterSkill, Feat, Language, Skill } from "@/lib/api-types"
 import { pruneInvalidFeats } from "@/lib/prune-feats"
 import { cn } from "@/lib/utils"
 
@@ -88,6 +88,7 @@ function CharPair({
 }
 
 export function CharacterCreateForm({
+  playerName,
   skills = [],
   skillsError = null,
   languages = [],
@@ -95,6 +96,7 @@ export function CharacterCreateForm({
   feats = [],
   featsError = null,
 }: {
+  playerName: string
   skills?: Skill[]
   skillsError?: string | null
   languages?: Language[]
@@ -191,8 +193,9 @@ export function CharacterCreateForm({
           <Field label="Player">
             <Input
               name="playerName"
-              placeholder="Alex"
-              className={fieldClass}
+              value={playerName}
+              readOnly
+              className={cn(fieldClass, "text-muted-foreground")}
             />
           </Field>
         </div>

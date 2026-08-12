@@ -11,7 +11,8 @@
     "db:migrate": "drizzle-kit migrate",
     "db:studio": "drizzle-kit studio",
     "db:push": "drizzle-kit push",
-    "db:seed": "tsx src/db/seeds/seed.ts"
+    "db:seed": "tsx src/db/seeds/seed.ts",
+    "db:seed-admin": "tsx src/db/seeds/seed-admin.ts"
   },
   "devDependencies": {
     "@types/node": "^26.1.1",
@@ -23,6 +24,7 @@
   },
   "dependencies": {
     "@hono/node-server": "^2.0.12",
+    "better-auth": "^1.6.27",
     "dotenv": "^17.4.2",
     "drizzle-orm": "^1.0.0-rc.4",
     "hono": "^4.12.34",

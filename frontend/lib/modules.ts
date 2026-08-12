@@ -15,7 +15,7 @@ import {
   type LucideIcon,
 } from "lucide-react"
 
-import type { ModuleId } from "@/lib/api"
+import type { ModuleId } from "@/lib/api-types"
 
 /** Signal colour assigned to each subsystem, used for borders/badges/icons. */
 export type Accent = "ochre" | "signal" | "oxide" | "viridian"
@@ -39,6 +39,13 @@ export type DataModule = {
   units: string
   icon: LucideIcon
   accent: Accent
+  /**
+   * Who can see this module in nav / dashboard.
+   * - public: everyone
+   * - authenticated: any signed-in user
+   * - admin: admin role only
+   */
+  access: "public" | "authenticated" | "admin"
 }
 
 export const dataModules: DataModule[] = [
@@ -55,6 +62,7 @@ export const dataModules: DataModule[] = [
     units: "actions",
     icon: Swords,
     accent: "ochre",
+    access: "public",
   },
   {
     id: "conditions",
@@ -69,6 +77,7 @@ export const dataModules: DataModule[] = [
     units: "conditions",
     icon: Activity,
     accent: "signal",
+    access: "public",
   },
   {
     id: "called-shots",
@@ -83,6 +92,7 @@ export const dataModules: DataModule[] = [
     units: "locations",
     icon: Crosshair,
     accent: "oxide",
+    access: "public",
   },
   {
     id: "critical-injuries",
@@ -97,6 +107,7 @@ export const dataModules: DataModule[] = [
     units: "injuries",
     icon: Skull,
     accent: "oxide",
+    access: "public",
   },
   {
     id: "healing",
@@ -111,6 +122,7 @@ export const dataModules: DataModule[] = [
     units: "procedures",
     icon: HeartPulse,
     accent: "viridian",
+    access: "public",
   },
   {
     id: "feats",
@@ -125,6 +137,7 @@ export const dataModules: DataModule[] = [
     units: "feats",
     icon: Award,
     accent: "ochre",
+    access: "public",
   },
   {
     id: "skills",
@@ -139,6 +152,7 @@ export const dataModules: DataModule[] = [
     units: "skills",
     icon: BookOpen,
     accent: "viridian",
+    access: "public",
   },
   {
     id: "tl",
@@ -153,6 +167,7 @@ export const dataModules: DataModule[] = [
     units: "tech levels",
     icon: Cpu,
     accent: "signal",
+    access: "public",
   },
   {
     id: "languages",
@@ -167,6 +182,7 @@ export const dataModules: DataModule[] = [
     units: "languages",
     icon: Languages,
     accent: "viridian",
+    access: "public",
   },
   {
     id: "lawlevel",
@@ -181,6 +197,7 @@ export const dataModules: DataModule[] = [
     units: "law levels",
     icon: Gavel,
     accent: "oxide",
+    access: "public",
   },
   {
     id: "npcs",
@@ -195,6 +212,7 @@ export const dataModules: DataModule[] = [
     units: "NPCs",
     icon: Users,
     accent: "signal",
+    access: "admin",
   },
   {
     id: "traits",
@@ -209,6 +227,7 @@ export const dataModules: DataModule[] = [
     units: "traits",
     icon: Tags,
     accent: "viridian",
+    access: "public",
   },
   {
     id: "characters",
@@ -223,6 +242,7 @@ export const dataModules: DataModule[] = [
     units: "characters",
     icon: ClipboardList,
     accent: "ochre",
+    access: "authenticated",
   },
 ]
 
@@ -232,6 +252,16 @@ export const moduleById = Object.fromEntries(
 
 export function getModule(id: ModuleId): DataModule {
   return moduleById[id]
+}
+
+export function modulesVisibleTo(
+  role: "admin" | "player" | null
+): DataModule[] {
+  return dataModules.filter((module) => {
+    if (module.access === "public") return true
+    if (module.access === "authenticated") return role != null
+    return role === "admin"
+  })
 }
 
 /** Tailwind class sets per accent, kept static so they survive purging. */

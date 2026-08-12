@@ -1,7 +1,7 @@
 import Link from "next/link"
 
 import { CostPips } from "@/components/cost-pips"
-import type { Action } from "@/lib/api"
+import type { Action } from "@/lib/api-types"
 import { cn } from "@/lib/utils"
 
 /**

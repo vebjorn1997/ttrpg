@@ -9,7 +9,7 @@ import {
   type DataRecord,
   type RecordStat,
 } from "@/lib/records"
-import { buildRuleLinkCatalog } from "@/lib/rule-links"
+import { buildRuleLinkCatalog } from "@/lib/rule-links-catalog"
 
 const dataset = getModule("feats")
 

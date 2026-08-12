@@ -4,12 +4,15 @@ import { ModuleCard } from "@/components/module-card"
 import { TelemetryStrip } from "@/components/telemetry-strip"
 import { TurnBudget } from "@/components/turn-budget"
 import { getDashboardSnapshot } from "@/lib/api"
-import { dataModules } from "@/lib/modules"
+import { modulesVisibleTo } from "@/lib/modules"
+import { getCurrentUser } from "@/lib/session"
 
 export default async function DashboardPage() {
+  const user = await getCurrentUser()
+  const visibleModules = modulesVisibleTo(user?.role ?? null)
   const { telemetry, actions } = await getDashboardSnapshot()
 
-  const totalRecords = dataModules.reduce(
+  const totalRecords = visibleModules.reduce(
     (sum, module) => sum + (telemetry[module.id] ?? 0),
     0
   )
@@ -53,7 +56,7 @@ export default async function DashboardPage() {
                 Chapters
               </dt>
               <dd className="mt-1 font-mono text-4xl leading-none">
-                {dataModules.length}
+                {visibleModules.length}
               </dd>
             </div>
           </dl>
@@ -85,12 +88,12 @@ export default async function DashboardPage() {
           </h2>
           <span aria-hidden className="console-hatch h-2.5 flex-1 opacity-60" />
           <span className="console-label text-muted-foreground">
-            {dataModules.length} modules
+            {visibleModules.length} modules
           </span>
         </div>
 
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-          {dataModules.map((module) => (
+          {visibleModules.map((module) => (
             <ModuleCard
               key={module.id}
               module={module}

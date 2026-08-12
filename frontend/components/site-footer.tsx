@@ -1,6 +1,6 @@
 import Link from "next/link"
 
-import { API_BASE_URL } from "@/lib/api"
+import { API_BASE_URL } from "@/lib/api-config"
 import { dataModules } from "@/lib/modules"
 
 export function SiteFooter() {

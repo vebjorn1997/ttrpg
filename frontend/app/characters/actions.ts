@@ -10,6 +10,7 @@ import {
   type CreateCharacterInput,
   type UpdateCharacterInput,
 } from "@/lib/api"
+import { requireUser } from "@/lib/session"
 
 export type CreateCharacterState = {
   error: string | null
@@ -123,6 +124,8 @@ export async function createCharacterAction(
   _prev: CreateCharacterState,
   formData: FormData
 ): Promise<CreateCharacterState> {
+  const user = await requireUser()
+
   const name = readOptionalString(formData, "name")
   if (!name) {
     return { error: "Name is required." }
@@ -170,7 +173,7 @@ export async function createCharacterAction(
 
   const input: CreateCharacterInput = {
     name,
-    playerName: readOptionalString(formData, "playerName"),
+    playerName: user.name,
     str: { max: strMax, current: strCurrent },
     dex: { max: dexMax, current: dexCurrent },
     end: { max: endMax, current: endCurrent },

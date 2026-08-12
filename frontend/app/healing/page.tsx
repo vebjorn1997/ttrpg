@@ -4,7 +4,7 @@ import { DatasetView } from "@/components/dataset-view"
 import { getHealing, getTraits } from "@/lib/api"
 import { getModule } from "@/lib/modules"
 import { indexTraits, traitTags, type DataRecord } from "@/lib/records"
-import { buildRuleLinkCatalog } from "@/lib/rule-links"
+import { buildRuleLinkCatalog } from "@/lib/rule-links-catalog"
 
 const dataset = getModule("healing")
 

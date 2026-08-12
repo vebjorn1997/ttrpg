@@ -19,7 +19,7 @@ import {
   formatCharacterSkillLabel,
 } from "@/lib/character-skills"
 import { getModule } from "@/lib/modules"
-import { buildRuleLinkCatalog } from "@/lib/rule-links"
+import { buildRuleLinkCatalog } from "@/lib/rule-links-catalog"
 
 const dataset = getModule("characters")
 

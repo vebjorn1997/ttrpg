@@ -21,6 +21,8 @@ export type CharacterSkill = {
 
 export const charactersTable = pgTable('characters', {
   id: uuid('id').primaryKey().defaultRandom(),
+  /** Better Auth `user.id` (text). Null = orphan (admin-only until claimed). */
+  userId: text('user_id'),
   name: varchar({ length: 255 }).notNull(),
   playerName: varchar('player_name', { length: 255 }),
   strMax: integer('str_max').notNull(),

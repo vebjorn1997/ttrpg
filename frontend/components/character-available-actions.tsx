@@ -1,6 +1,6 @@
 import { ConsolePanel } from "@/components/console-panel"
 import { RuleText } from "@/components/rule-text"
-import type { Action } from "@/lib/api"
+import type { Action } from "@/lib/api-types"
 import type { RuleLinkEntry } from "@/lib/rule-links"
 import { cn } from "@/lib/utils"
 

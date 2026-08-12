@@ -1,7 +1,7 @@
 import { TriangleAlert } from "lucide-react"
 
 import { ConsolePanel } from "@/components/console-panel"
-import { API_BASE_URL } from "@/lib/api"
+import { API_BASE_URL } from "@/lib/api-config"
 
 /**
  * Shown in place of a dataset when the API cannot be read, with the exact

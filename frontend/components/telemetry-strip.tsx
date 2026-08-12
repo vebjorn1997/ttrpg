@@ -1,4 +1,5 @@
-import { API_BASE_URL, type ModuleTelemetry } from "@/lib/api"
+import { API_BASE_URL } from "@/lib/api-config"
+import type { ModuleTelemetry } from "@/lib/api-types"
 import { dataModules } from "@/lib/modules"
 import { cn } from "@/lib/utils"
 
@@ -12,7 +13,9 @@ export function TelemetryStrip({
 }: {
   telemetry: ModuleTelemetry
 }) {
-  const counts = dataModules.map((module) => telemetry[module.id])
+  // Only score public catalog datasets so gated modules do not mark the link degraded.
+  const publicModules = dataModules.filter((module) => module.access === "public")
+  const counts = publicModules.map((module) => telemetry[module.id])
   const reachable = counts.filter((count) => count !== null).length
   const totalRecords = counts.reduce<number>(
     (sum, count) => sum + (count ?? 0),

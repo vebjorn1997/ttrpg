@@ -5,7 +5,7 @@
  * endpoints, while each page decides how its columns map onto it.
  */
 
-import type { Trait } from "@/lib/api"
+import type { Trait } from "@/lib/api-types"
 
 export type RecordTag = {
   label: string

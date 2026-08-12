@@ -4,7 +4,7 @@ import { DatasetView } from "@/components/dataset-view"
 import { getSkills } from "@/lib/api"
 import { getModule } from "@/lib/modules"
 import type { DataRecord } from "@/lib/records"
-import { buildRuleLinkCatalog } from "@/lib/rule-links"
+import { buildRuleLinkCatalog } from "@/lib/rule-links-catalog"
 
 const dataset = getModule("skills")
 

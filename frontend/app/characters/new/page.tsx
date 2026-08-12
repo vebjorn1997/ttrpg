@@ -7,6 +7,7 @@ import { ConsolePanel } from "@/components/console-panel"
 import { CornerBrackets } from "@/components/corner-brackets"
 import { getFeats, getLanguages, getSkills } from "@/lib/api"
 import { getModule } from "@/lib/modules"
+import { requireUser } from "@/lib/session"
 
 const dataset = getModule("characters")
 
@@ -16,6 +17,7 @@ export const metadata: Metadata = {
 }
 
 export default async function NewCharacterPage() {
+  const user = await requireUser()
   const [skillsResult, languagesResult, featsResult] = await Promise.all([
     getSkills(),
     getLanguages(),
@@ -54,6 +56,7 @@ export default async function NewCharacterPage() {
 
       <ConsolePanel label="Sheet intake" code="CHR · CREATE" brackets>
         <CharacterCreateForm
+          playerName={user.name}
           skills={skillsResult.data ?? []}
           skillsError={skillsResult.error}
           languages={languagesResult.data ?? []}

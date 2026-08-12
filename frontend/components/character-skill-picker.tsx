@@ -6,7 +6,7 @@ import { Plus, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { SkillTooltip } from "@/components/skill-tooltip"
-import type { CharacterSkill, Language, Skill } from "@/lib/api"
+import type { CharacterSkill, Language, Skill } from "@/lib/api-types"
 import {
   characterSkillKey,
   formatCharacterSkillLabel,

@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation"
 import { useState } from "react"
 import { LayoutDashboard, Menu } from "lucide-react"
 
+import { AuthControls } from "@/components/auth-controls"
 import { SunburstMark } from "@/components/sunburst-mark"
 import { Button } from "@/components/ui/button"
 import {
@@ -15,12 +16,25 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet"
-import { accentClasses, dataModules } from "@/lib/modules"
+import { authClient } from "@/lib/auth-client"
+import { accentClasses, modulesVisibleTo } from "@/lib/modules"
 import { cn } from "@/lib/utils"
 
 export function SiteHeader() {
   const pathname = usePathname()
   const [menuOpen, setMenuOpen] = useState(false)
+  const { data: session } = authClient.useSession()
+
+  const role =
+    session?.user &&
+    "role" in session.user &&
+    session.user.role === "admin"
+      ? "admin"
+      : session?.user
+        ? "player"
+        : null
+
+  const modules = modulesVisibleTo(role)
 
   return (
     <header className="sticky top-0 z-40 border-b border-hairline bg-background/85 backdrop-blur">
@@ -51,82 +65,86 @@ export function SiteHeader() {
             <LayoutDashboard className="size-3.5" />
             Manual
           </Link>
+          <AuthControls />
         </nav>
 
-        <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
-          <SheetTrigger
-            render={
-              <Button
-                variant="outline"
-                size="icon-sm"
-                className="ml-auto rounded-none md:ml-0"
-                aria-label="Open module index"
-              />
-            }
-          >
-            <Menu />
-          </SheetTrigger>
-          <SheetContent
-            side="right"
-            className="rounded-none border-hairline bg-background"
-          >
-            <SheetHeader className="border-b border-hairline">
-              <SheetTitle className="font-heading tracking-[0.2em] uppercase">
-                Module index
-              </SheetTitle>
-              <SheetDescription className="console-label">
-                {dataModules.length} datasets
-              </SheetDescription>
-            </SheetHeader>
+        <div className="flex items-center gap-2 md:hidden">
+          <AuthControls />
+          <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
+            <SheetTrigger
+              render={
+                <Button
+                  variant="outline"
+                  size="icon-sm"
+                  className="rounded-none"
+                  aria-label="Open module index"
+                />
+              }
+            >
+              <Menu />
+            </SheetTrigger>
+            <SheetContent
+              side="right"
+              className="rounded-none border-hairline bg-background"
+            >
+              <SheetHeader className="border-b border-hairline">
+                <SheetTitle className="font-heading tracking-[0.2em] uppercase">
+                  Module index
+                </SheetTitle>
+                <SheetDescription className="console-label">
+                  {modules.length} datasets
+                </SheetDescription>
+              </SheetHeader>
 
-            <nav className="flex flex-col gap-1 p-3">
-              <Link
-                href="/"
-                onClick={() => setMenuOpen(false)}
-                className="flex items-center gap-3 border border-hairline px-3 py-2 transition-colors hover:border-ochre/45 hover:bg-ochre/5"
-              >
-                <LayoutDashboard className="size-4 text-ochre" />
-                <span className="font-heading text-sm tracking-wide">
-                  Field Manual
-                </span>
-              </Link>
+              <nav className="flex flex-col gap-1 p-3">
+                <Link
+                  href="/"
+                  onClick={() => setMenuOpen(false)}
+                  className="flex items-center gap-3 border border-hairline px-3 py-2 transition-colors hover:border-ochre/45 hover:bg-ochre/5"
+                >
+                  <LayoutDashboard className="size-4 text-ochre" />
+                  <span className="font-heading text-sm tracking-wide">
+                    Field Manual
+                  </span>
+                </Link>
 
-              {dataModules.map((module) => {
-                const Icon = module.icon
-                const tone = accentClasses[module.accent]
-                const active = pathname === module.href
+                {modules.map((module) => {
+                  const Icon = module.icon
+                  const tone = accentClasses[module.accent]
+                  const active = pathname === module.href
 
-                return (
-                  <Link
-                    key={module.id}
-                    href={module.href}
-                    onClick={() => setMenuOpen(false)}
-                    aria-current={active ? "page" : undefined}
-                    className={cn(
-                      "flex items-center gap-3 border px-3 py-2 transition-colors",
-                      active
-                        ? cn(tone.border, tone.bg)
-                        : "border-hairline hover:border-ochre/45 hover:bg-ochre/5"
-                    )}
-                  >
-                    <Icon className={cn("size-4", tone.text)} />
-                    <span className="min-w-0 flex-1">
-                      <span className="block font-heading text-sm tracking-wide">
-                        {module.title}
+                  return (
+                    <Link
+                      key={module.id}
+                      href={module.href}
+                      onClick={() => setMenuOpen(false)}
+                      aria-current={active ? "page" : undefined}
+                      className={cn(
+                        "flex items-center gap-3 border px-3 py-2 transition-colors",
+                        active
+                          ? cn(tone.border, tone.bg)
+                          : "border-hairline hover:border-ochre/45 hover:bg-ochre/5"
+                      )}
+                    >
+                      <Icon className={cn("size-4", tone.text)} />
+                      <span className="min-w-0 flex-1">
+                        <span className="block font-heading text-sm tracking-wide">
+                          {module.title}
+                        </span>
+                        <span className="console-label text-muted-foreground">
+                          {module.endpoint}
+                        </span>
                       </span>
-                      <span className="console-label text-muted-foreground">
-                        {module.endpoint}
+                      <span className={cn("console-label", tone.text)}>
+                        {module.code}
                       </span>
-                    </span>
-                    <span className={cn("console-label", tone.text)}>
-                      {module.code}
-                    </span>
-                  </Link>
-                )
-              })}
-            </nav>
-          </SheetContent>
-        </Sheet>
+                    </Link>
+                  )
+                })}
+              </nav>
+            </SheetContent>
+          </Sheet>
+        </div>
       </div>
     </header>
   )
