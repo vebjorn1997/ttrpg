@@ -1,0 +1,26 @@
+# Amplify Hosting — monorepo Next.js SSR
+# Console env vars are available at build time only. Writing them into
+# .env.production makes them available to Next.js API routes / server components
+# (e.g. Better Auth). See:
+# https://docs.aws.amazon.com/amplify/latest/userguide/ssr-environment-variables.html
+version: 1
+applications:
+  - appRoot: frontend
+    frontend:
+      phases:
+        preBuild:
+          commands:
+            - npm ci
+        build:
+          commands:
+            - env | grep -e BETTER_AUTH_SECRET -e BETTER_AUTH_URL -e DATABASE_URL -e INTERNAL_API_KEY -e API_BASE_URL >> .env.production
+            - env | grep -e NEXT_PUBLIC_ >> .env.production
+            - npm run build
+      artifacts:
+        baseDirectory: .next
+        files:
+          - "**/*"
+      cache:
+        paths:
+          - node_modules/**/*
+          - .next/cache/**/*
