@@ -10,6 +10,8 @@ import traits from './traits'
 import characters from './characters'
 import skills from './skills'
 import tl from './tl'
+import languages from './languages'
+import lawlevel from './lawlevel'
 
 const api = new Hono()
 
@@ -25,6 +27,8 @@ export const endpoints = [
   '/traits',
   '/characters',
   '/tl',
+  '/languages',
+  '/lawlevel',
 ] as const
 
 api.get('/', (c) => c.json({ status: 'ok', endpoints }))
@@ -40,5 +44,7 @@ api.route('/npc-catalog', npcCatalog)
 api.route('/traits', traits)
 api.route('/characters', characters)
 api.route('/tl', tl)
+api.route('/languages', languages)
+api.route('/lawlevel', lawlevel)
 
 export default api

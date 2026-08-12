@@ -1,0 +1,6 @@
+lawlevel,name,description
+0,Lawless,"No central authority. Free ports, pirate havens, uncharted outposts."
+1,Frontier,"Basic trade laws. Local marshals, voluntary cargo manifests."
+2,Standard,"Port authority, police customs. Regular inspections."
+3,Security State,"Military checkpoints, biometric registry, import permits required."
+4,Lockdown,"Police state, quarantine, occupation. Total control of movement and goods."

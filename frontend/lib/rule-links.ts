@@ -10,6 +10,8 @@ import {
   getCriticalInjuries,
   getFeats,
   getHealing,
+  getLanguages,
+  getLawLevels,
   getNpcs,
   getSkills,
   getTechLevels,
@@ -50,6 +52,8 @@ export async function buildRuleLinkCatalog(): Promise<RuleLinkEntry[]> {
     feats,
     skills,
     techLevels,
+    languages,
+    lawLevels,
     npcs,
     traits,
   ] = await Promise.all([
@@ -61,6 +65,8 @@ export async function buildRuleLinkCatalog(): Promise<RuleLinkEntry[]> {
     getFeats(),
     getSkills(),
     getTechLevels(),
+    getLanguages(),
+    getLawLevels(),
     getNpcs(),
     getTraits(),
   ])
@@ -100,6 +106,14 @@ export async function buildRuleLinkCatalog(): Promise<RuleLinkEntry[]> {
     ...entries(
       "tl",
       (techLevels.data ?? []).map((row) => ({ id: row.id, title: row.name }))
+    ),
+    ...entries(
+      "languages",
+      (languages.data ?? []).map((row) => ({ id: row.id, title: row.name }))
+    ),
+    ...entries(
+      "lawlevel",
+      (lawLevels.data ?? []).map((row) => ({ id: row.id, title: row.name }))
     ),
     ...entries(
       "npcs",

@@ -17,3 +17,5 @@ export {
 export type { CharacterSkill } from './characters';
 export { skillsTable, skillsFeatsTable } from './skills';
 export { tlTable } from './tl';
+export { lawlevelTable } from './lawlevel';
+export { languagesTable } from './languages';

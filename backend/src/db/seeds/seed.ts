@@ -21,6 +21,10 @@ import skills from './skills';
 import { skillsTable } from '../schema/skills';
 import tl from './tl';
 import { tlTable } from '../schema/tl';
+import languages from './languages';
+import { languagesTable } from '../schema/languages';
+import lawlevel from './lawlevel';
+import { lawlevelTable } from '../schema/lawlevel';
 
 const db = drizzle(process.env.DATABASE_URL!);
 
@@ -67,6 +71,23 @@ const seed = async () => {
                 description: entry.description,
             })
             .where(eq(tlTable.name, entry.name));
+    }
+    await db.insert(languagesTable).values(languages).onConflictDoNothing();
+    for (const entry of languages) {
+        await db
+            .update(languagesTable)
+            .set({ description: entry.description })
+            .where(eq(languagesTable.name, entry.name));
+    }
+    await db.insert(lawlevelTable).values(lawlevel).onConflictDoNothing();
+    for (const entry of lawlevel) {
+        await db
+            .update(lawlevelTable)
+            .set({
+                lawlevel: entry.lawlevel,
+                description: entry.description,
+            })
+            .where(eq(lawlevelTable.name, entry.name));
     }
 
     // Resolve action → required feat names to UUIDs and backfill FKs
