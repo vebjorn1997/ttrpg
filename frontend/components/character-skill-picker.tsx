@@ -5,6 +5,7 @@ import { Plus, X } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { SkillTooltip } from "@/components/skill-tooltip"
 import type { Skill } from "@/lib/api"
 import { cn } from "@/lib/utils"
 
@@ -58,6 +59,16 @@ export function CharacterSkillPicker({
     const taken = new Set(picked.map((skill) => skill.name))
     return catalog.filter((skill) => !taken.has(skill.name))
   }, [catalog, picked])
+
+  const descriptionByName = useMemo(() => {
+    const map = new Map<string, string>()
+    for (const skill of catalog) {
+      if (skill.description?.trim()) {
+        map.set(skill.name, skill.description.trim())
+      }
+    }
+    return map
+  }, [catalog])
 
   function addSkill() {
     if (!pendingName) return
@@ -169,9 +180,15 @@ export function CharacterSkillPicker({
               key={skill.name}
               className="flex items-center gap-3 px-3 py-2"
             >
-              <span className="min-w-0 flex-1 font-heading text-sm tracking-wide">
-                {skill.name}
-              </span>
+              <SkillTooltip
+                name={skill.name}
+                description={descriptionByName.get(skill.name)}
+                className="min-w-0 flex-1"
+              >
+                <span className="cursor-help font-heading text-sm tracking-wide">
+                  {skill.name}
+                </span>
+              </SkillTooltip>
               <label className="flex items-center gap-2">
                 <span className={labelClass}>Lvl</span>
                 <Input

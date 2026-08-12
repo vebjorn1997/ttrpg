@@ -10,8 +10,9 @@ import { ConsolePanel } from "@/components/console-panel"
 import { CornerBrackets } from "@/components/corner-brackets"
 import { OfflineNotice } from "@/components/offline-notice"
 import { RuleText } from "@/components/rule-text"
+import { SkillTooltip } from "@/components/skill-tooltip"
 import { StatReadout } from "@/components/stat-readout"
-import { getActions, getCharacter } from "@/lib/api"
+import { getActions, getCharacter, getSkills } from "@/lib/api"
 import { actionsAvailableToCharacter } from "@/lib/character-actions"
 import { getModule } from "@/lib/modules"
 import { buildRuleLinkCatalog } from "@/lib/rule-links"
@@ -46,9 +47,10 @@ function formatPair(pair: { max: number; current: number }) {
 
 export default async function CharacterDetailPage({ params }: PageProps) {
   const { id } = await params
-  const [result, actionsResult, links] = await Promise.all([
+  const [result, actionsResult, skillsResult, links] = await Promise.all([
     getCharacter(id),
     getActions(),
+    getSkills(),
     buildRuleLinkCatalog(),
   ])
 
@@ -71,6 +73,12 @@ export default async function CharacterDetailPage({ params }: PageProps) {
         character.feats.map((feat) => feat.id)
       )
     : []
+
+  const skillDescriptionByName = new Map(
+    (skillsResult.data ?? [])
+      .filter((skill) => skill.description?.trim())
+      .map((skill) => [skill.name, skill.description!.trim()] as const)
+  )
 
   return (
     <div className="space-y-6">
@@ -202,10 +210,17 @@ export default async function CharacterDetailPage({ params }: PageProps) {
                   <ul className="space-y-1.5">
                     {character.skills.map((skill) => (
                       <li key={`${skill.name}-${skill.level}`}>
-                        <StatReadout
-                          label={skill.name}
-                          value={String(skill.level)}
-                        />
+                        <SkillTooltip
+                          name={skill.name}
+                          description={skillDescriptionByName.get(skill.name)}
+                        >
+                          <div className="cursor-help">
+                            <StatReadout
+                              label={skill.name}
+                              value={String(skill.level)}
+                            />
+                          </div>
+                        </SkillTooltip>
                       </li>
                     ))}
                   </ul>
