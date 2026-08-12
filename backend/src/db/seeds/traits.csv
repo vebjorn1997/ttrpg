@@ -15,3 +15,25 @@ Medium,NPC,Average sized creature,#420D09
 Large,NPC,Targeting Large creatures give a +1 DM to hit,#420D09
 Ancient,Weapon,A device of the Ancients.,#420D09
 Walker,NPC,"This creature is a walker, it walks on two legs.",#420D09
+Star Port A,System,"Full facilities: shipyards, high-end services, naval bases, and interstellar banking.",#420D09
+Star Port B,System,"Good quality: capable of construction and repair, with solid amenities and regular traffic.",#420D09
+Star Port C,System,"Routine quality: unrefined fuel, supplies, and unskilled repair; often a frontier waystation.",#420D09
+Star Port D,System,"Poor quality: little more than a marked landing zone, unrefined fuel, and a radio.",#420D09
+No Star Port,System,No facilities whatsoever; land at your own risk with no support.,#420D09
+Planet,System,"A standard terrestrial world with gravity, atmosphere, and a solid surface.",#420D09
+Empty Space,System,"Nothing but void; no planet, station, or feature—just coordinates in the black.",#420D09
+Space Station,System,An artificial habitat or platform orbiting a body or drifting free.,#420D09
+Asteroid,System,"A rocky body, often mined, hollowed out, or barely large enough to land on.",#420D09
+Rouge Planet,System,"A sunless world cast adrift between stars, frozen and lightless.",#420D09
+Polluted,System,"Contaminated atmosphere, water, or soil; filters and hazard gear required.",#420D09
+Acid Rain,System,Corrosive precipitation that eats unprotected hull plating and flesh alike. Requires specialised hull plating and vac suits to withstand the corrosive effect.,#420D09
+Stormwracked,System,Wracked by permanent extreme weather; habitation is underground or shielded.,#420D09
+Red Zone,System,"Interdicted; landing is legally prohibited due to extreme danger, active conflict, deadly plagues, dangerous alien artifacts or imperial edict.",#420D09
+Amber Zone,System,Hazardous; caution is advised—conditions are risky but travel is not outright forbidden.,#420D09
+Quarantined ,System,Biological or environmental lockdown; no entry or exit permitted under penalty.,#420D09
+Unexplored,System,No comprehensive survey exists; star charts may be wrong and the surface is largely unknown.,#420D09
+No Gravity,System,"Zero-G throughout; freefall conditions require magnetic boots, thrusters, or tethering to navigate.",#420D09
+Low Gravity,System,"Significantly less than standard; high jumps and fragile structures, with long-term health tolls on residents.",#420D09
+Medium Gravity,System,Comfortable standard range; roughly 0.8 to 1.2 G with no special accommodations needed.,#420D09
+High Gravity,System,"Crushing weight; movement is exhausting, equipment strains, and hearts work overtime just to stand.",
+Independent,System,This system is largely independent from any foreign Empire.,
