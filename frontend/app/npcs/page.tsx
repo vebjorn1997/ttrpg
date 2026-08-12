@@ -54,7 +54,7 @@ export default async function NpcsPage() {
               Type (cost) name, effect
             </span>
             . The number in brackets is the action point cost, so a
-            Melee&nbsp;(1) attack leaves two points for anything else that turn.
+            Melee&nbsp;(1) attack leaves two points for anything else that turn!
           </p>
         </ConsolePanel>
       }
