@@ -4,6 +4,7 @@ import {
   BookOpen,
   ClipboardList,
   Crosshair,
+  Cpu,
   HeartPulse,
   Skull,
   Swords,
@@ -136,6 +137,20 @@ export const dataModules: DataModule[] = [
     units: "skills",
     icon: BookOpen,
     accent: "viridian",
+  },
+  {
+    id: "tl",
+    code: "TL",
+    title: "Tech Levels",
+    href: "/tl",
+    endpoint: "/tl",
+    synopsis: "Civilisation bands from primitive tools through late interstellar tech.",
+    detail:
+      "Tech level rates a world's industrial and scientific capability. Gear, ships, and infrastructure are tagged with the TL needed to build or maintain them.",
+    unit: "tech level",
+    units: "tech levels",
+    icon: Cpu,
+    accent: "signal",
   },
   {
     id: "npcs",

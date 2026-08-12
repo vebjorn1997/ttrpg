@@ -9,6 +9,7 @@ import npcCatalog from './npcCatalog'
 import traits from './traits'
 import characters from './characters'
 import skills from './skills'
+import tl from './tl'
 
 const api = new Hono()
 
@@ -23,6 +24,7 @@ export const endpoints = [
   '/npc-catalog',
   '/traits',
   '/characters',
+  '/tl',
 ] as const
 
 api.get('/', (c) => c.json({ status: 'ok', endpoints }))
@@ -37,5 +39,6 @@ api.route('/skills', skills)
 api.route('/npc-catalog', npcCatalog)
 api.route('/traits', traits)
 api.route('/characters', characters)
+api.route('/tl', tl)
 
 export default api

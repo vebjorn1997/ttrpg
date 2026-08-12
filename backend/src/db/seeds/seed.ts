@@ -19,6 +19,8 @@ import { traitsTable } from '../schema/traits';
 import { npcCatalogTable, npcCatalogTraitsTable } from '../schema/npcCatalog';
 import skills from './skills';
 import { skillsTable } from '../schema/skills';
+import tl from './tl';
+import { tlTable } from '../schema/tl';
 
 const db = drizzle(process.env.DATABASE_URL!);
 
@@ -56,6 +58,16 @@ const seed = async () => {
             .where(eq(featsTable.name, feat.name));
     }
     await db.insert(skillsTable).values(skills).onConflictDoNothing();
+    await db.insert(tlTable).values(tl).onConflictDoNothing();
+    for (const entry of tl) {
+        await db
+            .update(tlTable)
+            .set({
+                level: entry.level,
+                description: entry.description,
+            })
+            .where(eq(tlTable.name, entry.name));
+    }
 
     // Resolve action → required feat names to UUIDs and backfill FKs
     const actionsWithFeat = actions.filter(

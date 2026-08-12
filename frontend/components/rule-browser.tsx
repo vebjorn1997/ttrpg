@@ -2,7 +2,13 @@
 
 import { useEffect, useMemo, useState } from "react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
-import { ArrowDownAZ, ListOrdered, Search, X } from "lucide-react"
+import {
+  ArrowDownAZ,
+  ChevronRight,
+  ListOrdered,
+  Search,
+  X,
+} from "lucide-react"
 
 import { RuleDetail } from "@/components/rule-detail"
 import { RuleIndexRow } from "@/components/rule-index-row"
@@ -70,6 +76,10 @@ export function RuleBrowser({
   const [group, setGroup] = useState<string | null>(null)
   const [sort, setSort] = useState<SortMode>("index")
   const [mobileOpen, setMobileOpen] = useState(false)
+  /** Section labels currently collapsed in the index pane. */
+  const [collapsed, setCollapsed] = useState<ReadonlySet<string>>(
+    () => new Set()
+  )
 
   const tone = accentClasses[accent]
   const groups = useMemo(() => collectGroups(records), [records])
@@ -141,6 +151,15 @@ export function RuleBrowser({
     }
   }
 
+  function toggleSection(label: string) {
+    setCollapsed((prev) => {
+      const next = new Set(prev)
+      if (next.has(label)) next.delete(label)
+      else next.add(label)
+      return next
+    })
+  }
+
   const sections = useMemo(() => {
     if (!sectionByGroup || sort === "alpha" || group) {
       return [{ label: null as string | null, entries: visible }]
@@ -173,6 +192,18 @@ export function RuleBrowser({
 
     return result.filter((section) => section.entries.length > 0)
   }, [visible, sectionByGroup, sort, group])
+
+  // When selection moves into a collapsed section, open it (deep links / clicks).
+  useEffect(() => {
+    const label = selected?.group
+    if (!label || !sectionByGroup) return
+    setCollapsed((prev) => {
+      if (!prev.has(label)) return prev
+      const next = new Set(prev)
+      next.delete(label)
+      return next
+    })
+  }, [selected?.id, selected?.group, sectionByGroup])
 
   return (
     <div className="space-y-4">
@@ -285,28 +316,53 @@ export function RuleBrowser({
       ) : (
         <div className="grid gap-4 lg:grid-cols-[minmax(0,22rem)_minmax(0,1fr)] xl:grid-cols-[minmax(0,26rem)_minmax(0,1fr)]">
           <div className="max-h-[min(70vh,40rem)] overflow-y-auto border border-hairline bg-card/40 lg:max-h-[min(78vh,44rem)]">
-            {sections.map((section) => (
-              <div key={section.label ?? "all"}>
-                {section.label && (
-                  <div className="sticky top-0 z-10 border-b border-hairline bg-panel/95 px-3 py-1.5 backdrop-blur-sm">
-                    <span className={cn("console-label", tone.text)}>
-                      {section.label}
-                    </span>
-                  </div>
-                )}
-                {section.entries.map((entry) => (
-                  <RuleIndexRow
-                    key={entry.record.id}
-                    record={entry.record}
-                    index={entry.index}
-                    layout={layout}
-                    accent={accent}
-                    selected={selected?.id === entry.record.id}
-                    onSelect={() => selectRecord(entry.record.id)}
-                  />
-                ))}
-              </div>
-            ))}
+            {sections.map((section) => {
+              const isCollapsible = Boolean(section.label)
+              const isOpen =
+                !isCollapsible || !collapsed.has(section.label as string)
+
+              return (
+                <div key={section.label ?? "all"}>
+                  {section.label && (
+                    <button
+                      type="button"
+                      onClick={() => toggleSection(section.label as string)}
+                      aria-expanded={isOpen}
+                      className={cn(
+                        "sticky top-0 z-10 flex w-full items-center gap-1.5 border-b border-hairline bg-panel/95 px-3 py-1.5 text-left backdrop-blur-sm",
+                        "transition-colors hover:bg-card/80 focus-visible:bg-card/80 focus-visible:outline-none"
+                      )}
+                    >
+                      <ChevronRight
+                        aria-hidden
+                        className={cn(
+                          "size-3 shrink-0 text-muted-foreground transition-transform",
+                          isOpen && "rotate-90"
+                        )}
+                      />
+                      <span className={cn("console-label", tone.text)}>
+                        {section.label}
+                      </span>
+                      <span className="console-label ml-auto text-muted-foreground/60">
+                        {String(section.entries.length).padStart(2, "0")}
+                      </span>
+                    </button>
+                  )}
+                  {isOpen &&
+                    section.entries.map((entry) => (
+                      <RuleIndexRow
+                        key={entry.record.id}
+                        record={entry.record}
+                        index={entry.index}
+                        layout={layout}
+                        accent={accent}
+                        selected={selected?.id === entry.record.id}
+                        onSelect={() => selectRecord(entry.record.id)}
+                      />
+                    ))}
+                </div>
+              )
+            })}
           </div>
 
           <div className="hidden min-h-96 border border-hairline bg-card/50 lg:block lg:max-h-[min(78vh,44rem)] lg:overflow-hidden">

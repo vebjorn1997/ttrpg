@@ -12,6 +12,7 @@ import {
   getHealing,
   getNpcs,
   getSkills,
+  getTechLevels,
   getTraits,
 } from "@/lib/api"
 import { dataModules, type DataModule } from "@/lib/modules"
@@ -48,6 +49,7 @@ export async function buildRuleLinkCatalog(): Promise<RuleLinkEntry[]> {
     healing,
     feats,
     skills,
+    techLevels,
     npcs,
     traits,
   ] = await Promise.all([
@@ -58,6 +60,7 @@ export async function buildRuleLinkCatalog(): Promise<RuleLinkEntry[]> {
     getHealing(),
     getFeats(),
     getSkills(),
+    getTechLevels(),
     getNpcs(),
     getTraits(),
   ])
@@ -93,6 +96,10 @@ export async function buildRuleLinkCatalog(): Promise<RuleLinkEntry[]> {
     ...entries(
       "skills",
       (skills.data ?? []).map((row) => ({ id: row.id, title: row.name }))
+    ),
+    ...entries(
+      "tl",
+      (techLevels.data ?? []).map((row) => ({ id: row.id, title: row.name }))
     ),
     ...entries(
       "npcs",

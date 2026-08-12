@@ -83,6 +83,13 @@ export type Skill = {
   primaryCharacteristic: string
 }
 
+export type TechLevel = {
+  id: string
+  name: string
+  level: number
+  description: string | null
+}
+
 export type Npc = {
   id: string
   name: string
@@ -234,6 +241,7 @@ export const getFeats = () => getCollection<Feat>("/feats")
 export const getSkills = () => getCollection<Skill>("/skills")
 export const getNpcs = () => getCollection<Npc>("/npc-catalog")
 export const getTraits = () => getCollection<Trait>("/traits")
+export const getTechLevels = () => getCollection<TechLevel>("/tl")
 export const getCharacters = () => getCollection<CharacterSummary>("/characters")
 
 export async function getCharacter(
@@ -382,6 +390,7 @@ export type ModuleId =
   | "skills"
   | "npcs"
   | "traits"
+  | "tl"
   | "characters"
 
 /** Record count per dataset, or null when that dataset could not be read. */
@@ -398,6 +407,7 @@ const collectionLoaders: Record<ModuleId, () => Promise<ApiResult<unknown[]>>> =
     skills: getSkills,
     npcs: getNpcs,
     traits: getTraits,
+    tl: getTechLevels,
     characters: getCharacters,
   }
 

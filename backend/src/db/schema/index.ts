@@ -16,3 +16,4 @@ export {
 } from './characters';
 export type { CharacterSkill } from './characters';
 export { skillsTable, skillsFeatsTable } from './skills';
+export { tlTable } from './tl';

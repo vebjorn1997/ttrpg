@@ -1,31 +1,31 @@
-name,type,prerequisites,cost,description,
-Take Aim,Combat,Gun Combat 1+,,Unlock Aim action,
-Disengage,Combat,Melee 1+,,Unlock Disengage action,
-Grapple,Combat,Melee 1+,,Unlock Grapple action,
-Disarm,Combat,Melee 1+ or Gun Combat 2+,,Unlock Disarm action,
-Charge,Combat,Melee 1+,,Unlock Charge action,
-Called Shot,Combat,Gun Combat 1+,,Unlock Called Shot action,
-Called Shot (Adv.),Combat,Called Shot & Gun Combat 3+,,Unlock Called Shot (Adv.) action,
-Inspiring Speech,Combat,Tactics or Leadership 0+,,Unlock Inspiring Speech action,
-Sustained Fire,Combat,Gun Combat 2+,,Unlock Full Auto Attack action,
-Overwatch,Combat,Gun Combat 2+,,Unlock Overwatch action,
-Controlled Burst,Combat,Gun Combat 2+,,Unlock Controlled Burst action,
-Experienced Brawler,Combat,Total 10+,,Unlock Dodge action,
-Duelist,Combat,Melee 1+,,Unlock Parry action,
-Dive for Cover,Combat,Athletics 1+,,Unlock Dive for Cover action,
-Opportunist,Combat,Melee 1+,,Unlock Attack of Opportunity action,
-Friendly Face,General,Carouse 1+,,"After 1 hr socializing, you meet someone willing to do you a small favor or answer one reasonable question. Requires successful check, can also fail and be lied to.",
-Smuggler,General,Broker & Deception 1+,,Can smuggle one item anywhere with a deception check,
-Experienced Smuggler,General,Smuggler feat; Deception & Broker 2+,,Can smuggle 3 items anywhere with a deception check,
-Bureaucratic Shortcut,General,Admin 1+,,You may reduce the time required for one bureaucratic task by one step (days → hours → minutes),
-Know a Guy,General,Streetwise 1+,,"Once per settlement, declare the existence of a local contact capable of providing one useful piece of information or arranging a minor illicit service. Takes several hours, and a successful roll.",
-Legal Objection,General,Advocate 2+,,"When NPC attempts to arrest, search, or detain someone, cite a legal objection. With successful roll, attempt is ended.",
-Polyglot,General,Language 0+,,Learn a new language of your choice.,
-Quick Hack,General,Electronics 1+,,"Lowers the time to hack a device by one degree, hours → minutes → seconds.",
-Combat Hack,Combat,Electronics 2+,,Unlock Combat Hack action.,
-Divide and Conquer,Combat,Persuade 1+,,"Apply confusion to X NPC's. X difficulty start at 8+, increase by 2 for each additional target.",
-Diplomatic Gambit,General,Diplomat 1+,,"Change the attitude of any NPC by one degree with a successful check, lowers with failure",
-Keen Eye,Combat,Recon 0 or Total>=10,,Unlock Identify Enemy action,
-Combat Sprint,Combat,Athletics 2+,,Unlock Combat Sprint action,
-Count the Odds,General,Gambling 1+,,"Once per session, after observing one round, you can immediately determine if the game is honest, manipulated, or fraudulent.",
-Convincing Argument,General,Persuade 2+,,"Once per session, you can convince any normal or rare NPC of your argument as long as it does not directly harms the NPC or his interests.",
+name,type,prerequisites,cost,description
+Take Aim,Combat,Gun Combat 1+,,Unlock Aim action
+Disengage,Combat,Melee 1+,,Unlock Disengage action
+Grapple,Combat,Melee 1+,,Unlock Grapple action
+Disarm,Combat,Melee 1+ or Gun Combat 2+,,Unlock Disarm action
+Charge,Combat,Melee 1+,,Unlock Charge action
+Called Shot,Combat,Gun Combat 1+,,Unlock Called Shot action
+Called Shot (Adv.),Combat,Called Shot & Gun Combat 3+,,Unlock Called Shot (Adv.) action
+Inspiring Speech,Combat,Tactics or Leadership 0+,,Unlock Inspiring Speech action
+Sustained Fire,Combat,Gun Combat 2+,,Unlock Full Auto Attack action
+Overwatch,Combat,Gun Combat 2+,,Unlock Overwatch action
+Controlled Burst,Combat,Gun Combat 2+,,Unlock Controlled Burst action
+Experienced Brawler,Combat,Total 10+,,Unlock Dodge action
+Duelist,Combat,Melee 1+,,Unlock Parry action
+Dive for Cover,Combat,Athletics 1+,,Unlock Dive for Cover action
+Opportunist,Combat,Melee 1+,,Unlock Attack of Opportunity action
+Friendly Face,General,Carouse 1+,,"After 1 hr socializing, you meet someone willing to do you a small favor or answer one reasonable question. Requires successful check, can also fail and be lied to."
+Smuggler,General,Broker & Deception 1+,,"Once per port, treat one restricted shipment as Cover Story Rating 2 without rolling"
+Experienced Smuggler,General,Smuggler feat; Deception & Broker 2+,,Treat up to 3 items as Cover Story Rating 2 without rolling. Alternatively add +2 to a single Cover Story roll. When Bribing someone you always get to choose the cheapest option.
+Bureaucratic Shortcut,General,Admin 1+,,You may reduce the time required for one bureaucratic task by one step (days → hours → minutes)
+Know a Guy,General,Streetwise 1+,,"Once per settlement, declare the existence of a local contact capable of providing one useful piece of information or arranging a minor illicit service. Takes several hours, and a successful roll."
+Legal Objection,General,Advocate 2+,,"When NPC attempts to arrest, search, or detain someone, cite a legal objection. With successful roll, attempt is ended."
+Polyglot,General,Language 0+,,Learn a new language of your choice.
+Quick Hack,General,Electronics 1+,,"Lowers the time to hack a device by one degree, hours → minutes → seconds."
+Combat Hack,Combat,Electronics 2+,,Unlock Combat Hack action.
+Divide and Conquer,Combat,Persuade 1+,,"Apply confusion to X NPC's. X difficulty start at 8+, increase by 2 for each additional target."
+Diplomatic Gambit,General,Diplomat 1+,,"Change the attitude of any NPC by one degree with a successful check, lowers with failure"
+Keen Eye,Combat,Recon 0 or Total>=10,,Unlock Identify Enemy action
+Combat Sprint,Combat,Athletics 2+,,Unlock Combat Sprint action
+Count the Odds,General,Gambling 1+,,"Once per session, after observing one round, you can immediately determine if the game is honest, manipulated, or fraudulent."
+Convincing Argument,General,Persuade 2+,,"Once per session, you can convince any normal or rare NPC of your argument as long as it does not directly harms the NPC or his interests."
