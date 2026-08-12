@@ -19,6 +19,7 @@ const REQUEST_TIMEOUT_MS = 6_000
 export type Trait = {
   id: string
   name: string
+  type: string
   color: string
   description: string
 }

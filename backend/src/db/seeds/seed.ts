@@ -29,6 +29,16 @@ const seed = async () => {
     ).onConflictDoNothing();
     await db.insert(calledShotsTable).values(calledShots).onConflictDoNothing();
     await db.insert(traitsTable).values(traits).onConflictDoNothing();
+    for (const trait of traits) {
+        await db
+            .update(traitsTable)
+            .set({
+                type: trait.type,
+                description: trait.description,
+                color: trait.color,
+            })
+            .where(eq(traitsTable.name, trait.name));
+    }
     await db.insert(criticalInjuryTable).values(criticalInjury).onConflictDoNothing();
     await db.insert(healingTable).values(healing).onConflictDoNothing();
     await db.insert(featsTable).values(feats).onConflictDoNothing();

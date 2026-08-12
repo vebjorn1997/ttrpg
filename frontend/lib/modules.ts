@@ -157,9 +157,9 @@ export const dataModules: DataModule[] = [
     title: "Traits Index",
     href: "/traits",
     endpoint: "/traits",
-    synopsis: "Shared tag glossary for weapons, gear and NPC ranks.",
+    synopsis: "Shared tag glossary typed for weapons, NPCs and planets.",
     detail:
-      "Traits are the vocabulary the rest of the system reuses. Weapons, NPC ranks and damage tags all reference these entries.",
+      "Traits are the vocabulary the rest of the system reuses. Each trait is typed Weapon, NPC, or Planet so the right catalog can pull it.",
     unit: "trait",
     units: "traits",
     icon: Tags,

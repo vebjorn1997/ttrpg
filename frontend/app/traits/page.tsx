@@ -23,7 +23,8 @@ export default async function TraitsPage() {
   const records: DataRecord[] = (result.data ?? []).map((trait) => ({
     id: trait.id,
     title: trait.name,
-    kicker: "Trait",
+    kicker: trait.type,
+    group: trait.type,
     description: trait.description,
     swatch: trait.color,
   }))
@@ -34,14 +35,15 @@ export default async function TraitsPage() {
       error={result.error}
       records={records}
       layout="traits"
+      facetLabel="Type"
+      sectionByGroup
       links={links}
       footnote={
         <ConsolePanel label="Where traits appear" code="NOTE" accent="viridian">
           <p className="text-sm leading-relaxed text-muted-foreground">
-            Traits are shared tags rather than a subsystem of their own. Weapon
-            traits gate the actions a weapon allows, rank traits set how many
-            features an NPC carries, and damage traits like Fire apply their own
-            ongoing effect.
+            Traits are shared tags rather than a subsystem of their own. Each
+            entry is typed as Weapon, NPC, or Planet so it can be filtered and
+            applied in the right place.
           </p>
         </ConsolePanel>
       }
