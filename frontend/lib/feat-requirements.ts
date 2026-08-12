@@ -20,8 +20,12 @@ function norm(value: string): string {
 
 function skillLevel(skills: SkillLevel[], skillName: string): number | null {
   const target = norm(skillName)
-  const match = skills.find((skill) => norm(skill.name) === target)
-  return match ? match.level : null
+  let best: number | null = null
+  for (const skill of skills) {
+    if (norm(skill.name) !== target) continue
+    if (best === null || skill.level > best) best = skill.level
+  }
+  return best
 }
 
 function totalSkillLevels(skills: SkillLevel[]): number {

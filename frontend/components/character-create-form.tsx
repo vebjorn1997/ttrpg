@@ -11,7 +11,7 @@ import { CharacterFeatPicker } from "@/components/character-feat-picker"
 import { CharacterSkillPicker } from "@/components/character-skill-picker"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import type { CharacterSkill, Feat, Skill } from "@/lib/api"
+import type { CharacterSkill, Feat, Language, Skill } from "@/lib/api"
 import { pruneInvalidFeats } from "@/lib/prune-feats"
 import { cn } from "@/lib/utils"
 
@@ -21,6 +21,10 @@ const fieldClass =
 const labelClass = "console-label text-muted-foreground"
 
 const initialState: CreateCharacterState = { error: null }
+
+const DEFAULT_STARTING_SKILLS: CharacterSkill[] = [
+  { name: "Language", level: 1, language: "Common" },
+]
 
 type IntakeTab = "sheet" | "feats"
 
@@ -86,11 +90,15 @@ function CharPair({
 export function CharacterCreateForm({
   skills = [],
   skillsError = null,
+  languages = [],
+  languagesError = null,
   feats = [],
   featsError = null,
 }: {
   skills?: Skill[]
   skillsError?: string | null
+  languages?: Language[]
+  languagesError?: string | null
   feats?: Feat[]
   featsError?: string | null
 }) {
@@ -99,7 +107,9 @@ export function CharacterCreateForm({
     initialState
   )
   const [tab, setTab] = useState<IntakeTab>("sheet")
-  const [pickedSkills, setPickedSkills] = useState<CharacterSkill[]>([])
+  const [pickedSkills, setPickedSkills] = useState<CharacterSkill[]>(
+    DEFAULT_STARTING_SKILLS
+  )
   const [selectedFeatIds, setSelectedFeatIds] = useState<string[]>([])
 
   function handleSkillsChange(nextSkills: CharacterSkill[]) {
@@ -281,6 +291,9 @@ export function CharacterCreateForm({
         <CharacterSkillPicker
           catalog={skills}
           error={skillsError}
+          languages={languages}
+          languagesError={languagesError}
+          initialSkills={DEFAULT_STARTING_SKILLS}
           onChange={handleSkillsChange}
         />
 

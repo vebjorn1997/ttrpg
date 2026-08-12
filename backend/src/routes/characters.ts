@@ -34,13 +34,35 @@ function parseSkills(value: unknown): CharacterSkill[] | null {
   if (value === undefined) return null
   if (!Array.isArray(value)) return null
   const skills: CharacterSkill[] = []
+  const seen = new Set<string>()
+
   for (const item of value) {
     if (!item || typeof item !== 'object') return null
-    const name = (item as { name?: unknown }).name
+    const nameRaw = (item as { name?: unknown }).name
     const level = (item as { level?: unknown }).level
-    if (typeof name !== 'string' || name.trim() === '') return null
+    const languageRaw = (item as { language?: unknown }).language
+
+    if (typeof nameRaw !== 'string' || nameRaw.trim() === '') return null
     if (typeof level !== 'number' || !Number.isInteger(level) || level < 0) return null
-    skills.push({ name: name.trim(), level })
+
+    const name = nameRaw.trim()
+    const isLanguage = name.toLowerCase() === 'language'
+    let language: string | undefined
+
+    if (isLanguage) {
+      if (typeof languageRaw !== 'string' || languageRaw.trim() === '') return null
+      language = languageRaw.trim()
+    } else if (languageRaw != null && languageRaw !== '') {
+      return null
+    }
+
+    const key = isLanguage
+      ? `language::${language!.toLowerCase()}`
+      : name.toLowerCase()
+    if (seen.has(key)) return null
+    seen.add(key)
+
+    skills.push(language ? { name, level, language } : { name, level })
   }
   return skills
 }

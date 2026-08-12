@@ -7,7 +7,7 @@ import { CharacterEditForm } from "@/components/character-edit-form"
 import { ConsolePanel } from "@/components/console-panel"
 import { CornerBrackets } from "@/components/corner-brackets"
 import { OfflineNotice } from "@/components/offline-notice"
-import { getCharacter, getFeats, getSkills } from "@/lib/api"
+import { getCharacter, getFeats, getLanguages, getSkills } from "@/lib/api"
 import { getModule } from "@/lib/modules"
 
 const dataset = getModule("characters")
@@ -32,11 +32,13 @@ export async function generateMetadata({
 
 export default async function EditCharacterPage({ params }: PageProps) {
   const { id } = await params
-  const [characterResult, skillsResult, featsResult] = await Promise.all([
-    getCharacter(id),
-    getSkills(),
-    getFeats(),
-  ])
+  const [characterResult, skillsResult, languagesResult, featsResult] =
+    await Promise.all([
+      getCharacter(id),
+      getSkills(),
+      getLanguages(),
+      getFeats(),
+    ])
 
   if (
     !characterResult.ok &&
@@ -100,6 +102,8 @@ export default async function EditCharacterPage({ params }: PageProps) {
           character={character}
           skills={skillsResult.data ?? []}
           skillsError={skillsResult.error}
+          languages={languagesResult.data ?? []}
+          languagesError={languagesResult.error}
           feats={featsResult.data ?? []}
           featsError={featsResult.error}
         />

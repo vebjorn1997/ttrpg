@@ -52,6 +52,7 @@ function parseSkills(formData: FormData): CharacterSkill[] | { error: string } {
     .map((value) => value.trim())
     .filter(Boolean)
   const levels = formData.getAll("skillLevel")
+  const languages = formData.getAll("skillLanguage")
 
   if (names.length === 0) return []
 
@@ -60,10 +61,31 @@ function parseSkills(formData: FormData): CharacterSkill[] | { error: string } {
 
   for (let i = 0; i < names.length; i++) {
     const name = names[i]
-    if (seen.has(name)) {
-      return { error: `Skill "${name}" was added more than once.` }
+    const isLanguage = name.toLowerCase() === "language"
+    const rawLanguage = languages[i]
+    const language =
+      typeof rawLanguage === "string" && rawLanguage.trim() !== ""
+        ? rawLanguage.trim()
+        : null
+
+    if (isLanguage && !language) {
+      return { error: `Language skill needs a specific language.` }
     }
-    seen.add(name)
+    if (!isLanguage && language) {
+      return { error: `Skill "${name}" cannot have a language specialty.` }
+    }
+
+    const key = isLanguage
+      ? `language::${language!.toLowerCase()}`
+      : name.toLowerCase()
+    if (seen.has(key)) {
+      return {
+        error: isLanguage
+          ? `Language "${language}" was added more than once.`
+          : `Skill "${name}" was added more than once.`,
+      }
+    }
+    seen.add(key)
 
     const rawLevel = levels[i]
     const level =
@@ -73,11 +95,11 @@ function parseSkills(formData: FormData): CharacterSkill[] | { error: string } {
 
     if (!Number.isInteger(level) || level < 0) {
       return {
-        error: `Skill "${name}" needs a non-negative whole-number level.`,
+        error: `Skill "${isLanguage ? `Language (${language})` : name}" needs a non-negative whole-number level.`,
       }
     }
 
-    skills.push({ name, level })
+    skills.push(language ? { name, level, language } : { name, level })
   }
 
   return skills

@@ -6,7 +6,12 @@ import { Plus, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { SkillTooltip } from "@/components/skill-tooltip"
-import type { Skill } from "@/lib/api"
+import type { CharacterSkill, Language, Skill } from "@/lib/api"
+import {
+  characterSkillKey,
+  formatCharacterSkillLabel,
+  isLanguageSkill,
+} from "@/lib/character-skills"
 import { cn } from "@/lib/utils"
 
 const fieldClass =
@@ -14,32 +19,34 @@ const fieldClass =
 
 const labelClass = "console-label text-muted-foreground"
 
-type PickedSkill = {
-  name: string
-  level: number
-}
-
 type CharacterSkillPickerProps = {
   catalog: Skill[]
+  languages?: Language[]
+  languagesError?: string | null
   error?: string | null
-  onChange?: (skills: PickedSkill[]) => void
-  initialSkills?: PickedSkill[]
+  onChange?: (skills: CharacterSkill[]) => void
+  initialSkills?: CharacterSkill[]
 }
 
 /** Pick catalog skills + levels for character intake; submits as paired form fields. */
 export function CharacterSkillPicker({
   catalog,
+  languages = [],
+  languagesError = null,
   error,
   onChange,
   initialSkills = [],
 }: CharacterSkillPickerProps) {
-  const [picked, setPicked] = useState<PickedSkill[]>(() =>
-    [...initialSkills].sort((a, b) => a.name.localeCompare(b.name))
+  const [picked, setPicked] = useState<CharacterSkill[]>(() =>
+    [...initialSkills].sort((a, b) =>
+      formatCharacterSkillLabel(a).localeCompare(formatCharacterSkillLabel(b))
+    )
   )
   const [pendingName, setPendingName] = useState("")
+  const [pendingLanguage, setPendingLanguage] = useState("")
   const [pendingLevel, setPendingLevel] = useState(0)
 
-  function commit(next: PickedSkill[]) {
+  function commit(next: CharacterSkill[]) {
     setPicked(next)
     onChange?.(next)
   }
@@ -55,10 +62,34 @@ export function CharacterSkillPicker({
     return [...byChar.entries()].sort(([a], [b]) => a.localeCompare(b))
   }, [catalog])
 
+  const takenLanguages = useMemo(() => {
+    return new Set(
+      picked
+        .filter((skill) => isLanguageSkill(skill.name) && skill.language?.trim())
+        .map((skill) => skill.language!.trim().toLowerCase())
+    )
+  }, [picked])
+
+  const availableLanguages = useMemo(() => {
+    return languages.filter(
+      (language) => !takenLanguages.has(language.name.trim().toLowerCase())
+    )
+  }, [languages, takenLanguages])
+
   const available = useMemo(() => {
-    const taken = new Set(picked.map((skill) => skill.name))
-    return catalog.filter((skill) => !taken.has(skill.name))
-  }, [catalog, picked])
+    const takenNames = new Set(
+      picked
+        .filter((skill) => !isLanguageSkill(skill.name))
+        .map((skill) => skill.name.trim().toLowerCase())
+    )
+
+    return catalog.filter((skill) => {
+      if (isLanguageSkill(skill.name)) {
+        return availableLanguages.length > 0
+      }
+      return !takenNames.has(skill.name.trim().toLowerCase())
+    })
+  }, [catalog, picked, availableLanguages.length])
 
   const descriptionByName = useMemo(() => {
     const map = new Map<string, string>()
@@ -70,34 +101,80 @@ export function CharacterSkillPicker({
     return map
   }, [catalog])
 
+  const languageDescriptionByName = useMemo(() => {
+    const map = new Map<string, string>()
+    for (const language of languages) {
+      if (language.description?.trim()) {
+        map.set(language.name.trim().toLowerCase(), language.description.trim())
+      }
+    }
+    return map
+  }, [languages])
+
+  const pendingNeedsLanguage = isLanguageSkill(pendingName)
+
+  function setSkillName(name: string) {
+    setPendingName(name)
+    if (!isLanguageSkill(name)) {
+      setPendingLanguage("")
+    }
+  }
+
   function addSkill() {
     if (!pendingName) return
-    const level = Number.isInteger(pendingLevel) && pendingLevel >= 0
-      ? pendingLevel
-      : 0
-    if (picked.some((skill) => skill.name === pendingName)) return
+    const level =
+      Number.isInteger(pendingLevel) && pendingLevel >= 0 ? pendingLevel : 0
+
+    if (isLanguageSkill(pendingName)) {
+      if (!pendingLanguage) return
+      const next: CharacterSkill = {
+        name: pendingName,
+        level,
+        language: pendingLanguage,
+      }
+      if (picked.some((skill) => characterSkillKey(skill) === characterSkillKey(next))) {
+        return
+      }
+      commit(
+        [...picked, next].sort((a, b) =>
+          formatCharacterSkillLabel(a).localeCompare(formatCharacterSkillLabel(b))
+        )
+      )
+      setPendingName("")
+      setPendingLanguage("")
+      setPendingLevel(0)
+      return
+    }
+
+    if (picked.some((skill) => characterSkillKey(skill) === pendingName.trim().toLowerCase())) {
+      return
+    }
+
     commit(
       [...picked, { name: pendingName, level }].sort((a, b) =>
-        a.name.localeCompare(b.name)
+        formatCharacterSkillLabel(a).localeCompare(formatCharacterSkillLabel(b))
       )
     )
     setPendingName("")
     setPendingLevel(0)
   }
 
-  function updateLevel(name: string, level: number) {
+  function updateLevel(key: string, level: number) {
     commit(
       picked.map((skill) =>
-        skill.name === name
+        characterSkillKey(skill) === key
           ? { ...skill, level: Number.isFinite(level) && level >= 0 ? level : 0 }
           : skill
       )
     )
   }
 
-  function removeSkill(name: string) {
-    commit(picked.filter((skill) => skill.name !== name))
+  function removeSkill(key: string) {
+    commit(picked.filter((skill) => characterSkillKey(skill) !== key))
   }
+
+  const canAdd =
+    Boolean(pendingName) && (!pendingNeedsLanguage || Boolean(pendingLanguage))
 
   return (
     <div className="space-y-3">
@@ -120,12 +197,12 @@ export function CharacterSkillPicker({
           No skills in the catalog yet.
         </p>
       ) : (
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-end">
-          <label className="flex min-w-0 flex-1 flex-col gap-1.5">
+        <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-end">
+          <label className="flex min-w-0 flex-1 flex-col gap-1.5 sm:min-w-[12rem]">
             <span className={labelClass}>Add from catalog</span>
             <select
               value={pendingName}
-              onChange={(event) => setPendingName(event.target.value)}
+              onChange={(event) => setSkillName(event.target.value)}
               className={cn(
                 fieldClass,
                 "h-8 w-full px-2.5 outline-none focus-visible:ring-3"
@@ -149,6 +226,38 @@ export function CharacterSkillPicker({
               })}
             </select>
           </label>
+
+          {pendingNeedsLanguage && (
+            <label className="flex min-w-0 flex-1 flex-col gap-1.5 sm:min-w-[10rem]">
+              <span className={labelClass}>Language</span>
+              {languagesError ? (
+                <p className="border border-oxide/40 bg-oxide/10 px-2 py-1.5 text-xs text-oxide">
+                  Languages unavailable ({languagesError}).
+                </p>
+              ) : availableLanguages.length === 0 ? (
+                <p className="text-xs text-muted-foreground">
+                  No unused languages left in the catalog.
+                </p>
+              ) : (
+                <select
+                  value={pendingLanguage}
+                  onChange={(event) => setPendingLanguage(event.target.value)}
+                  className={cn(
+                    fieldClass,
+                    "h-8 w-full px-2.5 outline-none focus-visible:ring-3"
+                  )}
+                >
+                  <option value="">Select a language…</option>
+                  {availableLanguages.map((language) => (
+                    <option key={language.id} value={language.name}>
+                      {language.name}
+                    </option>
+                  ))}
+                </select>
+              )}
+            </label>
+          )}
+
           <label className="flex w-full flex-col gap-1.5 sm:w-24">
             <span className={labelClass}>Level</span>
             <Input
@@ -163,7 +272,7 @@ export function CharacterSkillPicker({
             type="button"
             variant="outline"
             size="sm"
-            disabled={!pendingName}
+            disabled={!canAdd}
             onClick={addSkill}
             className="rounded-none border-hairline font-heading tracking-[0.12em] uppercase"
           >
@@ -175,46 +284,59 @@ export function CharacterSkillPicker({
 
       {picked.length > 0 && (
         <ul className="divide-y divide-hairline border border-hairline bg-background/30">
-          {picked.map((skill) => (
-            <li
-              key={skill.name}
-              className="flex items-center gap-3 px-3 py-2"
-            >
-              <SkillTooltip
-                name={skill.name}
-                description={descriptionByName.get(skill.name)}
-                className="min-w-0 flex-1"
-              >
-                <span className="cursor-help font-heading text-sm tracking-wide">
-                  {skill.name}
-                </span>
-              </SkillTooltip>
-              <label className="flex items-center gap-2">
-                <span className={labelClass}>Lvl</span>
-                <Input
-                  type="number"
-                  min={0}
-                  name="skillLevel"
-                  value={skill.level}
-                  onChange={(event) =>
-                    updateLevel(skill.name, Number(event.target.value))
-                  }
-                  className={cn(fieldClass, "w-16")}
+          {picked.map((skill) => {
+            const key = characterSkillKey(skill)
+            const label = formatCharacterSkillLabel(skill)
+            const description =
+              (skill.language &&
+                languageDescriptionByName.get(
+                  skill.language.trim().toLowerCase()
+                )) ||
+              descriptionByName.get(skill.name)
+
+            return (
+              <li key={key} className="flex items-center gap-3 px-3 py-2">
+                <SkillTooltip
+                  name={label}
+                  description={description}
+                  className="min-w-0 flex-1"
+                >
+                  <span className="cursor-help font-heading text-sm tracking-wide">
+                    {label}
+                  </span>
+                </SkillTooltip>
+                <label className="flex items-center gap-2">
+                  <span className={labelClass}>Lvl</span>
+                  <Input
+                    type="number"
+                    min={0}
+                    name="skillLevel"
+                    value={skill.level}
+                    onChange={(event) =>
+                      updateLevel(key, Number(event.target.value))
+                    }
+                    className={cn(fieldClass, "w-16")}
+                  />
+                </label>
+                <input type="hidden" name="skillName" value={skill.name} />
+                <input
+                  type="hidden"
+                  name="skillLanguage"
+                  value={skill.language ?? ""}
                 />
-              </label>
-              <input type="hidden" name="skillName" value={skill.name} />
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon-sm"
-                aria-label={`Remove ${skill.name}`}
-                onClick={() => removeSkill(skill.name)}
-                className="rounded-none text-muted-foreground hover:text-oxide"
-              >
-                <X aria-hidden />
-              </Button>
-            </li>
-          ))}
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon-sm"
+                  aria-label={`Remove ${label}`}
+                  onClick={() => removeSkill(key)}
+                  className="rounded-none text-muted-foreground hover:text-oxide"
+                >
+                  <X aria-hidden />
+                </Button>
+              </li>
+            )
+          })}
         </ul>
       )}
     </div>

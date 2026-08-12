@@ -15,6 +15,7 @@ import type {
   CharacterDetail,
   CharacterSkill,
   Feat,
+  Language,
   Skill,
 } from "@/lib/api"
 import { pruneInvalidFeats } from "@/lib/prune-feats"
@@ -82,12 +83,16 @@ export function CharacterEditForm({
   character,
   skills = [],
   skillsError = null,
+  languages = [],
+  languagesError = null,
   feats = [],
   featsError = null,
 }: {
   character: CharacterDetail
   skills?: Skill[]
   skillsError?: string | null
+  languages?: Language[]
+  languagesError?: string | null
   feats?: Feat[]
   featsError?: string | null
 }) {
@@ -216,6 +221,8 @@ export function CharacterEditForm({
         <CharacterSkillPicker
           catalog={skills}
           error={skillsError}
+          languages={languages}
+          languagesError={languagesError}
           initialSkills={character.skills}
           onChange={handleSkillsChange}
         />

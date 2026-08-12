@@ -12,8 +12,12 @@ import { OfflineNotice } from "@/components/offline-notice"
 import { RuleText } from "@/components/rule-text"
 import { SkillTooltip } from "@/components/skill-tooltip"
 import { StatReadout } from "@/components/stat-readout"
-import { getActions, getCharacter, getSkills } from "@/lib/api"
+import { getActions, getCharacter, getLanguages, getSkills } from "@/lib/api"
 import { actionsAvailableToCharacter } from "@/lib/character-actions"
+import {
+  characterSkillKey,
+  formatCharacterSkillLabel,
+} from "@/lib/character-skills"
 import { getModule } from "@/lib/modules"
 import { buildRuleLinkCatalog } from "@/lib/rule-links"
 
@@ -47,12 +51,14 @@ function formatPair(pair: { max: number; current: number }) {
 
 export default async function CharacterDetailPage({ params }: PageProps) {
   const { id } = await params
-  const [result, actionsResult, skillsResult, links] = await Promise.all([
-    getCharacter(id),
-    getActions(),
-    getSkills(),
-    buildRuleLinkCatalog(),
-  ])
+  const [result, actionsResult, skillsResult, languagesResult, links] =
+    await Promise.all([
+      getCharacter(id),
+      getActions(),
+      getSkills(),
+      getLanguages(),
+      buildRuleLinkCatalog(),
+    ])
 
   if (!result.ok && result.error === "Character not found.") {
     notFound()
@@ -78,6 +84,14 @@ export default async function CharacterDetailPage({ params }: PageProps) {
     (skillsResult.data ?? [])
       .filter((skill) => skill.description?.trim())
       .map((skill) => [skill.name, skill.description!.trim()] as const)
+  )
+  const languageDescriptionByName = new Map(
+    (languagesResult.data ?? [])
+      .filter((language) => language.description?.trim())
+      .map(
+        (language) =>
+          [language.name.trim().toLowerCase(), language.description!.trim()] as const
+      )
   )
 
   return (
@@ -208,21 +222,31 @@ export default async function CharacterDetailPage({ params }: PageProps) {
                   </p>
                 ) : (
                   <ul className="space-y-1.5">
-                    {character.skills.map((skill) => (
-                      <li key={`${skill.name}-${skill.level}`}>
-                        <SkillTooltip
-                          name={skill.name}
-                          description={skillDescriptionByName.get(skill.name)}
-                        >
-                          <div className="cursor-help">
-                            <StatReadout
-                              label={skill.name}
-                              value={String(skill.level)}
-                            />
-                          </div>
-                        </SkillTooltip>
-                      </li>
-                    ))}
+                    {character.skills.map((skill) => {
+                      const label = formatCharacterSkillLabel(skill)
+                      const description =
+                        (skill.language &&
+                          languageDescriptionByName.get(
+                            skill.language.trim().toLowerCase()
+                          )) ||
+                        skillDescriptionByName.get(skill.name)
+
+                      return (
+                        <li key={characterSkillKey(skill)}>
+                          <SkillTooltip
+                            name={label}
+                            description={description}
+                          >
+                            <div className="cursor-help">
+                              <StatReadout
+                                label={label}
+                                value={String(skill.level)}
+                              />
+                            </div>
+                          </SkillTooltip>
+                        </li>
+                      )
+                    })}
                   </ul>
                 )}
               </ConsolePanel>

@@ -5,7 +5,7 @@ import { ChevronRight } from "lucide-react"
 import { CharacterCreateForm } from "@/components/character-create-form"
 import { ConsolePanel } from "@/components/console-panel"
 import { CornerBrackets } from "@/components/corner-brackets"
-import { getFeats, getSkills } from "@/lib/api"
+import { getFeats, getLanguages, getSkills } from "@/lib/api"
 import { getModule } from "@/lib/modules"
 
 const dataset = getModule("characters")
@@ -16,8 +16,9 @@ export const metadata: Metadata = {
 }
 
 export default async function NewCharacterPage() {
-  const [skillsResult, featsResult] = await Promise.all([
+  const [skillsResult, languagesResult, featsResult] = await Promise.all([
     getSkills(),
+    getLanguages(),
     getFeats(),
   ])
 
@@ -55,6 +56,8 @@ export default async function NewCharacterPage() {
         <CharacterCreateForm
           skills={skillsResult.data ?? []}
           skillsError={skillsResult.error}
+          languages={languagesResult.data ?? []}
+          languagesError={languagesResult.error}
           feats={featsResult.data ?? []}
           featsError={featsResult.error}
         />

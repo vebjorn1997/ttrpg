@@ -15,6 +15,8 @@ import { criticalInjuryTable } from './criticalInjury'
 export type CharacterSkill = {
   name: string
   level: number
+  /** Set when `name` is Language — which tongue this rating applies to. */
+  language?: string | null
 }
 
 export const charactersTable = pgTable('characters', {

@@ -122,6 +122,8 @@ export type CharacteristicPair = {
 export type CharacterSkill = {
   name: string
   level: number
+  /** Set when `name` is Language — which tongue this rating applies to. */
+  language?: string | null
 }
 
 export type CharacterSummary = {
