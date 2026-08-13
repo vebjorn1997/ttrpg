@@ -19,6 +19,7 @@ export { skillsTable, skillsFeatsTable } from './skills';
 export { tlTable } from './tl';
 export { lawlevelTable } from './lawlevel';
 export { languagesTable } from './languages';
+export { miscellaneousTable } from './miscellaneous';
 export {
   user,
   session,

@@ -25,6 +25,8 @@ import languages from './languages';
 import { languagesTable } from '../schema/languages';
 import lawlevel from './lawlevel';
 import { lawlevelTable } from '../schema/lawlevel';
+import miscellaneous from './miscellaneous';
+import { miscellaneousTable } from '../schema/miscellaneous';
 
 const db = drizzle(process.env.DATABASE_URL!);
 
@@ -88,6 +90,16 @@ const seed = async () => {
                 description: entry.description,
             })
             .where(eq(lawlevelTable.name, entry.name));
+    }
+    await db.insert(miscellaneousTable).values(miscellaneous).onConflictDoNothing();
+    for (const entry of miscellaneous) {
+        await db
+            .update(miscellaneousTable)
+            .set({
+                sort: entry.sort,
+                description: entry.description,
+            })
+            .where(eq(miscellaneousTable.name, entry.name));
     }
 
     // Resolve action → required feat names to UUIDs and backfill FKs

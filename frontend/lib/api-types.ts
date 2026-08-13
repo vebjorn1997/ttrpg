@@ -87,6 +87,13 @@ export type LawLevel = {
   description: string | null
 }
 
+export type MiscellaneousRule = {
+  id: string
+  name: string
+  sort: number
+  description: string | null
+}
+
 export type Npc = {
   id: string
   name: string
@@ -202,6 +209,7 @@ export type ModuleId =
   | "tl"
   | "languages"
   | "lawlevel"
+  | "miscellaneous"
   | "characters"
 
 /** Record count per dataset, or null when that dataset could not be read. */

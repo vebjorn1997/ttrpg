@@ -29,11 +29,14 @@ Polluted,System,"Contaminated atmosphere, water, or soil; filters and hazard gea
 Acid Rain,System,Corrosive precipitation that eats unprotected hull plating and flesh alike. Requires specialised hull plating and vac suits to withstand the corrosive effect.,#420D09
 Stormwracked,System,Wracked by permanent extreme weather; habitation is underground or shielded.,#420D09
 Red Zone,System,"Interdicted; landing is legally prohibited due to extreme danger, active conflict, deadly plagues, dangerous alien artifacts or imperial edict.",#420D09
-Amber Zone,System,Hazardous; caution is advised—conditions are risky but travel is not outright forbidden.,#420D09
+Amber Zone,System,Hazardous; caution is advised -- conditions are risky but travel is not outright forbidden.,#420D09
 Quarantined ,System,Biological or environmental lockdown; no entry or exit permitted under penalty.,#420D09
 Unexplored,System,No comprehensive survey exists; star charts may be wrong and the surface is largely unknown.,#420D09
 No Gravity,System,"Zero-G throughout; freefall conditions require magnetic boots, thrusters, or tethering to navigate.",#420D09
 Low Gravity,System,"Significantly less than standard; high jumps and fragile structures, with long-term health tolls on residents.",#420D09
 Medium Gravity,System,Comfortable standard range; roughly 0.8 to 1.2 G with no special accommodations needed.,#420D09
-High Gravity,System,"Crushing weight; movement is exhausting, equipment strains, and hearts work overtime just to stand.",
-Independent,System,This system is largely independent from any foreign Empire.,
+High Gravity,System,"Crushing weight; movement is exhausting, equipment strains, and hearts work overtime just to stand.",#420D09
+Independent,System,This system is largely independent from any foreign Empire.,#420D09
+Major Power,Faction,This faction is a major player on the intergalactic scene.,#420D09
+Minor Power,Faction,"This faction is a minor power, able to wield local power in the surronding systems.",#420D09
+Nomadic,Faction,"No fixed territory; fleets, caravans, or migratory habitats.",#420D09

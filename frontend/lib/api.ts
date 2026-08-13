@@ -25,6 +25,7 @@ import type {
   Healing,
   Language,
   LawLevel,
+  MiscellaneousRule,
   ModuleId,
   ModuleTelemetry,
   Npc,
@@ -158,6 +159,8 @@ export const getTraits = () => getCollection<Trait>("/traits")
 export const getTechLevels = () => getCollection<TechLevel>("/tl")
 export const getLanguages = () => getCollection<Language>("/languages")
 export const getLawLevels = () => getCollection<LawLevel>("/lawlevel")
+export const getMiscellaneous = () =>
+  getCollection<MiscellaneousRule>("/miscellaneous")
 export const getCharacters = () =>
   getAuthedCollection<CharacterSummary>("/characters")
 
@@ -347,6 +350,7 @@ const collectionLoaders: Record<ModuleId, () => Promise<ApiResult<unknown[]>>> =
     tl: getTechLevels,
     languages: getLanguages,
     lawlevel: getLawLevels,
+    miscellaneous: getMiscellaneous,
     characters: getCharacters,
   }
 
