@@ -8,12 +8,14 @@ import {
   type UpdateCharacterState,
 } from "@/app/characters/actions"
 import { CharacterFeatPicker } from "@/components/character-feat-picker"
+import { CharacterEquipmentPicker } from "@/components/character-equipment-picker"
 import { CharacterSkillPicker } from "@/components/character-skill-picker"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import type {
   CharacterDetail,
   CharacterSkill,
+  Equipment,
   Feat,
   Language,
   Skill,
@@ -28,7 +30,7 @@ const labelClass = "console-label text-muted-foreground"
 
 const initialState: UpdateCharacterState = { error: null }
 
-type IntakeTab = "sheet" | "feats"
+type IntakeTab = "sheet" | "feats" | "equipment"
 
 function Field({
   label,
@@ -87,6 +89,8 @@ export function CharacterEditForm({
   languagesError = null,
   feats = [],
   featsError = null,
+  equipmentCatalog = [],
+  equipmentError = null,
 }: {
   character: CharacterDetail
   skills?: Skill[]
@@ -95,6 +99,8 @@ export function CharacterEditForm({
   languagesError?: string | null
   feats?: Feat[]
   featsError?: string | null
+  equipmentCatalog?: Equipment[]
+  equipmentError?: string | null
 }) {
   const [state, formAction, pending] = useActionState(
     updateCharacterAction,
@@ -110,6 +116,9 @@ export function CharacterEditForm({
       feats,
       character.skills
     )
+  )
+  const [selectedEquipmentIds, setSelectedEquipmentIds] = useState<string[]>(
+    () => (character.equipmentItems ?? []).map((item) => item.id)
   )
 
   function handleSkillsChange(nextSkills: CharacterSkill[]) {
@@ -139,13 +148,16 @@ export function CharacterEditForm({
           [
             ["sheet", "Sheet"] as const,
             ["feats", "Feats"] as const,
+            ["equipment", "Emporium"] as const,
           ] as const
         ).map(([id, label]) => {
           const active = tab === id
           const badge =
             id === "feats" && selectedFeatIds.length > 0
               ? String(selectedFeatIds.length)
-              : null
+              : id === "equipment" && selectedEquipmentIds.length > 0
+                ? String(selectedEquipmentIds.length)
+                : null
           return (
             <button
               key={id}
@@ -244,6 +256,24 @@ export function CharacterEditForm({
           selectedIds={selectedFeatIds}
           onChange={setSelectedFeatIds}
           error={featsError}
+        />
+      </div>
+
+      <div
+        role="tabpanel"
+        id="edit-panel-equipment"
+        aria-labelledby="edit-tab-equipment"
+        hidden={tab !== "equipment"}
+      >
+        <p className="mb-4 text-sm text-muted-foreground">
+          Lift wares from the Black Market Emporium. Listings are grouped by
+          type.
+        </p>
+        <CharacterEquipmentPicker
+          catalog={equipmentCatalog}
+          selectedIds={selectedEquipmentIds}
+          onChange={setSelectedEquipmentIds}
+          error={equipmentError}
         />
       </div>
 

@@ -7,7 +7,7 @@ import { CharacterEditForm } from "@/components/character-edit-form"
 import { ConsolePanel } from "@/components/console-panel"
 import { CornerBrackets } from "@/components/corner-brackets"
 import { OfflineNotice } from "@/components/offline-notice"
-import { getCharacter, getFeats, getLanguages, getSkills } from "@/lib/api"
+import { getCharacter, getEquipment, getFeats, getLanguages, getSkills } from "@/lib/api"
 import { getModule } from "@/lib/modules"
 
 const dataset = getModule("characters")
@@ -32,12 +32,13 @@ export async function generateMetadata({
 
 export default async function EditCharacterPage({ params }: PageProps) {
   const { id } = await params
-  const [characterResult, skillsResult, languagesResult, featsResult] =
+  const [characterResult, skillsResult, languagesResult, featsResult, equipmentResult] =
     await Promise.all([
       getCharacter(id),
       getSkills(),
       getLanguages(),
       getFeats(),
+      getEquipment(),
     ])
 
   if (
@@ -92,8 +93,7 @@ export default async function EditCharacterPage({ params }: PageProps) {
           Edit character sheet
         </h1>
         <p className="mt-2 max-w-2xl text-sm leading-relaxed text-foreground/75">
-          Update name, physical maxes, skills, and feats. Available actions on
-          the sheet refresh from the feats you keep.
+          Update name, physical maxes, skills, feats, and Emporium wares.
         </p>
       </section>
 
@@ -106,6 +106,8 @@ export default async function EditCharacterPage({ params }: PageProps) {
           languagesError={languagesResult.error}
           feats={featsResult.data ?? []}
           featsError={featsResult.error}
+          equipmentCatalog={equipmentResult.data ?? []}
+          equipmentError={equipmentResult.error}
         />
       </ConsolePanel>
     </div>

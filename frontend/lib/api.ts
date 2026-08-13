@@ -21,6 +21,7 @@ import type {
   CreateCharacterInput,
   CriticalInjury,
   DashboardSnapshot,
+  Equipment,
   Feat,
   Healing,
   Language,
@@ -161,6 +162,7 @@ export const getLanguages = () => getCollection<Language>("/languages")
 export const getLawLevels = () => getCollection<LawLevel>("/lawlevel")
 export const getMiscellaneous = () =>
   getCollection<MiscellaneousRule>("/miscellaneous")
+export const getEquipment = () => getCollection<Equipment>("/equipment")
 export const getCharacters = () =>
   getAuthedCollection<CharacterSummary>("/characters")
 
@@ -351,6 +353,7 @@ const collectionLoaders: Record<ModuleId, () => Promise<ApiResult<unknown[]>>> =
     languages: getLanguages,
     lawlevel: getLawLevels,
     miscellaneous: getMiscellaneous,
+    equipment: getEquipment,
     characters: getCharacters,
   }
 

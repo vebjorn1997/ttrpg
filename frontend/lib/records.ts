@@ -57,6 +57,7 @@ export type RuleLayout =
   | "npcs"
   | "skills"
   | "traits"
+  | "equipment"
 
 /** Lookup from trait id to trait, for resolving `traits: uuid[]` columns. */
 export function indexTraits(traits: Trait[]): Map<string, Trait> {

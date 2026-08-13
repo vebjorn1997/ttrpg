@@ -13,6 +13,7 @@ import tl from './tl'
 import languages from './languages'
 import lawlevel from './lawlevel'
 import miscellaneous from './miscellaneous'
+import equipment from './equipment'
 
 const api = new Hono()
 
@@ -31,6 +32,7 @@ export const endpoints = [
   '/languages',
   '/lawlevel',
   '/miscellaneous',
+  '/equipment',
 ] as const
 
 api.get('/', (c) => c.json({ status: 'ok', endpoints }))
@@ -49,5 +51,6 @@ api.route('/tl', tl)
 api.route('/languages', languages)
 api.route('/lawlevel', lawlevel)
 api.route('/miscellaneous', miscellaneous)
+api.route('/equipment', equipment)
 
 export default api

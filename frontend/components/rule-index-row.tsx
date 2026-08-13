@@ -91,6 +91,15 @@ export function RuleIndexRow({
           </p>
         )}
 
+        {layout === "equipment" && record.stats && (
+          <p className="mt-0.5 font-mono text-[0.7rem] tracking-wide text-muted-foreground">
+            {record.stats
+              .filter((stat) => stat.primary)
+              .map((stat) => `${stat.label} ${stat.value}`)
+              .join(" · ")}
+          </p>
+        )}
+
         {layout === "healing" && primaryStat && (
           <p className="mt-0.5 font-mono text-[0.7rem] tracking-wide text-muted-foreground">
             {primaryStat.value}

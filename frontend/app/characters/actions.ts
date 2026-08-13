@@ -120,6 +120,20 @@ function parseFeatIds(formData: FormData): string[] | { error: string } {
   return unique
 }
 
+function parseEquipmentIds(formData: FormData): string[] | { error: string } {
+  const ids = formData
+    .getAll("equipmentId")
+    .filter((value): value is string => typeof value === "string")
+    .map((value) => value.trim())
+    .filter(Boolean)
+
+  const unique = [...new Set(ids)]
+  if (unique.length !== ids.length) {
+    return { error: "An equipment item was selected more than once." }
+  }
+  return unique
+}
+
 export async function createCharacterAction(
   _prev: CreateCharacterState,
   formData: FormData
@@ -171,6 +185,11 @@ export async function createCharacterAction(
     return { error: featIdsResult.error }
   }
 
+  const equipmentIdsResult = parseEquipmentIds(formData)
+  if ("error" in equipmentIdsResult) {
+    return { error: equipmentIdsResult.error }
+  }
+
   const input: CreateCharacterInput = {
     name,
     playerName: user.name,
@@ -182,6 +201,7 @@ export async function createCharacterAction(
     edu,
     skills: skillsResult,
     featIds: featIdsResult,
+    equipmentIds: equipmentIdsResult,
     movement: readOptionalString(formData, "movement"),
     armor: {
       total: armorTotal,
@@ -241,6 +261,11 @@ export async function updateCharacterAction(
     return { error: featIdsResult.error }
   }
 
+  const equipmentIdsResult = parseEquipmentIds(formData)
+  if ("error" in equipmentIdsResult) {
+    return { error: equipmentIdsResult.error }
+  }
+
   const input: UpdateCharacterInput = {
     name,
     strMax,
@@ -248,6 +273,7 @@ export async function updateCharacterAction(
     endMax,
     skills: skillsResult,
     featIds: featIdsResult,
+    equipmentIds: equipmentIdsResult,
   }
 
   const result = await updateCharacter(id, input)

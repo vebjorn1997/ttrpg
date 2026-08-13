@@ -5,7 +5,7 @@ import { ChevronRight } from "lucide-react"
 import { CharacterCreateForm } from "@/components/character-create-form"
 import { ConsolePanel } from "@/components/console-panel"
 import { CornerBrackets } from "@/components/corner-brackets"
-import { getFeats, getLanguages, getSkills } from "@/lib/api"
+import { getEquipment, getFeats, getLanguages, getSkills } from "@/lib/api"
 import { getModule } from "@/lib/modules"
 import { requireUser } from "@/lib/session"
 
@@ -18,11 +18,13 @@ export const metadata: Metadata = {
 
 export default async function NewCharacterPage() {
   const user = await requireUser()
-  const [skillsResult, languagesResult, featsResult] = await Promise.all([
-    getSkills(),
-    getLanguages(),
-    getFeats(),
-  ])
+  const [skillsResult, languagesResult, featsResult, equipmentResult] =
+    await Promise.all([
+      getSkills(),
+      getLanguages(),
+      getFeats(),
+      getEquipment(),
+    ])
 
   return (
     <div className="space-y-6">
@@ -49,8 +51,8 @@ export default async function NewCharacterPage() {
           New character sheet
         </h1>
         <p className="mt-2 max-w-2xl text-sm leading-relaxed text-foreground/75">
-          Fill the Sheet tab first, then switch to Feats to pick options unlocked
-          by your skills.
+          Fill the Sheet tab first, then switch to Feats and the Emporium to
+          pick options from the catalogs.
         </p>
       </section>
 
@@ -63,6 +65,8 @@ export default async function NewCharacterPage() {
           languagesError={languagesResult.error}
           feats={featsResult.data ?? []}
           featsError={featsResult.error}
+          equipmentCatalog={equipmentResult.data ?? []}
+          equipmentError={equipmentResult.error}
         />
       </ConsolePanel>
     </div>

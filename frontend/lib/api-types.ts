@@ -94,6 +94,22 @@ export type MiscellaneousRule = {
   description: string | null
 }
 
+export type Equipment = {
+  id: string
+  name: string
+  cost: string | null
+  category: string
+  type: string
+  trait: string | null
+  weaponClassification: string | null
+  description: string | null
+  tl: string | null
+  dmg: string | null
+  armor: string | null
+  mag: string | null
+  range: string | null
+}
+
 export type Npc = {
   id: string
   name: string
@@ -149,6 +165,7 @@ export type CharacterDetail = {
   }
   weapons: string[]
   equipment: string[]
+  equipmentItems: Equipment[]
   credits: number
   notes: string | null
   createdAt: string
@@ -169,6 +186,7 @@ export type CreateCharacterInput = {
   edu?: number
   skills?: CharacterSkill[]
   featIds?: string[]
+  equipmentIds?: string[]
   movement?: string | null
   armor?: {
     total?: number
@@ -190,6 +208,7 @@ export type UpdateCharacterInput = {
   endMax?: number
   skills?: CharacterSkill[]
   featIds?: string[]
+  equipmentIds?: string[]
 }
 
 export type ApiResult<T> =
@@ -210,6 +229,7 @@ export type ModuleId =
   | "languages"
   | "lawlevel"
   | "miscellaneous"
+  | "equipment"
   | "characters"
 
 /** Record count per dataset, or null when that dataset could not be read. */

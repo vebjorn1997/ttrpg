@@ -11,6 +11,7 @@ import {
 import { featsTable } from './feats'
 import { conditionsTable } from './conditions'
 import { criticalInjuryTable } from './criticalInjury'
+import { equipmentTable } from './equipment'
 
 export type CharacterSkill = {
   name: string
@@ -87,4 +88,17 @@ export const characterCriticalInjuriesTable = pgTable(
     notes: text('notes'),
   },
   (t) => [primaryKey({ columns: [t.characterId, t.criticalInjuryId] })],
+)
+
+export const characterEquipmentTable = pgTable(
+  'character_equipment',
+  {
+    characterId: uuid('character_id')
+      .notNull()
+      .references(() => charactersTable.id, { onDelete: 'cascade' }),
+    equipmentId: uuid('equipment_id')
+      .notNull()
+      .references(() => equipmentTable.id, { onDelete: 'cascade' }),
+  },
+  (t) => [primaryKey({ columns: [t.characterId, t.equipmentId] })],
 )

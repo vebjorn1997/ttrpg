@@ -6,11 +6,13 @@ import {
   characterFeatsTable,
   characterConditionsTable,
   characterCriticalInjuriesTable,
+  characterEquipmentTable,
   type CharacterSkill,
 } from '../db/schema/characters'
 import { featsTable } from '../db/schema/feats'
 import { conditionsTable } from '../db/schema/conditions'
 import { criticalInjuryTable } from '../db/schema/criticalInjury'
+import { equipmentTable } from '../db/schema/equipment'
 import {
   validateFeatSelections,
   type FeatRequirement,
@@ -88,9 +90,21 @@ function parseFeatIds(value: unknown): string[] | null {
   return [...new Set(value)]
 }
 
+function parseEquipmentIds(value: unknown): string[] | null {
+  if (value === undefined) return []
+  if (!Array.isArray(value)) return null
+  if (!value.every(isUuid)) return null
+  return [...new Set(value)]
+}
+
 async function loadFeatsByIds(featIds: string[]) {
   if (featIds.length === 0) return []
   return db.select().from(featsTable).where(inArray(featsTable.id, featIds))
+}
+
+async function loadEquipmentByIds(equipmentIds: string[]) {
+  if (equipmentIds.length === 0) return []
+  return db.select().from(equipmentTable).where(inArray(equipmentTable.id, equipmentIds))
 }
 
 function assertFeatRequirements(
@@ -166,7 +180,7 @@ async function loadDetail(characterId: string) {
 
   if (!row) return null
 
-  const [featRows, conditionRows, injuryRows] = await Promise.all([
+  const [featRows, conditionRows, injuryRows, equipmentRows] = await Promise.all([
     db
       .select({ feat: featsTable })
       .from(characterFeatsTable)
@@ -191,13 +205,23 @@ async function loadDetail(characterId: string) {
         eq(criticalInjuryTable.id, characterCriticalInjuriesTable.criticalInjuryId),
       )
       .where(eq(characterCriticalInjuriesTable.characterId, characterId)),
+    db
+      .select({ item: equipmentTable })
+      .from(characterEquipmentTable)
+      .innerJoin(equipmentTable, eq(equipmentTable.id, characterEquipmentTable.equipmentId))
+      .where(eq(characterEquipmentTable.characterId, characterId)),
   ])
+
+  const equipmentItems = [...equipmentRows]
+    .map(({ item }) => item)
+    .sort((a, b) => a.type.localeCompare(b.type) || a.name.localeCompare(b.name))
 
   return {
     ...toCore(row),
     feats: featRows.map(({ feat }) => feat),
     conditions: conditionRows.map(({ condition, value }) => ({ ...condition, value })),
     criticalInjuries: injuryRows.map(({ injury, notes }) => ({ ...injury, notes })),
+    equipmentItems,
   }
 }
 
@@ -318,9 +342,19 @@ characters.post('/', async (c) => {
     return c.json({ error: 'featIds must be an array of UUIDs' }, 400)
   }
 
+  const equipmentIds = parseEquipmentIds(b.equipmentIds)
+  if (equipmentIds === null) {
+    return c.json({ error: 'equipmentIds must be an array of UUIDs' }, 400)
+  }
+
   const featRows = await loadFeatsByIds(featIds)
   if (featRows.length !== featIds.length) {
     return c.json({ error: 'One or more feat ids do not exist' }, 400)
+  }
+
+  const equipmentRows = await loadEquipmentByIds(equipmentIds)
+  if (equipmentRows.length !== equipmentIds.length) {
+    return c.json({ error: 'One or more equipment ids do not exist' }, 400)
   }
 
   const requirementError = assertFeatRequirements(featRows, skills)
@@ -378,6 +412,12 @@ characters.post('/', async (c) => {
   if (featIds.length > 0) {
     await db.insert(characterFeatsTable).values(
       featIds.map((featId) => ({ characterId: created.id, featId })),
+    )
+  }
+
+  if (equipmentIds.length > 0) {
+    await db.insert(characterEquipmentTable).values(
+      equipmentIds.map((equipmentId) => ({ characterId: created.id, equipmentId })),
     )
   }
 
@@ -574,6 +614,12 @@ characters.patch('/:id', async (c) => {
     return c.json({ error: 'featIds must be an array of UUIDs' }, 400)
   }
 
+  const equipmentIds =
+    b.equipmentIds === undefined ? null : parseEquipmentIds(b.equipmentIds)
+  if (b.equipmentIds !== undefined && equipmentIds === null) {
+    return c.json({ error: 'equipmentIds must be an array of UUIDs' }, 400)
+  }
+
   let featRows: Awaited<ReturnType<typeof loadFeatsByIds>> | null = null
   if (featIds !== null) {
     featRows = await loadFeatsByIds(featIds)
@@ -590,6 +636,13 @@ characters.patch('/:id', async (c) => {
     }
   }
 
+  if (equipmentIds !== null) {
+    const equipmentRows = await loadEquipmentByIds(equipmentIds)
+    if (equipmentRows.length !== equipmentIds.length) {
+      return c.json({ error: 'One or more equipment ids do not exist' }, 400)
+    }
+  }
+
   await db.update(charactersTable).set(updates).where(eq(charactersTable.id, id))
 
   if (featIds !== null) {
@@ -597,6 +650,17 @@ characters.patch('/:id', async (c) => {
     if (featIds.length > 0) {
       await db.insert(characterFeatsTable).values(
         featIds.map((featId) => ({ characterId: id, featId })),
+      )
+    }
+  }
+
+  if (equipmentIds !== null) {
+    await db
+      .delete(characterEquipmentTable)
+      .where(eq(characterEquipmentTable.characterId, id))
+    if (equipmentIds.length > 0) {
+      await db.insert(characterEquipmentTable).values(
+        equipmentIds.map((equipmentId) => ({ characterId: id, equipmentId })),
       )
     }
   }

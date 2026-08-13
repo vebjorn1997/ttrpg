@@ -6,6 +6,7 @@ import { notFound } from "next/navigation"
 import { CharacterAvailableActions } from "@/components/character-available-actions"
 import { CharacterDeleteButton } from "@/components/character-delete-button"
 import { CharacterDetailTabs } from "@/components/character-detail-tabs"
+import { CharacterEquipmentList } from "@/components/character-equipment-list"
 import { ConsolePanel } from "@/components/console-panel"
 import { CornerBrackets } from "@/components/corner-brackets"
 import { OfflineNotice } from "@/components/offline-notice"
@@ -150,6 +151,7 @@ export default async function CharacterDetailPage({ params }: PageProps) {
 
       <CharacterDetailTabs
         actionCount={availableActions.length}
+        equipmentCount={(character.equipmentItems ?? []).length}
         sheet={
           <>
             <div className="grid gap-4 lg:grid-cols-2">
@@ -373,6 +375,12 @@ export default async function CharacterDetailPage({ params }: PageProps) {
               </ConsolePanel>
             )}
           </>
+        }
+        equipment={
+          <CharacterEquipmentList
+            items={character.equipmentItems ?? []}
+            links={links}
+          />
         }
         actions={
           <CharacterAvailableActions

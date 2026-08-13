@@ -27,6 +27,8 @@ import lawlevel from './lawlevel';
 import { lawlevelTable } from '../schema/lawlevel';
 import miscellaneous from './miscellaneous';
 import { miscellaneousTable } from '../schema/miscellaneous';
+import equipment from './equipment';
+import { equipmentTable } from '../schema/equipment';
 
 const db = drizzle(process.env.DATABASE_URL!);
 
@@ -100,6 +102,27 @@ const seed = async () => {
                 description: entry.description,
             })
             .where(eq(miscellaneousTable.name, entry.name));
+    }
+    if (equipment.length > 0) {
+        await db.insert(equipmentTable).values(equipment).onConflictDoNothing();
+        for (const item of equipment) {
+            await db
+                .update(equipmentTable)
+                .set({
+                    cost: item.cost,
+                    category: item.category,
+                    type: item.type,
+                    trait: item.trait,
+                    weaponClassification: item.weaponClassification,
+                    description: item.description,
+                    tl: item.tl,
+                    dmg: item.dmg,
+                    armor: item.armor,
+                    mag: item.mag,
+                    range: item.range,
+                })
+                .where(eq(equipmentTable.name, item.name));
+        }
     }
 
     // Resolve action → required feat names to UUIDs and backfill FKs

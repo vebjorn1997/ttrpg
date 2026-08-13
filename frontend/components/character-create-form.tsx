@@ -8,10 +8,11 @@ import {
   type CreateCharacterState,
 } from "@/app/characters/actions"
 import { CharacterFeatPicker } from "@/components/character-feat-picker"
+import { CharacterEquipmentPicker } from "@/components/character-equipment-picker"
 import { CharacterSkillPicker } from "@/components/character-skill-picker"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import type { CharacterSkill, Feat, Language, Skill } from "@/lib/api-types"
+import type { CharacterSkill, Equipment, Feat, Language, Skill } from "@/lib/api-types"
 import { pruneInvalidFeats } from "@/lib/prune-feats"
 import { cn } from "@/lib/utils"
 
@@ -26,7 +27,7 @@ const DEFAULT_STARTING_SKILLS: CharacterSkill[] = [
   { name: "Language", level: 1, language: "Common" },
 ]
 
-type IntakeTab = "sheet" | "feats"
+type IntakeTab = "sheet" | "feats" | "equipment"
 
 function Field({
   label,
@@ -95,6 +96,8 @@ export function CharacterCreateForm({
   languagesError = null,
   feats = [],
   featsError = null,
+  equipmentCatalog = [],
+  equipmentError = null,
 }: {
   playerName: string
   skills?: Skill[]
@@ -103,6 +106,8 @@ export function CharacterCreateForm({
   languagesError?: string | null
   feats?: Feat[]
   featsError?: string | null
+  equipmentCatalog?: Equipment[]
+  equipmentError?: string | null
 }) {
   const [state, formAction, pending] = useActionState(
     createCharacterAction,
@@ -113,6 +118,9 @@ export function CharacterCreateForm({
     DEFAULT_STARTING_SKILLS
   )
   const [selectedFeatIds, setSelectedFeatIds] = useState<string[]>([])
+  const [selectedEquipmentIds, setSelectedEquipmentIds] = useState<string[]>(
+    []
+  )
 
   function handleSkillsChange(nextSkills: CharacterSkill[]) {
     setPickedSkills(nextSkills)
@@ -139,13 +147,16 @@ export function CharacterCreateForm({
           [
             ["sheet", "Sheet"] as const,
             ["feats", "Feats"] as const,
+            ["equipment", "Emporium"] as const,
           ] as const
         ).map(([id, label]) => {
           const active = tab === id
           const badge =
             id === "feats" && selectedFeatIds.length > 0
               ? String(selectedFeatIds.length)
-              : null
+              : id === "equipment" && selectedEquipmentIds.length > 0
+                ? String(selectedEquipmentIds.length)
+                : null
           return (
             <button
               key={id}
@@ -353,6 +364,24 @@ export function CharacterCreateForm({
           selectedIds={selectedFeatIds}
           onChange={setSelectedFeatIds}
           error={featsError}
+        />
+      </div>
+
+      <div
+        role="tabpanel"
+        id="intake-panel-equipment"
+        aria-labelledby="intake-tab-equipment"
+        hidden={tab !== "equipment"}
+      >
+        <p className="mb-4 text-sm text-muted-foreground">
+          Lift wares from the Black Market Emporium. Listings are grouped by
+          type.
+        </p>
+        <CharacterEquipmentPicker
+          catalog={equipmentCatalog}
+          selectedIds={selectedEquipmentIds}
+          onChange={setSelectedEquipmentIds}
+          error={equipmentError}
         />
       </div>
 

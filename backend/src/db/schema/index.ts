@@ -8,11 +8,13 @@ export { criticalInjuryTable } from './criticalInjury';
 export { healingTable } from './healing';
 export { featsTable, featsTraitsTable } from './feats';
 export { npcCatalogTable, npcCatalogTraitsTable } from './npcCatalog';
+export { equipmentTable } from './equipment';
 export {
   charactersTable,
   characterFeatsTable,
   characterConditionsTable,
   characterCriticalInjuriesTable,
+  characterEquipmentTable,
 } from './characters';
 export type { CharacterSkill } from './characters';
 export { skillsTable, skillsFeatsTable } from './skills';

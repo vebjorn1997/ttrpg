@@ -4,18 +4,22 @@ import { useState, type ReactNode } from "react"
 
 import { cn } from "@/lib/utils"
 
-type DetailTab = "sheet" | "actions"
+type DetailTab = "sheet" | "equipment" | "actions"
 
 type CharacterDetailTabsProps = {
   sheet: ReactNode
+  equipment: ReactNode
   actions: ReactNode
+  equipmentCount: number
   actionCount: number
 }
 
-/** Sheet vs available-actions switcher for a filed character. */
+/** Sheet vs loadout vs available-actions switcher for a filed character. */
 export function CharacterDetailTabs({
   sheet,
+  equipment,
   actions,
+  equipmentCount,
   actionCount,
 }: CharacterDetailTabsProps) {
   const [tab, setTab] = useState<DetailTab>("sheet")
@@ -30,6 +34,11 @@ export function CharacterDetailTabs({
         {(
           [
             ["sheet", "Sheet", null],
+            [
+              "equipment",
+              "Emporium",
+              equipmentCount > 0 ? String(equipmentCount) : null,
+            ],
             [
               "actions",
               "Actions",
@@ -73,6 +82,15 @@ export function CharacterDetailTabs({
         className="space-y-6"
       >
         {sheet}
+      </div>
+
+      <div
+        role="tabpanel"
+        id="character-panel-equipment"
+        aria-labelledby="character-tab-equipment"
+        hidden={tab !== "equipment"}
+      >
+        {equipment}
       </div>
 
       <div

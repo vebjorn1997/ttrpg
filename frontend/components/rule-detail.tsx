@@ -25,6 +25,8 @@ export function RuleDetail({
 }) {
   const tone = accentClasses[accent]
   const isNpc = layout === "npcs"
+  const isEquipment = layout === "equipment"
+  const isStatGrid = isNpc || isEquipment
   const isGlossary = layout === "glossary" || layout === "traits"
 
   return (
@@ -71,10 +73,10 @@ export function RuleDetail({
           <dl
             className={cn(
               "mt-4 gap-2",
-              isNpc ? "grid sm:grid-cols-3" : "grid gap-1"
+              isStatGrid ? "grid sm:grid-cols-3" : "grid gap-1"
             )}
           >
-            {isNpc
+            {isStatGrid
               ? record.stats.map((stat) => (
                   <div
                     key={stat.label}
