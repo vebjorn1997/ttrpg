@@ -99,6 +99,7 @@ export const characterEquipmentTable = pgTable(
     equipmentId: uuid('equipment_id')
       .notNull()
       .references(() => equipmentTable.id, { onDelete: 'cascade' }),
+    quantity: integer('quantity').notNull().default(1),
   },
   (t) => [primaryKey({ columns: [t.characterId, t.equipmentId] })],
 )

@@ -8,7 +8,11 @@ import {
   type UpdateCharacterState,
 } from "@/app/characters/actions"
 import { CharacterFeatPicker } from "@/components/character-feat-picker"
-import { CharacterEquipmentPicker } from "@/components/character-equipment-picker"
+import {
+  CharacterEquipmentPicker,
+  equipmentQuantityTotal,
+  type EquipmentQuantities,
+} from "@/components/character-equipment-picker"
 import { CharacterSkillPicker } from "@/components/character-skill-picker"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -117,9 +121,15 @@ export function CharacterEditForm({
       character.skills
     )
   )
-  const [selectedEquipmentIds, setSelectedEquipmentIds] = useState<string[]>(
-    () => (character.equipmentItems ?? []).map((item) => item.id)
-  )
+  const [selectedEquipment, setSelectedEquipment] =
+    useState<EquipmentQuantities>(() =>
+      Object.fromEntries(
+        (character.equipmentItems ?? []).map((item) => [
+          item.id,
+          item.quantity ?? 1,
+        ])
+      )
+    )
 
   function handleSkillsChange(nextSkills: CharacterSkill[]) {
     setPickedSkills(nextSkills)
@@ -148,15 +158,16 @@ export function CharacterEditForm({
           [
             ["sheet", "Sheet"] as const,
             ["feats", "Feats"] as const,
-            ["equipment", "Emporium"] as const,
+            ["equipment", "Equipment"] as const,
           ] as const
         ).map(([id, label]) => {
           const active = tab === id
           const badge =
             id === "feats" && selectedFeatIds.length > 0
               ? String(selectedFeatIds.length)
-              : id === "equipment" && selectedEquipmentIds.length > 0
-                ? String(selectedEquipmentIds.length)
+              : id === "equipment" &&
+                  equipmentQuantityTotal(selectedEquipment) > 0
+                ? String(equipmentQuantityTotal(selectedEquipment))
                 : null
           return (
             <button
@@ -271,8 +282,8 @@ export function CharacterEditForm({
         </p>
         <CharacterEquipmentPicker
           catalog={equipmentCatalog}
-          selectedIds={selectedEquipmentIds}
-          onChange={setSelectedEquipmentIds}
+          quantities={selectedEquipment}
+          onChange={setSelectedEquipment}
           error={equipmentError}
         />
       </div>

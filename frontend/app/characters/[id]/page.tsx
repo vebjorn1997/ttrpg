@@ -7,18 +7,20 @@ import { CharacterAvailableActions } from "@/components/character-available-acti
 import { CharacterDeleteButton } from "@/components/character-delete-button"
 import { CharacterDetailTabs } from "@/components/character-detail-tabs"
 import { CharacterEquipmentList } from "@/components/character-equipment-list"
+import { CharacterSheetGear } from "@/components/character-sheet-gear"
 import { ConsolePanel } from "@/components/console-panel"
 import { CornerBrackets } from "@/components/corner-brackets"
 import { OfflineNotice } from "@/components/offline-notice"
 import { RuleText } from "@/components/rule-text"
 import { SkillTooltip } from "@/components/skill-tooltip"
 import { StatReadout } from "@/components/stat-readout"
-import { getActions, getCharacter, getLanguages, getSkills } from "@/lib/api"
+import { getActions, getCharacter, getLanguages, getSkills, getTraits } from "@/lib/api"
 import { actionsAvailableToCharacter } from "@/lib/character-actions"
 import {
   characterSkillKey,
   formatCharacterSkillLabel,
 } from "@/lib/character-skills"
+import { partitionLoadout } from "@/lib/character-loadout"
 import { getModule } from "@/lib/modules"
 import { buildRuleLinkCatalog } from "@/lib/rule-links-catalog"
 
@@ -52,12 +54,13 @@ function formatPair(pair: { max: number; current: number }) {
 
 export default async function CharacterDetailPage({ params }: PageProps) {
   const { id } = await params
-  const [result, actionsResult, skillsResult, languagesResult, links] =
+  const [result, actionsResult, skillsResult, languagesResult, traitsResult, links] =
     await Promise.all([
       getCharacter(id),
       getActions(),
       getSkills(),
       getLanguages(),
+      getTraits(),
       buildRuleLinkCatalog(),
     ])
 
@@ -74,6 +77,7 @@ export default async function CharacterDetailPage({ params }: PageProps) {
   }
 
   const character = result.data
+  const loadout = partitionLoadout(character.equipmentItems ?? [])
   const availableActions = actionsResult.ok
     ? actionsAvailableToCharacter(
         actionsResult.data,
@@ -151,7 +155,10 @@ export default async function CharacterDetailPage({ params }: PageProps) {
 
       <CharacterDetailTabs
         actionCount={availableActions.length}
-        equipmentCount={(character.equipmentItems ?? []).length}
+        equipmentCount={(character.equipmentItems ?? []).reduce(
+          (total, item) => total + (item.quantity ?? 1),
+          0
+        )}
         sheet={
           <>
             <div className="grid gap-4 lg:grid-cols-2">
@@ -286,29 +293,26 @@ export default async function CharacterDetailPage({ params }: PageProps) {
               </ConsolePanel>
             </div>
 
-            <div className="grid gap-4 lg:grid-cols-2">
+            <div className="grid gap-4 sm:grid-cols-2">
               <ConsolePanel label="Weapons" code="WPN">
-                {character.weapons.length === 0 ? (
-                  <p className="text-sm text-muted-foreground">None listed.</p>
-                ) : (
-                  <ul className="space-y-1 font-mono text-sm">
-                    {character.weapons.map((weapon) => (
-                      <li key={weapon}>{weapon}</li>
-                    ))}
-                  </ul>
-                )}
+                <CharacterSheetGear
+                  items={loadout.weapons}
+                  traits={traitsResult.data ?? []}
+                />
+              </ConsolePanel>
+
+              <ConsolePanel label="Armour" code="ARM">
+                <CharacterSheetGear
+                  items={loadout.armor}
+                  traits={traitsResult.data ?? []}
+                />
               </ConsolePanel>
 
               <ConsolePanel label="Equipment" code="EQP">
-                {character.equipment.length === 0 ? (
-                  <p className="text-sm text-muted-foreground">None listed.</p>
-                ) : (
-                  <ul className="space-y-1 font-mono text-sm">
-                    {character.equipment.map((item) => (
-                      <li key={item}>{item}</li>
-                    ))}
-                  </ul>
-                )}
+                <CharacterSheetGear
+                  items={loadout.equipment}
+                  traits={traitsResult.data ?? []}
+                />
               </ConsolePanel>
             </div>
 
@@ -379,6 +383,7 @@ export default async function CharacterDetailPage({ params }: PageProps) {
         equipment={
           <CharacterEquipmentList
             items={character.equipmentItems ?? []}
+            traits={traitsResult.data ?? []}
             links={links}
           />
         }

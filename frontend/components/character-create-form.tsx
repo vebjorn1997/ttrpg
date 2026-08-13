@@ -8,7 +8,11 @@ import {
   type CreateCharacterState,
 } from "@/app/characters/actions"
 import { CharacterFeatPicker } from "@/components/character-feat-picker"
-import { CharacterEquipmentPicker } from "@/components/character-equipment-picker"
+import {
+  CharacterEquipmentPicker,
+  equipmentQuantityTotal,
+  type EquipmentQuantities,
+} from "@/components/character-equipment-picker"
 import { CharacterSkillPicker } from "@/components/character-skill-picker"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -118,9 +122,8 @@ export function CharacterCreateForm({
     DEFAULT_STARTING_SKILLS
   )
   const [selectedFeatIds, setSelectedFeatIds] = useState<string[]>([])
-  const [selectedEquipmentIds, setSelectedEquipmentIds] = useState<string[]>(
-    []
-  )
+  const [selectedEquipment, setSelectedEquipment] =
+    useState<EquipmentQuantities>({})
 
   function handleSkillsChange(nextSkills: CharacterSkill[]) {
     setPickedSkills(nextSkills)
@@ -147,15 +150,16 @@ export function CharacterCreateForm({
           [
             ["sheet", "Sheet"] as const,
             ["feats", "Feats"] as const,
-            ["equipment", "Emporium"] as const,
+            ["equipment", "Equipment"] as const,
           ] as const
         ).map(([id, label]) => {
           const active = tab === id
           const badge =
             id === "feats" && selectedFeatIds.length > 0
               ? String(selectedFeatIds.length)
-              : id === "equipment" && selectedEquipmentIds.length > 0
-                ? String(selectedEquipmentIds.length)
+              : id === "equipment" &&
+                  equipmentQuantityTotal(selectedEquipment) > 0
+                ? String(equipmentQuantityTotal(selectedEquipment))
                 : null
           return (
             <button
@@ -379,8 +383,8 @@ export function CharacterCreateForm({
         </p>
         <CharacterEquipmentPicker
           catalog={equipmentCatalog}
-          selectedIds={selectedEquipmentIds}
-          onChange={setSelectedEquipmentIds}
+          quantities={selectedEquipment}
+          onChange={setSelectedEquipment}
           error={equipmentError}
         />
       </div>

@@ -120,18 +120,34 @@ function parseFeatIds(formData: FormData): string[] | { error: string } {
   return unique
 }
 
-function parseEquipmentIds(formData: FormData): string[] | { error: string } {
+function parseEquipmentLoadout(
+  formData: FormData
+): { equipmentId: string; quantity: number }[] | { error: string } {
   const ids = formData
     .getAll("equipmentId")
     .filter((value): value is string => typeof value === "string")
     .map((value) => value.trim())
     .filter(Boolean)
+  const quantities = formData.getAll("equipmentQty")
 
-  const unique = [...new Set(ids)]
-  if (unique.length !== ids.length) {
-    return { error: "An equipment item was selected more than once." }
+  const byId = new Map<string, number>()
+  for (let i = 0; i < ids.length; i++) {
+    const equipmentId = ids[i]
+    const raw = quantities[i]
+    const quantity =
+      typeof raw === "string" && raw.trim() !== "" ? Number(raw) : 1
+
+    if (!Number.isInteger(quantity) || quantity < 1) {
+      return { error: "Each piece of equipment needs a quantity of 1 or more." }
+    }
+
+    byId.set(equipmentId, quantity)
   }
-  return unique
+
+  return [...byId.entries()].map(([equipmentId, quantity]) => ({
+    equipmentId,
+    quantity,
+  }))
 }
 
 export async function createCharacterAction(
@@ -185,9 +201,9 @@ export async function createCharacterAction(
     return { error: featIdsResult.error }
   }
 
-  const equipmentIdsResult = parseEquipmentIds(formData)
-  if ("error" in equipmentIdsResult) {
-    return { error: equipmentIdsResult.error }
+  const equipmentLoadoutResult = parseEquipmentLoadout(formData)
+  if ("error" in equipmentLoadoutResult) {
+    return { error: equipmentLoadoutResult.error }
   }
 
   const input: CreateCharacterInput = {
@@ -201,7 +217,7 @@ export async function createCharacterAction(
     edu,
     skills: skillsResult,
     featIds: featIdsResult,
-    equipmentIds: equipmentIdsResult,
+    equipmentLoadout: equipmentLoadoutResult,
     movement: readOptionalString(formData, "movement"),
     armor: {
       total: armorTotal,
@@ -261,9 +277,9 @@ export async function updateCharacterAction(
     return { error: featIdsResult.error }
   }
 
-  const equipmentIdsResult = parseEquipmentIds(formData)
-  if ("error" in equipmentIdsResult) {
-    return { error: equipmentIdsResult.error }
+  const equipmentLoadoutResult = parseEquipmentLoadout(formData)
+  if ("error" in equipmentLoadoutResult) {
+    return { error: equipmentLoadoutResult.error }
   }
 
   const input: UpdateCharacterInput = {
@@ -273,7 +289,7 @@ export async function updateCharacterAction(
     endMax,
     skills: skillsResult,
     featIds: featIdsResult,
-    equipmentIds: equipmentIdsResult,
+    equipmentLoadout: equipmentLoadoutResult,
   }
 
   const result = await updateCharacter(id, input)

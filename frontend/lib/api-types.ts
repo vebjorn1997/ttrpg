@@ -110,6 +110,15 @@ export type Equipment = {
   range: string | null
 }
 
+export type CharacterEquipmentItem = Equipment & {
+  quantity: number
+}
+
+export type EquipmentLoadoutEntry = {
+  equipmentId: string
+  quantity: number
+}
+
 export type Npc = {
   id: string
   name: string
@@ -165,7 +174,7 @@ export type CharacterDetail = {
   }
   weapons: string[]
   equipment: string[]
-  equipmentItems: Equipment[]
+  equipmentItems: CharacterEquipmentItem[]
   credits: number
   notes: string | null
   createdAt: string
@@ -186,7 +195,7 @@ export type CreateCharacterInput = {
   edu?: number
   skills?: CharacterSkill[]
   featIds?: string[]
-  equipmentIds?: string[]
+  equipmentLoadout?: EquipmentLoadoutEntry[]
   movement?: string | null
   armor?: {
     total?: number
@@ -208,7 +217,7 @@ export type UpdateCharacterInput = {
   endMax?: number
   skills?: CharacterSkill[]
   featIds?: string[]
-  equipmentIds?: string[]
+  equipmentLoadout?: EquipmentLoadoutEntry[]
 }
 
 export type ApiResult<T> =

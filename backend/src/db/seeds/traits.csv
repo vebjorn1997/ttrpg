@@ -46,6 +46,7 @@ Unique,Weapon,"There is exactly one of these in existence. A custom commission, 
 Xeno,Weapon,Manufactured by a non-human species using principles that human engineers barely comprehend. Finding one requires journeying to alien space or dealing with xenotech smugglers. Human-compatible maintenance manuals simply don't exist.,#420D09
 Relic,Weapon,"Predates the modern interstellar order by centuries or millennia. Found in archaeological digs, noble armories, or the hands of cultists. Irreplaceable, historically priceless, and probably cursed according to at least three universities.",#420D09
 Fly,NPC,This creature has the ability to use its movement for flying.,#420D09
+AP X,Weapon,Armour piercing. Reduce the target's armour by X when resolving damage from this attack.,#420D09
 Explosive X,Weapon,This weapon delivers an explosive payload. Any target caught within X times 3 meters of the explosion suffers an automatic hit and takes damage equal to X D6.,#420D09
 Unreliable,Weapon,"This weapon is notorious unreliable! If you roll 2 dice with the same value on them you suffer a jam, requiring a reload action to clear! If your weapon is also Explosive, on a jam the explosive blows up in your face. Your attack does not count!",#420D09
 Stun,Weapon,This weapon has a stunning effect on its victim! If you deliever stun damager equal to someones END they are knocked unconsiouce!,#420D09

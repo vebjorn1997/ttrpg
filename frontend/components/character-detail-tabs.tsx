@@ -36,7 +36,7 @@ export function CharacterDetailTabs({
             ["sheet", "Sheet", null],
             [
               "equipment",
-              "Emporium",
+              "Equipment",
               equipmentCount > 0 ? String(equipmentCount) : null,
             ],
             [

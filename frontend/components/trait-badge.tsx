@@ -1,11 +1,13 @@
 "use client"
 
+import { useState, type ReactNode } from "react"
 import Link from "next/link"
 import { Badge } from "@/components/ui/badge"
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
+  useInsideTooltipContent,
 } from "@/components/ui/tooltip"
 import type { RecordTag } from "@/lib/records"
 import { cn } from "@/lib/utils"
@@ -26,6 +28,57 @@ function toneFor(color: string | null | undefined) {
   }
 }
 
+function TraitTooltipBody({
+  label,
+  description,
+}: {
+  label: string
+  description: string
+}) {
+  return (
+    <span>
+      <span className="font-mono tracking-[0.14em] uppercase">{label}</span>
+      {" — "}
+      {description}
+    </span>
+  )
+}
+
+/**
+ * Nested Base UI tooltips close the parent on purpose. Inside another tooltip,
+ * render a local hover panel so both readouts stay visible.
+ */
+function NestedTraitTooltip({
+  label,
+  description,
+  children,
+}: {
+  label: string
+  description: string
+  children: ReactNode
+}) {
+  const [open, setOpen] = useState(false)
+
+  return (
+    <span
+      className="relative inline-flex cursor-help"
+      onMouseEnter={() => setOpen(true)}
+      onMouseLeave={() => setOpen(false)}
+      aria-label={`${label}: ${description}`}
+    >
+      {children}
+      {open ? (
+        <span
+          role="tooltip"
+          className="pointer-events-none absolute bottom-full left-1/2 z-[60] mb-1.5 w-max max-w-xs -translate-x-1/2 rounded-md bg-foreground px-3 py-1.5 text-left text-xs leading-relaxed text-background shadow-md"
+        >
+          <TraitTooltipBody label={label} description={description} />
+        </span>
+      ) : null}
+    </span>
+  )
+}
+
 export function TraitBadge({
   tag,
   className,
@@ -33,6 +86,8 @@ export function TraitBadge({
   tag: RecordTag
   className?: string
 }) {
+  const insideTooltip = useInsideTooltipContent()
+
   const href = tag.id
     ? `/traits?id=${encodeURIComponent(tag.id)}`
     : undefined
@@ -61,6 +116,14 @@ export function TraitBadge({
 
   if (!tag.description) return linked
 
+  if (insideTooltip) {
+    return (
+      <NestedTraitTooltip label={tag.label} description={tag.description}>
+        {linked}
+      </NestedTraitTooltip>
+    )
+  }
+
   return (
     <Tooltip>
       <TooltipTrigger
@@ -70,13 +133,7 @@ export function TraitBadge({
         {linked}
       </TooltipTrigger>
       <TooltipContent className="max-w-xs rounded-none text-left leading-relaxed">
-        <span>
-          <span className="font-mono tracking-[0.14em] uppercase">
-            {tag.label}
-          </span>
-          {" — "}
-          {tag.description}
-        </span>
+        <TraitTooltipBody label={tag.label} description={tag.description} />
       </TooltipContent>
     </Tooltip>
   )

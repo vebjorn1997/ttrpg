@@ -1,11 +1,16 @@
 import type { Metadata } from "next"
 
 import { DatasetView } from "@/components/dataset-view"
-import { getEquipment } from "@/lib/api"
-import type { Equipment } from "@/lib/api-types"
+import { getEquipment, getTraits } from "@/lib/api"
+import type { Equipment, Trait } from "@/lib/api-types"
 import { getModule } from "@/lib/modules"
-import type { DataRecord, RecordStat, RecordTag } from "@/lib/records"
+import {
+  namedTraitTags,
+  type DataRecord,
+  type RecordStat,
+} from "@/lib/records"
 import { buildRuleLinkCatalog } from "@/lib/rule-links-catalog"
+import { formatEquipmentCost, formatRangeWithClose } from "@/lib/utils"
 
 const dataset = getModule("equipment")
 
@@ -25,21 +30,12 @@ function pushStat(
   stats.push({ label, value: trimmed, primary })
 }
 
-function traitTags(trait: string | null): RecordTag[] {
-  if (!trait?.trim()) return []
-  return trait
-    .split(/[;,]/)
-    .map((part) => part.trim())
-    .filter(Boolean)
-    .map((label) => ({ label }))
-}
-
-function equipmentToRecord(item: Equipment): DataRecord {
+function equipmentToRecord(item: Equipment, traits: Trait[]): DataRecord {
   const stats: RecordStat[] = []
-  pushStat(stats, "Cost", item.cost, true)
+  pushStat(stats, "Cost", formatEquipmentCost(item.cost), true)
   pushStat(stats, "TL", item.tl, true)
   pushStat(stats, "DMG", item.dmg, true)
-  pushStat(stats, "Range", item.range, true)
+  pushStat(stats, "Range", formatRangeWithClose(item.range), true)
   pushStat(stats, "Mag", item.mag)
   pushStat(stats, "Armour", item.armor)
   pushStat(stats, "Class", item.weaponClassification)
@@ -52,21 +48,23 @@ function equipmentToRecord(item: Equipment): DataRecord {
     group: item.type,
     description: item.description,
     stats,
-    tags: traitTags(item.trait),
+    tags: namedTraitTags(item.trait, traits),
   }
 }
 
 export default async function EmporiumPage() {
-  const [result, links] = await Promise.all([
+  const [result, traitsResult, links] = await Promise.all([
     getEquipment(),
+    getTraits(),
     buildRuleLinkCatalog(),
   ])
 
+  const traits = traitsResult.data ?? []
   const records: DataRecord[] = [...(result.data ?? [])]
     .sort(
       (a, b) => a.type.localeCompare(b.type) || a.name.localeCompare(b.name)
     )
-    .map(equipmentToRecord)
+    .map((item) => equipmentToRecord(item, traits))
 
   return (
     <DatasetView

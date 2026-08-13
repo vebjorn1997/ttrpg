@@ -88,6 +88,56 @@ export function traitTags(
   })
 }
 
+const TRAILING_VALUE = /^(.*?)\s+(\d+)$/
+
+function lookupNamedTrait(label: string, byName: Map<string, Trait>): Trait | undefined {
+  const key = label.trim().toLowerCase()
+  const exact = byName.get(key)
+  if (exact) return exact
+
+  const valued = label.trim().match(TRAILING_VALUE)
+  if (!valued) return undefined
+
+  return byName.get(`${valued[1].trim().toLowerCase()} x`)
+}
+
+/**
+ * Resolve free-text trait names (equipment CSV: "Auto 2, Common") against the
+ * glossary. Parameterised names like Auto 2 / Vac Suit 1 match Auto X / Vac Suit X.
+ * Unknown labels still render as badges, just without a tooltip.
+ */
+export function namedTraitTags(
+  names: string[] | string | null | undefined,
+  traits: Trait[]
+): RecordTag[] {
+  const labels = (
+    Array.isArray(names)
+      ? names
+      : typeof names === "string"
+        ? names.split(/[;,]/)
+        : []
+  )
+    .map((part) => part.trim())
+    .filter(Boolean)
+
+  if (!labels.length) return []
+
+  const byName = new Map(
+    traits.map((trait) => [trait.name.trim().toLowerCase(), trait])
+  )
+
+  return labels.map((label) => {
+    const trait = lookupNamedTrait(label, byName)
+    if (!trait) return { label }
+    return {
+      label,
+      description: trait.description,
+      color: trait.color,
+      id: trait.id,
+    }
+  })
+}
+
 /** Flattens a record into one lowercase haystack for substring search. */
 export function searchHaystack(record: DataRecord): string {
   return [

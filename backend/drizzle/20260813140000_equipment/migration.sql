@@ -18,6 +18,7 @@ CREATE TABLE "equipment" (
 CREATE TABLE "character_equipment" (
 	"character_id" uuid NOT NULL,
 	"equipment_id" uuid NOT NULL,
+	"quantity" integer DEFAULT 1 NOT NULL,
 	CONSTRAINT "character_equipment_character_id_equipment_id_pk" PRIMARY KEY("character_id","equipment_id")
 );
 --> statement-breakpoint
