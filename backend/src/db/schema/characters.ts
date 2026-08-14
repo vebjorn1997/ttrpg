@@ -44,6 +44,7 @@ export const charactersTable = pgTable('characters', {
   weapons: text('weapons').array().notNull().default([]),
   equipment: text('equipment').array().notNull().default([]),
   credits: integer('credits').notNull().default(0),
+  experience: integer('experience').notNull().default(0),
   notes: text('notes'),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),

@@ -19,6 +19,7 @@ import { actionsAvailableToCharacter } from "@/lib/character-actions"
 import {
   characterSkillKey,
   formatCharacterSkillLabel,
+  totalSkillLevel,
 } from "@/lib/character-skills"
 import { partitionLoadout } from "@/lib/character-loadout"
 import { getModule } from "@/lib/modules"
@@ -219,12 +220,23 @@ export default async function CharacterDetailPage({ params }: PageProps) {
                     label="Credits"
                     value={`${character.credits.toLocaleString()} Cr`}
                   />
+                  <StatReadout
+                    label="Experience"
+                    value={String(character.experience ?? 0)}
+                  />
                 </div>
               </ConsolePanel>
             </div>
 
             <div className="grid gap-4 lg:grid-cols-2">
               <ConsolePanel label="Skills" code="SKL">
+                <div className="mb-3">
+                  <StatReadout
+                    label="Total skill level"
+                    value={String(totalSkillLevel(character.skills))}
+                    emphasis
+                  />
+                </div>
                 {character.skills.length === 0 ? (
                   <p className="text-sm text-muted-foreground">
                     No skills recorded.

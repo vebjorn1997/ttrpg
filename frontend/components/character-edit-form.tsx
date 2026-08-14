@@ -212,6 +212,16 @@ export function CharacterEditForm({
           />
         </Field>
 
+        <Field label="Experience">
+          <Input
+            name="experience"
+            type="number"
+            min={0}
+            defaultValue={character.experience ?? 0}
+            className={fieldClass}
+          />
+        </Field>
+
         <div>
           <p className="console-label mb-2 text-muted-foreground">
             Physical max

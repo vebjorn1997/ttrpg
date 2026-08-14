@@ -21,3 +21,8 @@ export function formatCharacterSkillLabel(skill: CharacterSkill): string {
   }
   return skill.name.trim()
 }
+
+/** Sum of every skill level on the sheet (Language entries count separately). */
+export function totalSkillLevel(skills: CharacterSkill[]): number {
+  return skills.reduce((sum, skill) => sum + skill.level, 0)
+}

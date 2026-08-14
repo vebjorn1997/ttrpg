@@ -38,14 +38,6 @@ function readOptionalString(formData: FormData, key: string): string | null {
   return trimmed === "" ? null : trimmed
 }
 
-function parseLineList(value: string | null): string[] {
-  if (!value) return []
-  return value
-    .split(/[\n,]/)
-    .map((part) => part.trim())
-    .filter(Boolean)
-}
-
 function parseSkills(formData: FormData): CharacterSkill[] | { error: string } {
   const names = formData
     .getAll("skillName")
@@ -171,7 +163,7 @@ export async function createCharacterAction(
   const soc = readInt(formData, "soc", 7)
   const edu = readInt(formData, "edu", 7)
   const credits = readInt(formData, "credits", 0)
-  const armorTotal = readInt(formData, "armorTotal", 0)
+  const experience = readInt(formData, "experience", 0)
 
   for (const [label, value] of [
     ["STR max", strMax],
@@ -184,7 +176,7 @@ export async function createCharacterAction(
     ["SOC", soc],
     ["EDU", edu],
     ["credits", credits],
-    ["armor total", armorTotal],
+    ["experience", experience],
   ] as const) {
     if (Number.isNaN(value)) {
       return { error: `${label} must be a non-negative whole number.` }
@@ -218,16 +210,9 @@ export async function createCharacterAction(
     skills: skillsResult,
     featIds: featIdsResult,
     equipmentLoadout: equipmentLoadoutResult,
-    movement: readOptionalString(formData, "movement"),
-    armor: {
-      total: armorTotal,
-      bottom: readOptionalString(formData, "armorBottom"),
-      top: readOptionalString(formData, "armorTop"),
-      outer: readOptionalString(formData, "armorOuter"),
-    },
-    weapons: parseLineList(readOptionalString(formData, "weapons")),
-    equipment: parseLineList(readOptionalString(formData, "equipment")),
+    movement: readOptionalString(formData, "movement") ?? "6",
     credits,
+    experience,
     notes: readOptionalString(formData, "notes"),
   }
 
@@ -256,11 +241,13 @@ export async function updateCharacterAction(
   const strMax = readInt(formData, "strMax", 7)
   const dexMax = readInt(formData, "dexMax", 7)
   const endMax = readInt(formData, "endMax", 7)
+  const experience = readInt(formData, "experience", 0)
 
   for (const [label, value] of [
     ["STR max", strMax],
     ["DEX max", dexMax],
     ["END max", endMax],
+    ["experience", experience],
   ] as const) {
     if (Number.isNaN(value)) {
       return { error: `${label} must be a non-negative whole number.` }
@@ -290,6 +277,7 @@ export async function updateCharacterAction(
     skills: skillsResult,
     featIds: featIdsResult,
     equipmentLoadout: equipmentLoadoutResult,
+    experience,
   }
 
   const result = await updateCharacter(id, input)

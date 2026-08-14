@@ -188,6 +188,7 @@ function toCore(row: CharacterRow) {
     weapons: row.weapons,
     equipment: row.equipment,
     credits: row.credits,
+    experience: row.experience,
     notes: row.notes,
     createdAt: row.createdAt,
     updatedAt: row.updatedAt,
@@ -363,6 +364,11 @@ characters.post('/', async (c) => {
     return c.json({ error: 'credits must be a non-negative integer' }, 400)
   }
 
+  const experience = asNonNegInt(b.experience ?? 0)
+  if (experience === null) {
+    return c.json({ error: 'experience must be a non-negative integer' }, 400)
+  }
+
   const featIds = parseFeatIds(b.featIds)
   if (featIds === null) {
     return c.json({ error: 'featIds must be an array of UUIDs' }, 400)
@@ -434,6 +440,7 @@ characters.post('/', async (c) => {
       weapons,
       equipment,
       credits,
+      experience,
       notes: typeof b.notes === 'string' ? b.notes : null,
     })
     .returning()
@@ -632,6 +639,12 @@ characters.patch('/:id', async (c) => {
     const v = asNonNegInt(b.credits)
     if (v === null) return c.json({ error: 'credits must be a non-negative integer' }, 400)
     updates.credits = v
+  }
+
+  if (b.experience !== undefined) {
+    const v = asNonNegInt(b.experience)
+    if (v === null) return c.json({ error: 'experience must be a non-negative integer' }, 400)
+    updates.experience = v
   }
 
   if (b.notes !== undefined) {

@@ -92,6 +92,33 @@ function CharPair({
   )
 }
 
+function CharStat({
+  code,
+  name,
+  defaultValue = 7,
+}: {
+  code: string
+  name: string
+  defaultValue?: number
+}) {
+  return (
+    <div className="border border-hairline bg-background/30 p-3">
+      <p className="console-label mb-2 text-ochre">{code}</p>
+      <label className="flex flex-col gap-1">
+        <span className={labelClass}>Score</span>
+        <Input
+          name={name}
+          type="number"
+          min={0}
+          defaultValue={defaultValue}
+          required
+          className={fieldClass}
+        />
+      </label>
+    </div>
+  )
+}
+
 export function CharacterCreateForm({
   playerName,
   skills = [],
@@ -230,24 +257,10 @@ export function CharacterCreateForm({
           <p className="console-label mb-2 text-muted-foreground">
             Mental / social
           </p>
-          <div className="grid grid-cols-3 gap-3">
-            {(
-              [
-                ["INT", "int"],
-                ["SOC", "soc"],
-                ["EDU", "edu"],
-              ] as const
-            ).map(([code, name]) => (
-              <Field key={name} label={code}>
-                <Input
-                  name={name}
-                  type="number"
-                  min={0}
-                  defaultValue={7}
-                  className={fieldClass}
-                />
-              </Field>
-            ))}
+          <div className="grid gap-3 sm:grid-cols-3">
+            <CharStat code="INT" name="int" />
+            <CharStat code="SOC" name="soc" />
+            <CharStat code="EDU" name="edu" />
           </div>
         </div>
 
@@ -255,7 +268,9 @@ export function CharacterCreateForm({
           <Field label="Movement">
             <Input
               name="movement"
-              placeholder="9"
+              type="number"
+              min={0}
+              defaultValue={6}
               className={fieldClass}
             />
           </Field>
@@ -268,42 +283,15 @@ export function CharacterCreateForm({
               className={fieldClass}
             />
           </Field>
-        </div>
-
-        <div>
-          <p className="console-label mb-2 text-muted-foreground">Armour</p>
-          <div className="grid gap-3 sm:grid-cols-2">
-            <Field label="Total">
-              <Input
-                name="armorTotal"
-                type="number"
-                min={0}
-                defaultValue={0}
-                className={fieldClass}
-              />
-            </Field>
-            <Field label="Bottom layer">
-              <Input
-                name="armorBottom"
-                placeholder="Armored Clothing"
-                className={fieldClass}
-              />
-            </Field>
-            <Field label="Top layer">
-              <Input
-                name="armorTop"
-                placeholder="Flak Armor"
-                className={fieldClass}
-              />
-            </Field>
-            <Field label="Outer layer">
-              <Input
-                name="armorOuter"
-                placeholder="Vac Suit Mk. I"
-                className={fieldClass}
-              />
-            </Field>
-          </div>
+          <Field label="Experience">
+            <Input
+              name="experience"
+              type="number"
+              min={0}
+              defaultValue={0}
+              className={fieldClass}
+            />
+          </Field>
         </div>
 
         <CharacterSkillPicker
@@ -314,31 +302,6 @@ export function CharacterCreateForm({
           initialSkills={DEFAULT_STARTING_SKILLS}
           onChange={handleSkillsChange}
         />
-
-        <div className="grid gap-4 sm:grid-cols-2">
-          <Field label="Weapons (comma or line separated)">
-            <textarea
-              name="weapons"
-              rows={3}
-              placeholder={"VK 2\nDagger"}
-              className={cn(
-                fieldClass,
-                "min-h-20 w-full resize-y px-2.5 py-2 outline-none focus-visible:ring-3"
-              )}
-            />
-          </Field>
-          <Field label="Equipment (comma or line separated)">
-            <textarea
-              name="equipment"
-              rows={3}
-              placeholder={"Medical Kit\nCombat Stims"}
-              className={cn(
-                fieldClass,
-                "min-h-20 w-full resize-y px-2.5 py-2 outline-none focus-visible:ring-3"
-              )}
-            />
-          </Field>
-        </div>
 
         <Field label="Notes">
           <textarea

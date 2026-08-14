@@ -176,6 +176,7 @@ export type CharacterDetail = {
   equipment: string[]
   equipmentItems: CharacterEquipmentItem[]
   credits: number
+  experience: number
   notes: string | null
   createdAt: string
   updatedAt: string
@@ -206,6 +207,7 @@ export type CreateCharacterInput = {
   weapons?: string[]
   equipment?: string[]
   credits?: number
+  experience?: number
   notes?: string | null
 }
 
@@ -218,6 +220,7 @@ export type UpdateCharacterInput = {
   skills?: CharacterSkill[]
   featIds?: string[]
   equipmentLoadout?: EquipmentLoadoutEntry[]
+  experience?: number
 }
 
 export type ApiResult<T> =
