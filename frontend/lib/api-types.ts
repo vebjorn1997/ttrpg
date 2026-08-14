@@ -112,6 +112,7 @@ export type Equipment = {
 
 export type CharacterEquipmentItem = Equipment & {
   quantity: number
+  equipped: boolean
 }
 
 export type EquipmentLoadoutEntry = {
@@ -223,6 +224,492 @@ export type UpdateCharacterInput = {
   experience?: number
 }
 
+/* -------------------------------------------------------------------------- */
+/* Campaign world: systems & relationships                                    */
+/* -------------------------------------------------------------------------- */
+
+export type Visibility = "public" | "gm_only"
+
+export type FactionType =
+  | "government"
+  | "corporation"
+  | "criminal"
+  | "religious"
+  | "military"
+  | "political"
+  | "guild"
+  | "other"
+
+export type NpcStatus = "alive" | "dead" | "missing" | "imprisoned" | "retired"
+
+export type ShipStatus =
+  | "active"
+  | "destroyed"
+  | "missing"
+  | "docked"
+  | "in_transit"
+
+export type PaymentRecord =
+  | "prompt"
+  | "slow"
+  | "stiffed"
+  | "generous"
+  | "variable"
+
+export type RiskTolerance = "safe" | "moderate" | "dangerous" | "suicidal"
+
+export type LocationType =
+  | "starport"
+  | "city"
+  | "outpost"
+  | "research_station"
+  | "mining_facility"
+  | "orbital"
+  | "ruin"
+  | "other"
+
+export type PresenceType =
+  | "headquarters"
+  | "major_base"
+  | "minor_base"
+  | "cell"
+  | "embassy"
+  | "trade_office"
+  | "covert"
+  | "rival"
+
+export type PartyRelationship =
+  | "friendly"
+  | "neutral"
+  | "hostile"
+  | "unknown"
+  | "allied"
+  | "enemy"
+
+export type NpcConnectionType =
+  | "resident"
+  | "visitor"
+  | "native"
+  | "exile"
+  | "prisoner"
+  | "official"
+  | "fugitive"
+  | "deceased_here"
+
+export type ShipVisitPurpose =
+  | "trade"
+  | "patrol"
+  | "refuge"
+  | "repair"
+  | "passenger"
+  | "smuggling"
+  | "military"
+  | "other"
+
+export type ShipVisitStatus =
+  | "docked"
+  | "orbiting"
+  | "landed"
+  | "departed"
+  | "impounded"
+  | "destroyed_here"
+
+export type PatronAvailability =
+  | "available"
+  | "completed"
+  | "failed"
+  | "in_progress"
+  | "withdrawn"
+
+export type JobDifficulty = "easy" | "moderate" | "hard" | "extreme"
+
+export type LegalStatus = "legal" | "grey" | "illegal" | "varies"
+
+export type SystemLinkType =
+  | "trade_route"
+  | "alliance"
+  | "rivalry"
+  | "war"
+  | "protectorate"
+  | "cultural_tie"
+  | "migration"
+  | "smuggling_route"
+  | "military_corridor"
+
+/** Minimal system reference embedded in related records. */
+export type SystemRef = {
+  id: string
+  name: string
+  location: string
+}
+
+export type EntityRef = {
+  id: string
+  name: string
+}
+
+/** `notes` is only present on GM responses. */
+export type Faction = {
+  id: string
+  name: string
+  type: FactionType
+  description: string | null
+  tier: number | null
+  headquartersSystemId: string | null
+  headquarters: SystemRef | null
+  goals: string | null
+  assets: string[]
+  traits: Trait[]
+  notes?: string | null
+  createdBy: string | null
+  createdAt: string
+  updatedAt: string
+}
+
+export type FactionDetail = Faction & {
+  presences: {
+    id: string
+    system: SystemRef
+    presenceType: PresenceType
+    influence: number
+    relationshipToParty: PartyRelationship
+    notes: string | null
+    visibility: Visibility
+  }[]
+}
+
+export type CampaignNpc = {
+  id: string
+  name: string
+  occupation: string | null
+  upp: string | null
+  description: string | null
+  currentLocationSystemId: string | null
+  currentLocation: SystemRef | null
+  status: NpcStatus
+  allegianceFactionId: string | null
+  allegiance: EntityRef | null
+  traits: Trait[]
+  notes?: string | null
+  createdBy: string | null
+  createdAt: string
+  updatedAt: string
+}
+
+export type CampaignNpcDetail = CampaignNpc & {
+  presences: {
+    id: string
+    system: SystemRef
+    connectionType: NpcConnectionType
+    currentStatus: string | null
+    arrivalDate: string | null
+    departureDate: string | null
+    notes: string | null
+    visibility: Visibility
+  }[]
+  patronRoles: { id: string; riskTolerance: RiskTolerance }[]
+}
+
+export type Ship = {
+  id: string
+  name: string
+  type: string | null
+  registration: string | null
+  ownerFactionId: string | null
+  ownerFaction: EntityRef | null
+  ownerNpcId: string | null
+  ownerNpc: EntityRef | null
+  currentSystemId: string | null
+  currentSystem: SystemRef | null
+  status: ShipStatus
+  traits: Trait[]
+  notes?: string | null
+  createdBy: string | null
+  createdAt: string
+  updatedAt: string
+}
+
+export type ShipDetail = Ship & {
+  visits: {
+    id: string
+    system: SystemRef
+    arrivalDate: string | null
+    departureDate: string | null
+    purpose: ShipVisitPurpose | null
+    status: ShipVisitStatus
+    notes: string | null
+    visibility: Visibility
+  }[]
+}
+
+export type Patron = {
+  id: string
+  npcId: string
+  npc: CampaignNpc | null
+  reputation: number
+  paymentRecord: PaymentRecord
+  jobTypes: string[]
+  riskTolerance: RiskTolerance
+  notes?: string | null
+  createdBy: string | null
+  createdAt: string
+  updatedAt: string
+}
+
+export type PatronDetail = Patron & {
+  offers: {
+    id: string
+    system: SystemRef
+    availability: PatronAvailability
+    jobSummary: string | null
+    reward: string | null
+    difficulty: JobDifficulty | null
+    legalStatus: LegalStatus | null
+    notes: string | null
+    visibility: Visibility
+  }[]
+}
+
+export type SystemLocation = {
+  id: string
+  systemId: string
+  name: string
+  type: LocationType
+  description: string | null
+  securityLevel: number | null
+  traits: Trait[]
+  notes?: string | null
+  createdBy: string | null
+  createdAt: string
+  updatedAt: string
+}
+
+export type SystemFactionPresence = {
+  id: string
+  systemId: string
+  factionId: string
+  presenceType: PresenceType
+  influence: number
+  relationshipToParty: PartyRelationship
+  notes: string | null
+  visibility: Visibility
+  faction: Faction
+  createdBy: string | null
+  createdAt: string
+  updatedAt: string
+}
+
+export type SystemNpcPresence = {
+  id: string
+  systemId: string
+  npcId: string
+  connectionType: NpcConnectionType
+  currentStatus: string | null
+  arrivalDate: string | null
+  departureDate: string | null
+  notes: string | null
+  visibility: Visibility
+  npc: CampaignNpc
+  createdBy: string | null
+  createdAt: string
+  updatedAt: string
+}
+
+export type SystemShipVisit = {
+  id: string
+  systemId: string
+  shipId: string
+  dockedAtLocationId: string | null
+  dockedAt: EntityRef | null
+  arrivalDate: string | null
+  departureDate: string | null
+  purpose: ShipVisitPurpose | null
+  status: ShipVisitStatus
+  notes: string | null
+  visibility: Visibility
+  ship: Ship
+  createdBy: string | null
+  createdAt: string
+  updatedAt: string
+}
+
+export type SystemPatronOffer = {
+  id: string
+  systemId: string
+  patronId: string
+  availability: PatronAvailability
+  jobSummary: string | null
+  reward: string | null
+  difficulty: JobDifficulty | null
+  legalStatus: LegalStatus | null
+  notes: string | null
+  visibility: Visibility
+  patron: Patron
+  createdBy: string | null
+  createdAt: string
+  updatedAt: string
+}
+
+export type SystemConnection = {
+  id: string
+  fromSystemId: string
+  toSystemId: string
+  /** Whether this system is the origin or the destination of the link. */
+  direction: "outbound" | "inbound"
+  other: SystemRef | null
+  relationshipType: SystemLinkType
+  strength: number
+  active: boolean
+  notes: string | null
+  visibility: Visibility
+  createdBy: string | null
+  createdAt: string
+  updatedAt: string
+}
+
+export type SystemRelationships = {
+  factions: SystemFactionPresence[]
+  npcs: SystemNpcPresence[]
+  ships: SystemShipVisit[]
+  patrons: SystemPatronOffer[]
+  locations: SystemLocation[]
+  connections: SystemConnection[]
+}
+
+export type SystemHook = {
+  id: string
+  systemId: string
+  title: string
+  description: string | null
+  used: boolean
+  visibility: Visibility
+  createdBy: string | null
+  createdAt: string
+  updatedAt: string
+}
+
+/** `date` is normalised ISO; `dateDisplay` preserves stardate input. */
+export type SystemLogEntry = {
+  id: string
+  systemId: string
+  date: string
+  dateDisplay: string
+  event: string
+  recordedBy: string | null
+  recordedByName: string | null
+  createdAt: string
+  updatedAt: string
+}
+
+export type SystemTimelineEvent = {
+  id: string
+  systemId: string
+  date: string
+  dateDisplay: string
+  event: string
+  visibility: Visibility
+  createdBy: string | null
+  createdByName: string | null
+  createdAt: string
+  updatedAt: string
+}
+
+export type StarSystem = {
+  id: string
+  name: string
+  description: string | null
+  location: string
+  techLevel: number
+  techLevelName: string | null
+  lawLevel: number
+  lawLevelName: string | null
+  traits: Trait[]
+  notes?: string | null
+  createdBy: string | null
+  createdAt: string
+  updatedAt: string
+}
+
+export type StarSystemDetail = StarSystem & {
+  hooks: SystemHook[]
+  interactions: SystemLogEntry[]
+  timeline: SystemTimelineEvent[]
+  relationships: SystemRelationships
+}
+
+export type SystemFilters = {
+  search?: string
+  tlMin?: number
+  tlMax?: number
+  lawMin?: number
+  lawMax?: number
+  location?: string
+  traits?: string[]
+  travelZone?: string
+}
+
+export type SystemInput = {
+  name: string
+  description?: string | null
+  techLevel: number
+  lawLevel: number
+  location: string
+  notes?: string | null
+  traitIds?: string[]
+}
+
+export type FactionInput = {
+  name: string
+  type?: FactionType
+  description?: string | null
+  tier?: number | null
+  headquartersSystemId?: string | null
+  goals?: string | null
+  assets?: string[]
+  notes?: string | null
+  traitIds?: string[]
+}
+
+export type CampaignNpcInput = {
+  name: string
+  occupation?: string | null
+  upp?: string | null
+  description?: string | null
+  currentLocationSystemId?: string | null
+  status?: NpcStatus
+  allegianceFactionId?: string | null
+  notes?: string | null
+  traitIds?: string[]
+}
+
+export type ShipInput = {
+  name: string
+  type?: string | null
+  registration?: string | null
+  ownerFactionId?: string | null
+  ownerNpcId?: string | null
+  currentSystemId?: string | null
+  status?: ShipStatus
+  notes?: string | null
+  traitIds?: string[]
+}
+
+export type PatronInput = {
+  npcId: string
+  reputation?: number
+  paymentRecord?: PaymentRecord
+  jobTypes?: string[]
+  riskTolerance?: RiskTolerance
+  notes?: string | null
+}
+
+export type SystemImportReport = {
+  ok: boolean
+  created: string[]
+  skipped: string[]
+  errors: string[]
+}
+
 export type ApiResult<T> =
   | { ok: true; data: T; error: null }
   | { ok: false; data: null; error: string }
@@ -243,6 +730,11 @@ export type ModuleId =
   | "miscellaneous"
   | "equipment"
   | "characters"
+  | "systems"
+  | "factions"
+  | "campaign-npcs"
+  | "ships"
+  | "patrons"
 
 /** Record count per dataset, or null when that dataset could not be read. */
 export type ModuleTelemetry = Record<ModuleId, number | null>

@@ -50,3 +50,23 @@ AP X,Weapon,Armour piercing. Reduce the target's armour by X when resolving dama
 Explosive X,Weapon,This weapon delivers an explosive payload. Any target caught within X times 3 meters of the explosion suffers an automatic hit and takes damage equal to X D6.,#420D09
 Unreliable,Weapon,"This weapon is notorious unreliable! If you roll 2 dice with the same value on them you suffer a jam, requiring a reload action to clear! If your weapon is also Explosive, on a jam the explosive blows up in your face. Your attack does not count!",#420D09
 Stun,Weapon,This weapon has a stunning effect on its victim! If you deliever stun damager equal to someones END they are knocked unconsiouce!,#420D09
+Armed,Ship,"Carries turret or bay weaponry. Port authorities at high law levels will want the mounts sealed before docking.",#420D09
+Unarmed,Ship,"No weapon hardpoints fitted. Cheap to insure, cheap to board.",#420D09
+Jump-1,Ship,"Fitted with a Jump-1 drive: one parsec per week, the workhorse standard of the interstellar lanes.",#420D09
+Jump-2,Ship,"Fitted with a Jump-2 drive. Twice the reach per jump, at considerable cost in fuel tankage and maintenance.",#420D09
+Jump-3,Ship,"Fitted with a Jump-3 drive. Military couriers and the vessels of the very rich.",#420D09
+Smuggler Holds,Ship,"Concealed compartments behind the cargo bulkheads. Gives a bonus to hide contraband from a customs sweep.",#420D09
+Transponder Spoofer,Ship,"Illegal hardware that broadcasts a forged registration. Possession alone is a crime at Law 3 and above.",#420D09
+Derelict,Ship,"Adrift and unpowered. Whatever happened aboard, nobody has filed a report.",#420D09
+Well Maintained,Ship,"Kept to spec by a competent engineer. Fewer misjumps and fewer surprises.",#420D09
+Rustbucket,Ship,"Held together by patches, prayer, and a creative maintenance log.",#420D09
+Highport,Location,"Orbital facility. Ships dock without ever entering atmosphere; passengers and cargo shuttle down.",#420D09
+Downport,Location,"Surface facility. Landing here means gravity wells, weather, and planetary customs.",#420D09
+Fortified,Location,"Hardened against attack: armoured bulkheads, defence batteries, and a garrison that drills.",#420D09
+Underground,Location,"Built below the surface, whether for shelter from the environment or from observation.",#420D09
+Domed,Location,"Sealed under a pressure dome. Atmosphere is a utility here, and it can be billed or cut off.",#420D09
+Black Market,Location,"Goods move here without manifests. Prices are negotiable; so is your safety.",#420D09
+Restricted Access,Location,"Credentials required. Turning up without them is trespass at best.",#420D09
+Medical Facility,Location,"Equipped for surgery and long-term care. Critical injuries can be properly treated here.",#420D09
+Fuel Depot,Location,"Refined fuel available for purchase. No skimming gas giants, no risk of misjump from dirty fuel.",#420D09
+Ruined,Location,"Abandoned and decaying. Structurally unsound, and whatever moved in after the people left is still there.",#420D09

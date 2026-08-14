@@ -4,6 +4,11 @@ import { ChevronRight } from "lucide-react"
 import { notFound } from "next/navigation"
 
 import { CharacterAvailableActions } from "@/components/character-available-actions"
+import {
+  CharacterArmorEquipProvider,
+  CharacterSheetArmor,
+  CombatArmorReadout,
+} from "@/components/character-armor-equip"
 import { CharacterDeleteButton } from "@/components/character-delete-button"
 import { CharacterDetailTabs } from "@/components/character-detail-tabs"
 import { CharacterEquipmentList } from "@/components/character-equipment-list"
@@ -161,7 +166,10 @@ export default async function CharacterDetailPage({ params }: PageProps) {
           0
         )}
         sheet={
-          <>
+          <CharacterArmorEquipProvider
+            characterId={character.id}
+            items={loadout.armor}
+          >
             <div className="grid gap-4 lg:grid-cols-2">
               <ConsolePanel label="Characteristics" code="PHYS" accent="ochre">
                 <div className="space-y-2">
@@ -199,23 +207,7 @@ export default async function CharacterDetailPage({ params }: PageProps) {
                       character.movement ? `${character.movement} m` : "—"
                     }
                   />
-                  <StatReadout
-                    label="Armour"
-                    value={String(character.armor.total)}
-                    emphasis
-                  />
-                  <StatReadout
-                    label="Bottom"
-                    value={character.armor.bottom ?? "—"}
-                  />
-                  <StatReadout
-                    label="Top"
-                    value={character.armor.top ?? "—"}
-                  />
-                  <StatReadout
-                    label="Outer"
-                    value={character.armor.outer ?? "—"}
-                  />
+                  <CombatArmorReadout />
                   <StatReadout
                     label="Credits"
                     value={`${character.credits.toLocaleString()} Cr`}
@@ -314,10 +306,7 @@ export default async function CharacterDetailPage({ params }: PageProps) {
               </ConsolePanel>
 
               <ConsolePanel label="Armour" code="ARM">
-                <CharacterSheetGear
-                  items={loadout.armor}
-                  traits={traitsResult.data ?? []}
-                />
+                <CharacterSheetArmor traits={traitsResult.data ?? []} />
               </ConsolePanel>
 
               <ConsolePanel label="Equipment" code="EQP">
@@ -390,7 +379,7 @@ export default async function CharacterDetailPage({ params }: PageProps) {
                 </p>
               </ConsolePanel>
             )}
-          </>
+          </CharacterArmorEquipProvider>
         }
         equipment={
           <CharacterEquipmentList

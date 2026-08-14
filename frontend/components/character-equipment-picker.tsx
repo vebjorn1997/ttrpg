@@ -39,6 +39,15 @@ function typeKey(category: string, type: string) {
 
 function itemSummary(item: Equipment): string {
   const range = formatRangeWithClose(item.range)
+  const isArmor = item.category.trim().toLowerCase() === "armor"
+  if (isArmor) {
+    return [
+      item.armor?.trim() ? `ARM ${item.armor.trim()}` : null,
+      formatEquipmentCost(item.cost),
+    ]
+      .filter(Boolean)
+      .join(" · ")
+  }
   return [
     formatEquipmentCost(item.cost),
     item.dmg ? `DMG ${item.dmg}` : null,

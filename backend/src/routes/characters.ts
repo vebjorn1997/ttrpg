@@ -1,5 +1,5 @@
 import { Hono } from 'hono'
-import { eq, inArray } from 'drizzle-orm'
+import { and, eq, inArray } from 'drizzle-orm'
 import { db } from '../db/client'
 import {
   charactersTable,
@@ -22,6 +22,11 @@ import {
   requireInternalAuth,
   type AuthVariables,
 } from '../lib/internal-auth'
+import {
+  combatArmorFromItems,
+  isArmorItem,
+  toggleEquippedArmor,
+} from '../lib/character-armor'
 
 const characters = new Hono<{ Variables: AuthVariables }>()
 
@@ -150,6 +155,40 @@ function clampCurrent(current: number, max: number): number | null {
   return current
 }
 
+async function applyArmorProfile(characterId: string) {
+  const rows = await db
+    .select({
+      equipmentId: characterEquipmentTable.equipmentId,
+      equipped: characterEquipmentTable.equipped,
+      item: equipmentTable,
+    })
+    .from(characterEquipmentTable)
+    .innerJoin(equipmentTable, eq(equipmentTable.id, characterEquipmentTable.equipmentId))
+    .where(eq(characterEquipmentTable.characterId, characterId))
+
+  const profile = combatArmorFromItems(
+    rows.map((row) => ({
+      id: row.equipmentId,
+      name: row.item.name,
+      type: row.item.type,
+      category: row.item.category,
+      armor: row.item.armor,
+      equipped: row.equipped,
+    })),
+  )
+
+  await db
+    .update(charactersTable)
+    .set({
+      armorTotal: profile.total,
+      armorBottom: profile.bottom,
+      armorTop: profile.top,
+      armorOuter: profile.outer,
+      updatedAt: new Date(),
+    })
+    .where(eq(charactersTable.id, characterId))
+}
+
 type CharacterRow = typeof charactersTable.$inferSelect
 
 function toSummary(row: CharacterRow) {
@@ -233,6 +272,7 @@ async function loadDetail(characterId: string) {
       .select({
         item: equipmentTable,
         quantity: characterEquipmentTable.quantity,
+        equipped: characterEquipmentTable.equipped,
       })
       .from(characterEquipmentTable)
       .innerJoin(equipmentTable, eq(equipmentTable.id, characterEquipmentTable.equipmentId))
@@ -240,7 +280,11 @@ async function loadDetail(characterId: string) {
   ])
 
   const equipmentItems = [...equipmentRows]
-    .map(({ item, quantity }) => ({ ...item, quantity }))
+    .map(({ item, quantity, equipped }) => ({
+      ...item,
+      quantity,
+      equipped: Boolean(equipped),
+    }))
     .sort((a, b) => a.type.localeCompare(b.type) || a.name.localeCompare(b.name))
 
   return {
@@ -705,6 +749,17 @@ characters.patch('/:id', async (c) => {
   }
 
   if (equipmentLoadout !== null) {
+    const previous = await db
+      .select({
+        equipmentId: characterEquipmentTable.equipmentId,
+        equipped: characterEquipmentTable.equipped,
+      })
+      .from(characterEquipmentTable)
+      .where(eq(characterEquipmentTable.characterId, id))
+    const previouslyEquipped = new Set(
+      previous.filter((row) => row.equipped).map((row) => row.equipmentId),
+    )
+
     await db
       .delete(characterEquipmentTable)
       .where(eq(characterEquipmentTable.characterId, id))
@@ -714,11 +769,94 @@ characters.patch('/:id', async (c) => {
           characterId: id,
           equipmentId: entry.equipmentId,
           quantity: entry.quantity,
+          equipped: previouslyEquipped.has(entry.equipmentId),
         })),
       )
     }
+    await applyArmorProfile(id)
   }
 
+  const detail = await loadDetail(id)
+  return c.json(detail)
+})
+
+characters.put('/:id/equipped-armor', async (c) => {
+  const id = c.req.param('id')
+  if (!isUuid(id)) return c.json({ error: 'Invalid character id' }, 400)
+
+  const [existing] = await db
+    .select({ id: charactersTable.id, userId: charactersTable.userId })
+    .from(charactersTable)
+    .where(eq(charactersTable.id, id))
+    .limit(1)
+  if (!existing) return c.json({ error: 'Character not found' }, 404)
+
+  if (!canAccessCharacter(c.get('userRole'), c.get('userId'), existing.userId)) {
+    return c.json({ error: 'Forbidden' }, 403)
+  }
+
+  let body: unknown
+  try {
+    body = await c.req.json()
+  } catch {
+    return c.json({ error: 'Invalid JSON body' }, 400)
+  }
+  if (!body || typeof body !== 'object') {
+    return c.json({ error: 'Invalid JSON body' }, 400)
+  }
+
+  const equipmentId = (body as { equipmentId?: unknown }).equipmentId
+  const equipped = (body as { equipped?: unknown }).equipped
+  if (!isUuid(equipmentId)) {
+    return c.json({ error: 'equipmentId must be a UUID' }, 400)
+  }
+  if (typeof equipped !== 'boolean') {
+    return c.json({ error: 'equipped must be a boolean' }, 400)
+  }
+
+  const rows = await db
+    .select({
+      equipmentId: characterEquipmentTable.equipmentId,
+      equipped: characterEquipmentTable.equipped,
+      item: equipmentTable,
+    })
+    .from(characterEquipmentTable)
+    .innerJoin(equipmentTable, eq(equipmentTable.id, characterEquipmentTable.equipmentId))
+    .where(eq(characterEquipmentTable.characterId, id))
+
+  const target = rows.find((row) => row.equipmentId === equipmentId)
+  if (!target) {
+    return c.json({ error: 'That item is not on this sheet' }, 400)
+  }
+  if (!isArmorItem(target.item)) {
+    return c.json({ error: 'Only armour can be equipped' }, 400)
+  }
+
+  const next = toggleEquippedArmor(
+    rows.map((row) => ({
+      id: row.equipmentId,
+      type: row.item.type,
+      equipped: row.equipped,
+    })),
+    equipmentId,
+    equipped,
+  )
+
+  for (const item of next) {
+    const current = rows.find((row) => row.equipmentId === item.id)
+    if (!current || current.equipped === item.equipped) continue
+    await db
+      .update(characterEquipmentTable)
+      .set({ equipped: item.equipped })
+      .where(
+        and(
+          eq(characterEquipmentTable.characterId, id),
+          eq(characterEquipmentTable.equipmentId, item.id),
+        ),
+      )
+  }
+
+  await applyArmorProfile(id)
   const detail = await loadDetail(id)
   return c.json(detail)
 })

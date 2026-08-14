@@ -1,10 +1,12 @@
 "use server"
 
 import { redirect } from "next/navigation"
+import { revalidatePath } from "next/cache"
 
 import {
   createCharacter,
   deleteCharacter,
+  setCharacterEquippedArmor,
   updateCharacter,
   type CharacterSkill,
   type CreateCharacterInput,
@@ -286,6 +288,30 @@ export async function updateCharacterAction(
   }
 
   redirect(`/characters/${result.data.id}`)
+}
+
+export async function setEquippedArmorAction(
+  characterId: string,
+  equipmentId: string,
+  equipped: boolean
+): Promise<{ error: string | null }> {
+  await requireUser()
+
+  if (!characterId || !equipmentId) {
+    return { error: "Missing character or equipment id." }
+  }
+
+  const result = await setCharacterEquippedArmor(
+    characterId,
+    equipmentId,
+    equipped
+  )
+  if (!result.ok) {
+    return { error: result.error }
+  }
+
+  revalidatePath(`/characters/${characterId}`)
+  return { error: null }
 }
 
 export async function deleteCharacterAction(

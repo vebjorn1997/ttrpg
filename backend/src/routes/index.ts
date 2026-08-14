@@ -14,6 +14,11 @@ import languages from './languages'
 import lawlevel from './lawlevel'
 import miscellaneous from './miscellaneous'
 import equipment from './equipment'
+import systems from './systems'
+import factions from './factions'
+import campaignNpcs from './campaignNpcs'
+import ships from './ships'
+import patrons from './patrons'
 
 const api = new Hono()
 
@@ -33,6 +38,11 @@ export const endpoints = [
   '/lawlevel',
   '/miscellaneous',
   '/equipment',
+  '/systems',
+  '/factions',
+  '/campaign-npcs',
+  '/ships',
+  '/patrons',
 ] as const
 
 api.get('/', (c) => c.json({ status: 'ok', endpoints }))
@@ -52,5 +62,10 @@ api.route('/languages', languages)
 api.route('/lawlevel', lawlevel)
 api.route('/miscellaneous', miscellaneous)
 api.route('/equipment', equipment)
+api.route('/systems', systems)
+api.route('/factions', factions)
+api.route('/campaign-npcs', campaignNpcs)
+api.route('/ships', ships)
+api.route('/patrons', patrons)
 
 export default api

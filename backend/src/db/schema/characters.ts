@@ -4,6 +4,7 @@ import {
   varchar,
   text,
   integer,
+  boolean,
   jsonb,
   timestamp,
   primaryKey,
@@ -101,6 +102,7 @@ export const characterEquipmentTable = pgTable(
       .notNull()
       .references(() => equipmentTable.id, { onDelete: 'cascade' }),
     quantity: integer('quantity').notNull().default(1),
+    equipped: boolean('equipped').notNull().default(false),
   },
   (t) => [primaryKey({ columns: [t.characterId, t.equipmentId] })],
 )

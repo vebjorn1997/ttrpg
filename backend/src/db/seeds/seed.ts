@@ -29,6 +29,14 @@ import miscellaneous from './miscellaneous';
 import { miscellaneousTable } from '../schema/miscellaneous';
 import equipment from './equipment';
 import { equipmentTable } from '../schema/equipment';
+import systems from './systems';
+import {
+    systemsTable,
+    systemTraitsTable,
+    systemHooksTable,
+    systemInteractionsTable,
+    systemTimelineTable,
+} from '../schema/systems';
 
 const db = drizzle(process.env.DATABASE_URL!);
 
@@ -183,6 +191,80 @@ const seed = async () => {
 
     if (traitLinks.length) {
         await db.insert(npcCatalogTraitsTable).values(traitLinks).onConflictDoNothing();
+    }
+
+    // Sample star systems. Existing rows are left alone so a re-run never
+    // overwrites campaign edits, and child records are only written on insert.
+    if (systems.length) {
+        const systemTraitNames = [...new Set(systems.flatMap((s) => s.traitNames))];
+        const systemTraitRows = systemTraitNames.length
+            ? await db
+                  .select()
+                  .from(traitsTable)
+                  .where(inArray(traitsTable.name, systemTraitNames))
+            : [];
+        const systemTraitIdByName = Object.fromEntries(
+            systemTraitRows.map((t) => [t.name, t.id]),
+        );
+
+        for (const system of systems) {
+            const [inserted] = await db
+                .insert(systemsTable)
+                .values({
+                    name: system.name,
+                    description: system.description,
+                    techLevel: system.techLevel,
+                    lawLevel: system.lawLevel,
+                    location: system.location,
+                    notes: system.notes,
+                })
+                .onConflictDoNothing()
+                .returning({ id: systemsTable.id });
+
+            if (!inserted) continue;
+
+            const links = system.traitNames
+                .map((name) => systemTraitIdByName[name])
+                .filter(Boolean)
+                .map((traitId) => ({ systemId: inserted.id, traitId }));
+            if (links.length) {
+                await db.insert(systemTraitsTable).values(links).onConflictDoNothing();
+            }
+
+            if (system.hooks.length) {
+                await db.insert(systemHooksTable).values(
+                    system.hooks.map((hook) => ({
+                        systemId: inserted.id,
+                        title: hook.title,
+                        description: hook.description,
+                        used: hook.used,
+                    })),
+                );
+            }
+
+            if (system.interactions.length) {
+                await db.insert(systemInteractionsTable).values(
+                    system.interactions.map((entry) => ({
+                        systemId: inserted.id,
+                        entryDate: entry.entryDate,
+                        entryDateRaw: entry.entryDateRaw,
+                        event: entry.event,
+                    })),
+                );
+            }
+
+            if (system.timeline.length) {
+                await db.insert(systemTimelineTable).values(
+                    system.timeline.map((entry) => ({
+                        systemId: inserted.id,
+                        entryDate: entry.entryDate,
+                        entryDateRaw: entry.entryDateRaw,
+                        event: entry.event,
+                        visibility: entry.visibility,
+                    })),
+                );
+            }
+        }
     }
 
     process.exit(0);

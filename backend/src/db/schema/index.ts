@@ -28,3 +28,22 @@ export {
   account,
   verification,
 } from './auth';
+export {
+  systemsTable,
+  systemTraitsTable,
+  systemHooksTable,
+  systemInteractionsTable,
+  systemTimelineTable,
+} from './systems';
+export { factionsTable, factionTraitsTable } from './factions';
+export { campaignNpcsTable, campaignNpcTraitsTable } from './campaignNpcs';
+export { shipsTable, shipTraitsTable } from './ships';
+export { patronsTable } from './patrons';
+export { locationsTable, locationTraitsTable } from './locations';
+export {
+  systemFactionsTable,
+  systemNpcsTable,
+  systemShipsTable,
+  systemPatronsTable,
+  systemLinksTable,
+} from './systemRelationships';
