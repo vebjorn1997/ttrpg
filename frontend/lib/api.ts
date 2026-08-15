@@ -10,6 +10,8 @@
 
 import "server-only"
 
+import { cache } from "react"
+
 import { API_BASE_URL } from "@/lib/api-config"
 import type {
   Action,
@@ -105,12 +107,12 @@ async function characterAuthHeaders(): Promise<
   }
 }
 
-async function getCollection<T>(path: string): Promise<ApiResult<T[]>> {
+const getCollection = cache(async function getCollection<T>(
+  path: string
+): Promise<ApiResult<T[]>> {
   try {
     const response = await fetch(`${API_BASE_URL}${path}`, {
       headers: { accept: "application/json" },
-      // Always read through to the API; this is a live reference tool.
-      cache: "no-store",
       signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
     })
 
@@ -136,7 +138,7 @@ async function getCollection<T>(path: string): Promise<ApiResult<T[]>> {
   } catch (cause) {
     return { ok: false, data: null, error: describeFailure(cause) }
   }
-}
+})
 
 async function getAuthedCollection<T>(path: string): Promise<ApiResult<T[]>> {
   const auth = await characterAuthHeaders()
@@ -839,54 +841,107 @@ export const updatePatron = (id: string, input: PatronInput) =>
 export const deletePatron = (id: string) =>
   campaignRequest<{ ok: true; id: string }>(`/patrons/${id}`, { method: "DELETE" })
 
-const collectionLoaders: Record<ModuleId, () => Promise<ApiResult<unknown[]>>> =
-  {
-    actions: getActions,
-    conditions: getConditions,
-    "called-shots": getCalledShots,
-    "critical-injuries": getCriticalInjuries,
-    healing: getHealing,
-    feats: getFeats,
-    skills: getSkills,
-    npcs: getNpcs,
-    traits: getTraits,
-    tl: getTechLevels,
-    languages: getLanguages,
-    lawlevel: getLawLevels,
-    miscellaneous: getMiscellaneous,
-    equipment: getEquipment,
-    characters: getCharacters,
-    systems: () => getSystems(),
-    factions: () => getFactions(),
-    "campaign-npcs": () => getCampaignNpcs(),
-    ships: () => getShips(),
-    patrons: () => getPatrons(),
+const MODULE_IDS: ModuleId[] = [
+  "actions",
+  "conditions",
+  "called-shots",
+  "critical-injuries",
+  "healing",
+  "feats",
+  "skills",
+  "npcs",
+  "traits",
+  "tl",
+  "languages",
+  "lawlevel",
+  "miscellaneous",
+  "equipment",
+  "characters",
+  "systems",
+  "factions",
+  "campaign-npcs",
+  "ships",
+  "patrons",
+]
+
+function isCountsPayload(value: unknown): value is Record<string, number> {
+  return Boolean(value) && typeof value === "object" && !Array.isArray(value)
+}
+
+export async function getCatalogCounts(): Promise<ApiResult<Record<string, number>>> {
+  try {
+    const response = await fetch(`${API_BASE_URL}/counts`, {
+      headers: { accept: "application/json" },
+      signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+    })
+
+    if (!response.ok) {
+      return {
+        ok: false,
+        data: null,
+        error: `/counts responded ${response.status} ${response.statusText}.`,
+      }
+    }
+
+    const payload: unknown = await response.json()
+    if (!isCountsPayload(payload)) {
+      return { ok: false, data: null, error: "/counts returned a non-object payload." }
+    }
+
+    return { ok: true, data: payload, error: null }
+  } catch (cause) {
+    return { ok: false, data: null, error: describeFailure(cause) }
   }
+}
+
+export type RuleIndexEntry = {
+  module: string
+  id: string
+  title: string
+}
+
+export async function getRuleIndex(): Promise<ApiResult<RuleIndexEntry[]>> {
+  try {
+    const response = await fetch(`${API_BASE_URL}/rule-index`, {
+      headers: { accept: "application/json" },
+      signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+    })
+
+    if (!response.ok) {
+      return {
+        ok: false,
+        data: null,
+        error: `/rule-index responded ${response.status} ${response.statusText}.`,
+      }
+    }
+
+    const payload: unknown = await response.json()
+    if (!Array.isArray(payload)) {
+      return {
+        ok: false,
+        data: null,
+        error: `/rule-index returned ${typeof payload}, expected an array.`,
+      }
+    }
+
+    return { ok: true, data: payload as RuleIndexEntry[], error: null }
+  } catch (cause) {
+    return { ok: false, data: null, error: describeFailure(cause) }
+  }
+}
 
 /**
- * Reads every dataset in parallel for the dashboard: one pass produces both
- * the per-endpoint record counts and the action list, so nothing is fetched
- * twice while rendering the landing page.
+ * Dashboard only needs row counts plus the actions list for the turn-budget
+ * panel. Pulling every collection just to call `.length` was 20 round trips.
  */
 export async function getDashboardSnapshot(): Promise<DashboardSnapshot> {
   const user = await getCurrentUser()
-  const ids = Object.keys(collectionLoaders) as ModuleId[]
+  const [countsResult, actions] = await Promise.all([
+    getCatalogCounts(),
+    getActions(),
+  ])
 
-  const results = await Promise.all(
-    ids.map(async (id) => {
-      if (id === "characters" && !user) {
-        return { ok: true as const, data: [], error: null }
-      }
-      if (id === "npcs" && user?.role !== "admin") {
-        return { ok: true as const, data: [], error: null }
-      }
-      return collectionLoaders[id]()
-    })
-  )
-
-  const telemetry = ids.reduce((counts, id, index) => {
-    const result = results[index]
-    // Hide gated datasets from telemetry when the viewer cannot access them.
+  const telemetry = MODULE_IDS.reduce((counts, id) => {
     if (id === "characters" && !user) {
       counts[id] = null
       return counts
@@ -895,14 +950,13 @@ export async function getDashboardSnapshot(): Promise<DashboardSnapshot> {
       counts[id] = null
       return counts
     }
-    counts[id] = result.ok ? result.data.length : null
+    const n = countsResult.data?.[id]
+    counts[id] = countsResult.ok && typeof n === "number" ? n : null
     return counts
   }, {} as ModuleTelemetry)
 
-  const actionsResult = results[ids.indexOf("actions")]
-
   return {
     telemetry,
-    actions: actionsResult.ok ? (actionsResult.data as Action[]) : [],
+    actions: actions.data ?? [],
   }
 }

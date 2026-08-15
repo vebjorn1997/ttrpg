@@ -19,10 +19,13 @@ import factions from './factions'
 import campaignNpcs from './campaignNpcs'
 import ships from './ships'
 import patrons from './patrons'
+import catalogMeta from './catalogMeta'
 
 const api = new Hono()
 
 export const endpoints = [
+  '/counts',
+  '/rule-index',
   '/actions',
   '/conditions',
   '/called-shots',
@@ -47,6 +50,7 @@ export const endpoints = [
 
 api.get('/', (c) => c.json({ status: 'ok', endpoints }))
 
+api.route('/', catalogMeta)
 api.route('/conditions', conditions)
 api.route('/actions', actions)
 api.route('/called-shots', calledShots)

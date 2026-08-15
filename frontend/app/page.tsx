@@ -8,9 +8,12 @@ import { modulesVisibleTo } from "@/lib/modules"
 import { getCurrentUser } from "@/lib/session"
 
 export default async function DashboardPage() {
-  const user = await getCurrentUser()
+  const [user, snapshot] = await Promise.all([
+    getCurrentUser(),
+    getDashboardSnapshot(),
+  ])
   const visibleModules = modulesVisibleTo(user?.role ?? null)
-  const { telemetry, actions } = await getDashboardSnapshot()
+  const { telemetry, actions } = snapshot
 
   const totalRecords = visibleModules.reduce(
     (sum, module) => sum + (telemetry[module.id] ?? 0),

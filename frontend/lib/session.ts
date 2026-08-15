@@ -1,5 +1,6 @@
 import "server-only"
 
+import { cache } from "react"
 import { headers } from "next/headers"
 import { redirect } from "next/navigation"
 
@@ -18,13 +19,13 @@ function normalizeRole(role: string | null | undefined): AppRole {
   return role === "admin" ? "admin" : "player"
 }
 
-export async function getSession() {
+export const getSession = cache(async function getSession() {
   return auth.api.getSession({
     headers: await headers(),
   })
-}
+})
 
-export async function getCurrentUser(): Promise<AppUser | null> {
+export const getCurrentUser = cache(async function getCurrentUser(): Promise<AppUser | null> {
   const session = await getSession()
   if (!session?.user) return null
   return {
@@ -35,7 +36,7 @@ export async function getCurrentUser(): Promise<AppUser | null> {
       "role" in session.user ? (session.user.role as string | undefined) : undefined
     ),
   }
-}
+})
 
 export async function requireUser(): Promise<AppUser> {
   const user = await getCurrentUser()

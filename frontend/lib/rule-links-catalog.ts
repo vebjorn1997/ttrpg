@@ -2,25 +2,10 @@ import "server-only"
 
 /**
  * Cross-module name → deep-link catalog for soft-matching titles in rule text.
- * Built server-side from live collections; matching is case-insensitive.
+ * Built server-side from a single index endpoint.
  */
 
-import {
-  getActions,
-  getCalledShots,
-  getConditions,
-  getCriticalInjuries,
-  getFeats,
-  getHealing,
-  getLanguages,
-  getLawLevels,
-  getMiscellaneous,
-  getEquipment,
-  getNpcs,
-  getSkills,
-  getTechLevels,
-  getTraits,
-} from "@/lib/api"
+import { getRuleIndex } from "@/lib/api"
 import { dataModules, type DataModule } from "@/lib/modules"
 import type { RuleLinkEntry } from "@/lib/rule-links"
 
@@ -28,111 +13,24 @@ function moduleHref(id: DataModule["id"]): string {
   return dataModules.find((module) => module.id === id)?.href ?? "/"
 }
 
-function entries(
-  moduleId: DataModule["id"],
-  rows: { id: string; title: string }[]
-): RuleLinkEntry[] {
-  const base = moduleHref(moduleId)
-  return rows.map((row) => ({
-    id: row.id,
-    title: row.title,
-    href: `${base}?id=${encodeURIComponent(row.id)}`,
-  }))
+function isModuleId(value: string): value is DataModule["id"] {
+  return dataModules.some((module) => module.id === value)
 }
 
-/** Parallel fetch of every named rule for cross-linking. Failures yield []. */
+/** One request instead of fourteen full collection fetches. Failures yield []. */
 export async function buildRuleLinkCatalog(): Promise<RuleLinkEntry[]> {
-  const [
-    actions,
-    conditions,
-    calledShots,
-    injuries,
-    healing,
-    feats,
-    skills,
-    techLevels,
-    languages,
-    lawLevels,
-    miscellaneous,
-    equipment,
-    npcs,
-    traits,
-  ] = await Promise.all([
-    getActions(),
-    getConditions(),
-    getCalledShots(),
-    getCriticalInjuries(),
-    getHealing(),
-    getFeats(),
-    getSkills(),
-    getTechLevels(),
-    getLanguages(),
-    getLawLevels(),
-    getMiscellaneous(),
-    getEquipment(),
-    getNpcs(),
-    getTraits(),
-  ])
+  const index = await getRuleIndex()
+  if (!index.ok || !index.data) return []
 
-  return [
-    ...entries(
-      "actions",
-      (actions.data ?? []).map((row) => ({ id: row.id, title: row.name }))
-    ),
-    ...entries(
-      "conditions",
-      (conditions.data ?? []).map((row) => ({ id: row.id, title: row.name }))
-    ),
-    ...entries(
-      "called-shots",
-      (calledShots.data ?? []).map((row) => ({
+  return index.data.flatMap((row) => {
+    if (!isModuleId(row.module) || !row.id || !row.title) return []
+    const base = moduleHref(row.module)
+    return [
+      {
         id: row.id,
-        title: row.location,
-      }))
-    ),
-    ...entries(
-      "critical-injuries",
-      (injuries.data ?? []).map((row) => ({ id: row.id, title: row.name }))
-    ),
-    ...entries(
-      "healing",
-      (healing.data ?? []).map((row) => ({ id: row.id, title: row.name }))
-    ),
-    ...entries(
-      "feats",
-      (feats.data ?? []).map((row) => ({ id: row.id, title: row.name }))
-    ),
-    ...entries(
-      "skills",
-      (skills.data ?? []).map((row) => ({ id: row.id, title: row.name }))
-    ),
-    ...entries(
-      "tl",
-      (techLevels.data ?? []).map((row) => ({ id: row.id, title: row.name }))
-    ),
-    ...entries(
-      "languages",
-      (languages.data ?? []).map((row) => ({ id: row.id, title: row.name }))
-    ),
-    ...entries(
-      "lawlevel",
-      (lawLevels.data ?? []).map((row) => ({ id: row.id, title: row.name }))
-    ),
-    ...entries(
-      "miscellaneous",
-      (miscellaneous.data ?? []).map((row) => ({ id: row.id, title: row.name }))
-    ),
-    ...entries(
-      "equipment",
-      (equipment.data ?? []).map((row) => ({ id: row.id, title: row.name }))
-    ),
-    ...entries(
-      "npcs",
-      (npcs.data ?? []).map((row) => ({ id: row.id, title: row.name }))
-    ),
-    ...entries(
-      "traits",
-      (traits.data ?? []).map((row) => ({ id: row.id, title: row.name }))
-    ),
-  ]
+        title: row.title,
+        href: `${base}?id=${encodeURIComponent(row.id)}`,
+      },
+    ]
+  })
 }

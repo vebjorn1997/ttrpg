@@ -1,7 +1,7 @@
 import type { Metadata } from "next"
 import Link from "next/link"
 import { Suspense } from "react"
-import { Download, Plus, Upload } from "lucide-react"
+import { Download, Map, Plus, Upload } from "lucide-react"
 
 import { GmOnlyBadge } from "@/components/campaign-fields"
 import { OfflineNotice } from "@/components/offline-notice"
@@ -87,22 +87,28 @@ export default async function SystemsPage({
     <div className="space-y-6">
       <PageHeader module={dataset} count={result.ok ? systems.length : null} />
 
-      {isGm ? (
-        <div className="flex flex-wrap justify-end gap-2">
-          <Link href="/systems/import" className={actionLink}>
-            <Upload aria-hidden className="size-3.5" />
-            Import CSV
-          </Link>
-          <a href="/api/systems/export" className={actionLink} download>
-            <Download aria-hidden className="size-3.5" />
-            Export JSON
-          </a>
-          <Link href="/systems/new" className={actionLink}>
-            <Plus aria-hidden className="size-3.5" />
-            New system
-          </Link>
-        </div>
-      ) : null}
+      <div className="flex flex-wrap justify-end gap-2">
+        <Link href="/systems/map" className={actionLink}>
+          <Map aria-hidden className="size-3.5" />
+          Hex map
+        </Link>
+        {isGm ? (
+          <>
+            <Link href="/systems/import" className={actionLink}>
+              <Upload aria-hidden className="size-3.5" />
+              Import CSV
+            </Link>
+            <a href="/api/systems/export" className={actionLink} download>
+              <Download aria-hidden className="size-3.5" />
+              Export JSON
+            </a>
+            <Link href="/systems/new" className={actionLink}>
+              <Plus aria-hidden className="size-3.5" />
+              New system
+            </Link>
+          </>
+        ) : null}
+      </div>
 
       <Suspense
         fallback={

@@ -1,7 +1,7 @@
 import type { Metadata } from "next"
 import Link from "next/link"
 import { notFound } from "next/navigation"
-import { Download, Pencil } from "lucide-react"
+import { Download, Map, Pencil } from "lucide-react"
 
 import { CampaignCrumbs } from "@/components/campaign-crumbs"
 import { GmNote } from "@/components/campaign-fields"
@@ -360,22 +360,28 @@ export default async function SystemDetailPage({
         title={system.name}
         lede={system.description ?? undefined}
         actions={
-          isGm ? (
-            <>
-              <a
-                href={`/api/systems/${id}/export`}
-                download
-                className={actionLink}
-              >
-                <Download aria-hidden className="size-3.5" />
-                Export
-              </a>
-              <Link href={`/systems/${id}/edit`} className={actionLink}>
-                <Pencil aria-hidden className="size-3.5" />
-                Edit
-              </Link>
-            </>
-          ) : null
+          <>
+            <Link href="/systems/map" className={actionLink}>
+              <Map aria-hidden className="size-3.5" />
+              Hex map
+            </Link>
+            {isGm ? (
+              <>
+                <a
+                  href={`/api/systems/${id}/export`}
+                  download
+                  className={actionLink}
+                >
+                  <Download aria-hidden className="size-3.5" />
+                  Export
+                </a>
+                <Link href={`/systems/${id}/edit`} className={actionLink}>
+                  <Pencil aria-hidden className="size-3.5" />
+                  Edit
+                </Link>
+              </>
+            ) : null}
+          </>
         }
       />
 

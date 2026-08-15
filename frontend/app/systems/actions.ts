@@ -44,6 +44,7 @@ import { getCurrentUser } from "@/lib/session"
 
 function refreshSystem(systemId: string) {
   revalidatePath("/systems")
+  revalidatePath("/systems/map")
   revalidatePath(`/systems/${systemId}`)
 }
 
@@ -100,6 +101,7 @@ export async function createSystemAction(
   if (!result.ok) return { error: result.error, success: null }
 
   revalidatePath("/systems")
+  revalidatePath("/systems/map")
   redirect(`/systems/${result.data.id}`)
 }
 
@@ -137,6 +139,7 @@ export async function deleteSystemAction(
   if (!result.ok) return { error: result.error, success: null }
 
   revalidatePath("/systems")
+  revalidatePath("/systems/map")
   redirect("/systems")
 }
 
@@ -161,6 +164,7 @@ export async function importSystemsAction(
   if (!result.ok) return { error: result.error, success: null, report: null }
 
   revalidatePath("/systems")
+  revalidatePath("/systems/map")
 
   const { created, skipped, errors } = result.data
   return {
