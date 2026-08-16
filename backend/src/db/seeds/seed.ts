@@ -1,6 +1,6 @@
 import 'dotenv/config';
 import { drizzle } from 'drizzle-orm/node-postgres';
-import { eq, inArray } from 'drizzle-orm';
+import { eq, inArray, and, isNull } from 'drizzle-orm';
 import conditions from './conditions';
 import actions from './actions';
 import calledShots from './calledShots';
@@ -37,6 +37,8 @@ import {
     systemInteractionsTable,
     systemTimelineTable,
 } from '../schema/systems';
+import factions from './factions';
+import { factionsTable, factionTraitsTable } from '../schema/factions';
 
 const db = drizzle(process.env.DATABASE_URL!);
 
@@ -265,6 +267,138 @@ const seed = async () => {
                 );
             }
         }
+    }
+
+    // Campaign factions. Existing rows are left alone so a re-run never
+    // overwrites campaign edits, and trait links are only written on insert.
+    if (factions.length) {
+        const factionTraitNames = [...new Set(factions.flatMap((f) => f.traitNames))];
+        const headquartersNames = [
+            ...new Set(
+                factions
+                    .map((f) => f.headquartersName)
+                    .filter((name): name is string => Boolean(name)),
+            ),
+        ];
+
+        const [factionTraitRows, headquartersRows] = await Promise.all([
+            factionTraitNames.length
+                ? db
+                      .select()
+                      .from(traitsTable)
+                      .where(inArray(traitsTable.name, factionTraitNames))
+                : Promise.resolve([]),
+            headquartersNames.length
+                ? db
+                      .select({ id: systemsTable.id, name: systemsTable.name })
+                      .from(systemsTable)
+                      .where(inArray(systemsTable.name, headquartersNames))
+                : Promise.resolve([]),
+        ]);
+
+        const factionTraitIdByName = Object.fromEntries(
+            factionTraitRows.map((t) => [t.name, t.id]),
+        );
+        const systemIdByName = Object.fromEntries(
+            headquartersRows.map((s) => [s.name, s.id]),
+        );
+
+        for (const name of headquartersNames) {
+            if (!systemIdByName[name]) {
+                throw new Error(
+                    `factions seed: headquarters system "${name}" was not found`,
+                );
+            }
+        }
+
+        for (const faction of factions) {
+            const [inserted] = await db
+                .insert(factionsTable)
+                .values({
+                    name: faction.name,
+                    type: faction.type,
+                    description: faction.description,
+                    tier: faction.tier,
+                    headquartersSystemId: faction.headquartersName
+                        ? systemIdByName[faction.headquartersName]
+                        : null,
+                    goals: faction.goals,
+                    assets: faction.assets,
+                    notes: faction.notes,
+                })
+                .onConflictDoNothing()
+                .returning({ id: factionsTable.id });
+
+            if (!inserted) continue;
+
+            const links = faction.traitNames
+                .map((traitName) => factionTraitIdByName[traitName])
+                .filter(Boolean)
+                .map((traitId) => ({ factionId: inserted.id, traitId }));
+            if (links.length) {
+                await db.insert(factionTraitsTable).values(links).onConflictDoNothing();
+            }
+        }
+    }
+
+    // Systems are inserted before factions exist, so control has to be wired
+    // in a second pass. Only unclaimed worlds are filled so GM edits stick.
+    const controllerNames = [
+        ...new Set(
+            systems
+                .map((s) => s.controllerName)
+                .filter((name): name is string => Boolean(name)),
+        ),
+    ];
+    if (controllerNames.length) {
+        const controllerFactionRows = await db
+            .select({ id: factionsTable.id, name: factionsTable.name })
+            .from(factionsTable)
+            .where(inArray(factionsTable.name, controllerNames));
+        const factionIdByName = Object.fromEntries(
+            controllerFactionRows.map((f) => [f.name, f.id]),
+        );
+
+        for (const name of controllerNames) {
+            if (!factionIdByName[name]) {
+                throw new Error(
+                    `systems seed: controller faction "${name}" was not found`,
+                );
+            }
+        }
+
+        for (const system of systems) {
+            if (!system.controllerName) continue;
+            await db
+                .update(systemsTable)
+                .set({ controllerFactionId: factionIdByName[system.controllerName] })
+                .where(
+                    and(
+                        eq(systemsTable.name, system.name),
+                        isNull(systemsTable.controllerFactionId),
+                    ),
+                );
+        }
+    }
+
+    // Headquarters worlds default to their faction if still unclaimed.
+    const headquarters = await db
+        .select({
+            factionId: factionsTable.id,
+            systemId: factionsTable.headquartersSystemId,
+        })
+        .from(factionsTable);
+    for (const row of headquarters) {
+        if (!row.systemId) continue;
+        await db
+            .update(systemsTable)
+            .set({ controllerFactionId: row.factionId })
+            .where(
+                and(
+                    eq(systemsTable.id, row.systemId),
+                    isNull(systemsTable.controllerFactionId),
+                ),
+            );
     }
 
     process.exit(0);

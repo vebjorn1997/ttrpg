@@ -1,5 +1,5 @@
 import { Hono } from 'hono'
-import { and, asc, desc, eq, gte, ilike, lte, or, type SQL } from 'drizzle-orm'
+import { and, asc, desc, eq, gte, ilike, isNull, lte, or, type SQL } from 'drizzle-orm'
 import { db } from '../db/client'
 import {
   systemHooksTable,
@@ -11,6 +11,7 @@ import {
 import { tlTable } from '../db/schema/tl'
 import { lawlevelTable } from '../db/schema/lawlevel'
 import { traitsTable } from '../db/schema/traits'
+import { factionsTable } from '../db/schema/factions'
 import { user } from '../db/schema/auth'
 import {
   attachViewer,
@@ -26,6 +27,7 @@ import {
   parseHexLocation,
   parseIntInRange,
   parseNullableText,
+  parseNullableUuid,
   parseText,
   parseUuidList,
   readJsonBody,
@@ -39,7 +41,7 @@ import {
   type TraitRow,
 } from '../lib/campaign-traits'
 import { loadSystemRelationships } from '../lib/campaign-relationships'
-import { iso } from '../lib/campaign-view'
+import { iso, toFactionRef, type FactionRef } from '../lib/campaign-view'
 import { parseCsv } from '../lib/csv'
 import relationships from './systemRelationships'
 
@@ -61,10 +63,12 @@ function baseSystemQuery() {
       system: systemsTable,
       techLevelName: tlTable.name,
       lawLevelName: lawlevelTable.name,
+      controller: factionsTable,
     })
     .from(systemsTable)
     .leftJoin(tlTable, eq(tlTable.level, systemsTable.techLevel))
     .leftJoin(lawlevelTable, eq(lawlevelTable.lawlevel, systemsTable.lawLevel))
+    .leftJoin(factionsTable, eq(factionsTable.id, systemsTable.controllerFactionId))
 }
 
 function toSystemSummary(
@@ -73,6 +77,7 @@ function toSystemSummary(
   lawLevelName: string | null,
   traits: TraitRow[],
   isGm: boolean,
+  controller: FactionRef | null,
 ) {
   return {
     id: row.id,
@@ -83,12 +88,20 @@ function toSystemSummary(
     techLevelName,
     lawLevel: row.lawLevel,
     lawLevelName,
+    controllerFactionId: row.controllerFactionId,
+    controller,
     traits,
     ...(isGm ? { notes: row.notes } : {}),
     createdBy: row.createdBy,
     createdAt: iso(row.createdAt),
     updatedAt: iso(row.updatedAt),
   }
+}
+
+function factionRefFromJoin(
+  faction: typeof factionsTable.$inferSelect | null,
+): FactionRef | null {
+  return faction?.id ? toFactionRef(faction) : null
 }
 
 async function loadSystemTraits(systemIds: string[]) {
@@ -199,6 +212,7 @@ async function loadSystemDetail(systemId: string, isGm: boolean) {
       row.lawLevelName,
       traitMap.get(systemId) ?? NO_TRAITS,
       isGm,
+      factionRefFromJoin(row.controller),
     ),
     hooks,
     interactions,
@@ -253,6 +267,17 @@ systems.get('/', async (c) => {
   const location = query.location?.trim().toUpperCase()
   if (location) filters.push(eq(systemsTable.location, location))
 
+  const controller = query.controller?.trim()
+  if (controller) {
+    if (controller.toLowerCase() === 'unclaimed' || controller.toLowerCase() === 'none') {
+      filters.push(isNull(systemsTable.controllerFactionId))
+    } else if (isUuid(controller)) {
+      filters.push(eq(systemsTable.controllerFactionId, controller))
+    } else {
+      filters.push(ilike(factionsTable.name, controller))
+    }
+  }
+
   const applied = filters.filter((filter): filter is SQL => filter !== undefined)
   const rows = await (applied.length
     ? baseSystemQuery().where(and(...applied))
@@ -268,6 +293,7 @@ systems.get('/', async (c) => {
       row.lawLevelName,
       traitMap.get(row.system.id) ?? NO_TRAITS,
       isGm,
+      factionRefFromJoin(row.controller),
     ),
   )
 
@@ -379,6 +405,7 @@ type SystemFields = {
   techLevel: number
   lawLevel: number
   location: string
+  controllerFactionId: string | null
   notes: string | null
   traitIds: string[]
 }
@@ -398,6 +425,21 @@ async function parseSystemBody(body: Record<string, unknown>): Promise<Parsed<Sy
 
   const location = parseHexLocation(body.location)
   if (!location.ok) return location
+
+  const controllerFactionId = parseNullableUuid(
+    body.controllerFactionId ?? body.controller,
+    'controllerFactionId',
+  )
+  if (!controllerFactionId.ok) return controllerFactionId
+
+  if (controllerFactionId.value) {
+    const [faction] = await db
+      .select({ id: factionsTable.id })
+      .from(factionsTable)
+      .where(eq(factionsTable.id, controllerFactionId.value))
+      .limit(1)
+    if (!faction) return invalid('controllerFactionId is not a known faction')
+  }
 
   const notes = parseNullableText(body.notes, 'notes')
   if (!notes.ok) return notes
@@ -430,6 +472,7 @@ async function parseSystemBody(body: Record<string, unknown>): Promise<Parsed<Sy
       techLevel: techLevel.value,
       lawLevel: lawLevel.value,
       location: location.value,
+      controllerFactionId: controllerFactionId.value,
       notes: notes.value,
       traitIds: traitIds.value,
     },
@@ -469,6 +512,7 @@ systems.post('/', async (c) => {
       techLevel: fields.value.techLevel,
       lawLevel: fields.value.lawLevel,
       location: fields.value.location,
+      controllerFactionId: fields.value.controllerFactionId,
       notes: fields.value.notes,
       createdBy: c.get('viewerId'),
     })
@@ -528,6 +572,7 @@ systems.put('/:id', async (c) => {
       techLevel: fields.value.techLevel,
       lawLevel: fields.value.lawLevel,
       location: fields.value.location,
+      controllerFactionId: fields.value.controllerFactionId,
       notes: fields.value.notes,
       updatedAt: new Date(),
     })
@@ -970,7 +1015,8 @@ function parseJsonCell<T>(cell: string, label: string, rowNumber: number): T[] |
 /**
  * Bulk-seed systems from the CSV shape documented in
  * `src/db/seeds/systems_database_seed.csv`. Existing systems are matched by hex
- * location and skipped, so a re-run is safe.
+ * location and skipped, so a re-run is safe. Optional `controller` is a faction
+ * name or id.
  */
 systems.post('/import', async (c) => {
   if (!isGameMaster(c.get('viewerRole'))) {
@@ -999,6 +1045,10 @@ systems.post('/import', async (c) => {
   const traitIdByName = new Map(
     traitRows.map((trait) => [trait.name.trim().toLowerCase(), trait.id]),
   )
+  const factionRows = await db.select({ id: factionsTable.id, name: factionsTable.name }).from(factionsTable)
+  const factionIdByName = new Map(
+    factionRows.map((faction) => [faction.name.trim().toLowerCase(), faction.id]),
+  )
 
   const created: string[] = []
   const skipped: string[] = []
@@ -1008,12 +1058,29 @@ systems.post('/import', async (c) => {
   for (const [index, row] of rows.entries()) {
     const rowNumber = index + 2
 
+    const controllerCell = (row.controller ?? row.controller_faction ?? '').trim()
+    let controllerFactionId: string | null = null
+    if (controllerCell) {
+      const controllerKey = controllerCell.toLowerCase()
+      if (isUuid(controllerCell)) {
+        controllerFactionId = controllerCell
+      } else {
+        const resolved = factionIdByName.get(controllerKey)
+        if (!resolved) {
+          errors.push(`Row ${rowNumber}: unknown controller faction "${controllerCell}"`)
+          continue
+        }
+        controllerFactionId = resolved
+      }
+    }
+
     const fields = await parseSystemBody({
       name: row.name,
       description: row.description,
       techLevel: row.tech_level,
       lawLevel: row.law_level,
       location: row.location,
+      controllerFactionId,
       notes: row.notes,
       traitIds: (row.traits ?? '')
         .split(';')
@@ -1073,8 +1140,9 @@ systems.post('/import', async (c) => {
         description: fields.value.description,
         techLevel: fields.value.techLevel,
         lawLevel: fields.value.lawLevel,
-        location: fields.value.location,
-        notes: fields.value.notes,
+      location: fields.value.location,
+      controllerFactionId: fields.value.controllerFactionId,
+      notes: fields.value.notes,
         createdBy: viewerId,
       })
       .returning({ id: systemsTable.id })

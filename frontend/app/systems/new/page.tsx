@@ -3,7 +3,7 @@ import type { Metadata } from "next"
 import { CampaignCrumbs } from "@/components/campaign-crumbs"
 import { ConsolePanel } from "@/components/console-panel"
 import { SystemForm } from "@/components/system-form"
-import { getLawLevels, getTechLevels, getTraits } from "@/lib/api"
+import { getFactions, getLawLevels, getTechLevels, getTraits } from "@/lib/api"
 import { getModule } from "@/lib/modules"
 import { requireAdmin } from "@/lib/session"
 
@@ -17,10 +17,11 @@ export const metadata: Metadata = {
 export default async function NewSystemPage() {
   await requireAdmin()
 
-  const [traits, techLevels, lawLevels] = await Promise.all([
+  const [traits, techLevels, lawLevels, factions] = await Promise.all([
     getTraits(),
     getTechLevels(),
     getLawLevels(),
+    getFactions(),
   ])
 
   return (
@@ -40,6 +41,7 @@ export default async function NewSystemPage() {
           traitsError={traits.error}
           techLevels={techLevels.data ?? []}
           lawLevels={lawLevels.data ?? []}
+          factions={factions.data ?? []}
         />
       </ConsolePanel>
     </div>

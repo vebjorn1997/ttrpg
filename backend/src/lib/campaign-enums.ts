@@ -17,6 +17,7 @@ export const FACTION_TYPES = [
   'military',
   'political',
   'guild',
+  'cult',
   'other',
 ] as const
 export type FactionType = (typeof FACTION_TYPES)[number]

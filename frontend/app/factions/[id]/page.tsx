@@ -148,6 +148,43 @@ export default async function FactionDetailPage({
       <section className="space-y-3">
         <div className="flex items-baseline gap-3">
           <h2 className="font-heading text-sm tracking-[0.16em] uppercase text-oxide">
+            Worlds they control
+          </h2>
+          <span className="font-mono text-xs text-muted-foreground">
+            {faction.controlledSystems.length}
+          </span>
+        </div>
+
+        {faction.controlledSystems.length === 0 ? (
+          <p className="border border-dashed border-hairline bg-card/30 px-4 py-6 text-center text-sm text-muted-foreground">
+            They do not currently hold any hex. Assign a controller from a
+            system&apos;s edit form.
+          </p>
+        ) : (
+          <ul className="grid gap-3 sm:grid-cols-2">
+            {faction.controlledSystems.map((system) => (
+              <li
+                key={system.id}
+                className="flex items-baseline justify-between gap-3 border border-hairline bg-card/60 p-4"
+              >
+                <Link
+                  href={`/systems/${system.id}`}
+                  className="font-heading text-base tracking-wide uppercase transition-colors hover:text-signal"
+                >
+                  {system.name}
+                </Link>
+                <span className="font-mono text-xs tracking-[0.14em] text-signal">
+                  {system.location}
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+
+      <section className="space-y-3">
+        <div className="flex items-baseline gap-3">
+          <h2 className="font-heading text-sm tracking-[0.16em] uppercase text-oxide">
             Where they operate
           </h2>
           <span className="font-mono text-xs text-muted-foreground">

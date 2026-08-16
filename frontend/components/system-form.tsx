@@ -15,7 +15,7 @@ import {
 import { CampaignTraitPicker } from "@/components/campaign-trait-picker"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import type { LawLevel, StarSystem, TechLevel, Trait } from "@/lib/api-types"
+import type { Faction, LawLevel, StarSystem, TechLevel, Trait } from "@/lib/api-types"
 import { emptyFormState } from "@/lib/campaign"
 
 type SystemFormProps = {
@@ -23,6 +23,7 @@ type SystemFormProps = {
   traitsError?: string | null
   techLevels: TechLevel[]
   lawLevels: LawLevel[]
+  factions: Faction[]
   system?: StarSystem
 }
 
@@ -32,6 +33,7 @@ export function SystemForm({
   traitsError = null,
   techLevels,
   lawLevels,
+  factions,
   system,
 }: SystemFormProps) {
   const editing = Boolean(system)
@@ -92,6 +94,24 @@ export function SystemForm({
         <h2 className="font-heading text-sm tracking-[0.16em] uppercase text-signal">
           Governance
         </h2>
+
+        <Field
+          label="Controller"
+          hint="The faction that currently holds this hex. Other groups operating here are recorded under Relationships."
+        >
+          <select
+            name="controllerFactionId"
+            defaultValue={system?.controllerFactionId ?? ""}
+            className={selectClass}
+          >
+            <option value="">Unclaimed</option>
+            {factions.map((faction) => (
+              <option key={faction.id} value={faction.id}>
+                {faction.name}
+              </option>
+            ))}
+          </select>
+        </Field>
 
         <div className="grid gap-4 sm:grid-cols-2">
           <label className="flex flex-col gap-1.5">

@@ -36,6 +36,25 @@ Low Gravity,System,"Significantly less than standard; high jumps and fragile str
 Medium Gravity,System,Comfortable standard range; roughly 0.8 to 1.2 G with no special accommodations needed.,#420D09
 High Gravity,System,"Crushing weight; movement is exhausting, equipment strains, and hearts work overtime just to stand.",#420D09
 Independent,System,This system is largely independent from any foreign Empire.,#420D09
+Empty,System,"Uninhabited. No permanent or temporary presence. Might be surveyed, might not.",#420D09
+Outpost,System,"Small permanent or semi-permanent staff. Usually specific-purpose: research station, refueling depot, listening post, waystation. Population: dozens.",#420D09
+Settlement,System,Self-sustaining colony or homesteading community. Agriculture or resource extraction supports the population. Population: hundreds to low thousands.,#420D09
+Town,System,"Multiple settlements linked by trade or a central township. Basic local government, maybe a sheriff or colonial administrator. Services exist (medical, repair, trade). Population: thousands to tens of thousands.",#420D09
+City,System,Multiple urban centers. Industrial or commercial hubs. Planetary government established. Spaceport likely handles regular traffic. Population: hundreds of thousands to millions.,#420D09
+Metropolis,System,Global urban network. Several major cities with suburbs and connecting infrastructure. Significant off-world trade. Population: tens of millions to billions.,#420D09
+Hive,System,"Extreme urban density. Most or all habitable land developed. Arcologies, underground sprawl, or stacked cities. Population: tens of billions.",#420D09
+Ecumenopolis,System,Planet-wide city. The surface is entirely artificial. Requires massive import of food/resources or advanced synthesis. Population: hundreds of billions or more.,#420D09
+Ruins,System,A dead or dying world littered with the remains of a prior civilization; scavengers and archaeologists pick through the bones.,#420D09
+Freeport,System,"Minimal regulation and no questions asked; a haven for independent traders, smugglers, and those who prefer no government oversight.",#420D09
+Criminal Haven,System,"Lawless by design or corruption; gangs, syndicates, and fugitives operate openly and the authorities are either absent or bought.",#420D09
+Occupied,System,"Under foreign military control; the local population lives under garrison rule, curfew, and the barrel of someone else's gun.",#420D09
+Naval Base,System,"A significant military installation dominates the system; warships, troop carriers, and fleet logistics are the planet's primary purpose.",#420D09
+Trade Hub,System,"A crossroads of commerce where multiple trade routes converge; markets, exchanges, and cargo handlers drive the entire economy.",#420D09
+Asteroid Belt,System,This system contains a series of asteroids grouped together into one large asteroid belt.,#420D09
+Ongoing Conflic,System,"This world is an active warsone. Either through open war between major powers, or skimishing between the government and insurgents.",#420D09
+Feudal,System,Power held by landed nobles or warlords; high technology coexists with personal loyalty and sword-law.,#420D09
+Prison Colony,System,"A colony forcibly settled by criminals from other worlds, left in this place to form a society of their own.\",#420D09
+Library World,System,"This system is a data archive, university planet, or a reposityy of lost knowledge; scholars outnumber soldiers.",#420D09
 Major Power,Faction,This faction is a major player on the intergalactic scene.,#420D09
 Minor Power,Faction,"This faction is a minor power, able to wield local power in the surronding systems.",#420D09
 Nomadic,Faction,"No fixed territory; fleets, caravans, or migratory habitats.",#420D09
@@ -50,23 +69,23 @@ AP X,Weapon,Armour piercing. Reduce the target's armour by X when resolving dama
 Explosive X,Weapon,This weapon delivers an explosive payload. Any target caught within X times 3 meters of the explosion suffers an automatic hit and takes damage equal to X D6.,#420D09
 Unreliable,Weapon,"This weapon is notorious unreliable! If you roll 2 dice with the same value on them you suffer a jam, requiring a reload action to clear! If your weapon is also Explosive, on a jam the explosive blows up in your face. Your attack does not count!",#420D09
 Stun,Weapon,This weapon has a stunning effect on its victim! If you deliever stun damager equal to someones END they are knocked unconsiouce!,#420D09
-Armed,Ship,"Carries turret or bay weaponry. Port authorities at high law levels will want the mounts sealed before docking.",#420D09
+Armed,Ship,Carries turret or bay weaponry. Port authorities at high law levels will want the mounts sealed before docking.,#420D09
 Unarmed,Ship,"No weapon hardpoints fitted. Cheap to insure, cheap to board.",#420D09
 Jump-1,Ship,"Fitted with a Jump-1 drive: one parsec per week, the workhorse standard of the interstellar lanes.",#420D09
 Jump-2,Ship,"Fitted with a Jump-2 drive. Twice the reach per jump, at considerable cost in fuel tankage and maintenance.",#420D09
-Jump-3,Ship,"Fitted with a Jump-3 drive. Military couriers and the vessels of the very rich.",#420D09
-Smuggler Holds,Ship,"Concealed compartments behind the cargo bulkheads. Gives a bonus to hide contraband from a customs sweep.",#420D09
-Transponder Spoofer,Ship,"Illegal hardware that broadcasts a forged registration. Possession alone is a crime at Law 3 and above.",#420D09
+Jump-3,Ship,Fitted with a Jump-3 drive. Military couriers and the vessels of the very rich.,#420D09
+Smuggler Holds,Ship,Concealed compartments behind the cargo bulkheads. Gives a bonus to hide contraband from a customs sweep.,#420D09
+Transponder Spoofer,Ship,Illegal hardware that broadcasts a forged registration. Possession alone is a crime at Law 3 and above.,#420D09
 Derelict,Ship,"Adrift and unpowered. Whatever happened aboard, nobody has filed a report.",#420D09
-Well Maintained,Ship,"Kept to spec by a competent engineer. Fewer misjumps and fewer surprises.",#420D09
+Well Maintained,Ship,Kept to spec by a competent engineer. Fewer misjumps and fewer surprises.,#420D09
 Rustbucket,Ship,"Held together by patches, prayer, and a creative maintenance log.",#420D09
-Highport,Location,"Orbital facility. Ships dock without ever entering atmosphere; passengers and cargo shuttle down.",#420D09
+Highport,Location,Orbital facility. Ships dock without ever entering atmosphere; passengers and cargo shuttle down.,#420D09
 Downport,Location,"Surface facility. Landing here means gravity wells, weather, and planetary customs.",#420D09
 Fortified,Location,"Hardened against attack: armoured bulkheads, defence batteries, and a garrison that drills.",#420D09
 Underground,Location,"Built below the surface, whether for shelter from the environment or from observation.",#420D09
 Domed,Location,"Sealed under a pressure dome. Atmosphere is a utility here, and it can be billed or cut off.",#420D09
-Black Market,Location,"Goods move here without manifests. Prices are negotiable; so is your safety.",#420D09
-Restricted Access,Location,"Credentials required. Turning up without them is trespass at best.",#420D09
-Medical Facility,Location,"Equipped for surgery and long-term care. Critical injuries can be properly treated here.",#420D09
+Black Market,Location,Goods move here without manifests. Prices are negotiable; so is your safety.,#420D09
+Restricted Access,Location,Credentials required. Turning up without them is trespass at best.,#420D09
+Medical Facility,Location,Equipped for surgery and long-term care. Critical injuries can be properly treated here.,#420D09
 Fuel Depot,Location,"Refined fuel available for purchase. No skimming gas giants, no risk of misjump from dirty fuel.",#420D09
 Ruined,Location,"Abandoned and decaying. Structurally unsound, and whatever moved in after the people left is still there.",#420D09

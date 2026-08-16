@@ -5,7 +5,7 @@ import { CampaignCrumbs } from "@/components/campaign-crumbs"
 import { ConsolePanel } from "@/components/console-panel"
 import { SystemDeleteButton } from "@/components/system-delete-button"
 import { SystemForm } from "@/components/system-form"
-import { getLawLevels, getSystem, getTechLevels, getTraits } from "@/lib/api"
+import { getFactions, getLawLevels, getSystem, getTechLevels, getTraits } from "@/lib/api"
 import { getModule } from "@/lib/modules"
 import { requireAdmin } from "@/lib/session"
 
@@ -23,11 +23,12 @@ export default async function EditSystemPage({
   await requireAdmin()
   const { id } = await params
 
-  const [system, traits, techLevels, lawLevels] = await Promise.all([
+  const [system, traits, techLevels, lawLevels, factions] = await Promise.all([
     getSystem(id),
     getTraits(),
     getTechLevels(),
     getLawLevels(),
+    getFactions(),
   ])
 
   if (!system.ok || !system.data) notFound()
@@ -50,6 +51,7 @@ export default async function EditSystemPage({
           traitsError={traits.error}
           techLevels={techLevels.data ?? []}
           lawLevels={lawLevels.data ?? []}
+          factions={factions.data ?? []}
         />
       </ConsolePanel>
 

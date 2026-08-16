@@ -45,6 +45,7 @@ import { getCurrentUser } from "@/lib/session"
 function refreshSystem(systemId: string) {
   revalidatePath("/systems")
   revalidatePath("/systems/map")
+  revalidatePath("/factions")
   revalidatePath(`/systems/${systemId}`)
 }
 
@@ -81,6 +82,7 @@ function readSystemInput(formData: FormData): ParsedSystem {
       techLevel,
       lawLevel,
       location: location.toUpperCase(),
+      controllerFactionId: text(formData, "controllerFactionId"),
       notes: text(formData, "notes"),
       traitIds: traitIds(formData),
     },
@@ -102,6 +104,7 @@ export async function createSystemAction(
 
   revalidatePath("/systems")
   revalidatePath("/systems/map")
+  revalidatePath("/factions")
   redirect(`/systems/${result.data.id}`)
 }
 
@@ -140,6 +143,7 @@ export async function deleteSystemAction(
 
   revalidatePath("/systems")
   revalidatePath("/systems/map")
+  revalidatePath("/factions")
   redirect("/systems")
 }
 
@@ -165,6 +169,7 @@ export async function importSystemsAction(
 
   revalidatePath("/systems")
   revalidatePath("/systems/map")
+  revalidatePath("/factions")
 
   const { created, skipped, errors } = result.data
   return {

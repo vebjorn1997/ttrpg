@@ -17,7 +17,7 @@ import {
 } from "honeycomb-grid"
 import { Minus, Plus, Scan, X } from "lucide-react"
 
-import type { StarSystem } from "@/lib/api-types"
+import type { FactionRef, StarSystem } from "@/lib/api-types"
 import {
   boundsFromCoords,
   parseLocationCoords,
@@ -39,10 +39,60 @@ const Tile = defineHex({
 
 type Camera = { x: number; y: number; w: number; h: number }
 
+type FactionPaint = {
+  id: string
+  name: string
+  fill: string
+  stroke: string
+  swatch: string
+}
+
+const FACTION_SWATCHES = [
+  "oklch(0.58 0.13 250)",
+  "oklch(0.62 0.14 75)",
+  "oklch(0.55 0.15 25)",
+  "oklch(0.58 0.12 155)",
+  "oklch(0.56 0.14 310)",
+  "oklch(0.58 0.11 195)",
+  "oklch(0.60 0.13 45)",
+  "oklch(0.57 0.12 340)",
+]
+
+function hashIndex(id: string, modulo: number) {
+  let h = 2166136261
+  for (let i = 0; i < id.length; i++) {
+    h ^= id.charCodeAt(i)
+    h = Math.imul(h, 16777619)
+  }
+  return (h >>> 0) % modulo
+}
+
+function paintForFaction(faction: FactionRef): FactionPaint {
+  const swatch = FACTION_SWATCHES[hashIndex(faction.id, FACTION_SWATCHES.length)]
+  return {
+    id: faction.id,
+    name: faction.name,
+    swatch,
+    fill: `color-mix(in oklch, ${swatch} 34%, var(--card))`,
+    stroke: `color-mix(in oklch, ${swatch} 72%, white)`,
+  }
+}
+
+function shortFactionName(name: string, max = 11) {
+  if (name.length <= max) return name
+  const words = name.split(/\s+/).filter(Boolean)
+  if (words.length > 1) {
+    const initials = words.map((word) => word[0]).join("").toUpperCase()
+    if (initials.length >= 2 && initials.length <= max) return initials
+  }
+  return `${name.slice(0, max - 1)}…`
+}
+
 type PlacedSystem = {
   system: StarSystem
   coords: HexCoords
   zone: "amber" | "red" | null
+  paint: FactionPaint | null
 }
 
 function travelZone(system: StarSystem): "amber" | "red" | null {
@@ -129,6 +179,7 @@ export function SystemsMap({ systems }: SystemsMapProps) {
         system,
         coords,
         zone: travelZone(system),
+        paint: system.controller ? paintForFaction(system.controller) : null,
       })
     }
     return byKey
@@ -281,7 +332,7 @@ export function SystemsMap({ systems }: SystemsMapProps) {
       startY: event.clientY,
       origin: camera,
       moved: false,
-      systemId,
+      systemId: systemId ?? null,
     }
   }
 
@@ -326,6 +377,16 @@ export function SystemsMap({ systems }: SystemsMapProps) {
     ? [...placed.values()].find((entry) => entry.system.id === selectedId)
     : null
 
+  const controllers = useMemo(() => {
+    const byId = new Map<string, FactionPaint>()
+    for (const entry of placed.values()) {
+      if (entry.paint) byId.set(entry.paint.id, entry.paint)
+    }
+    return [...byId.values()].sort((a, b) => a.name.localeCompare(b.name))
+  }, [placed])
+
+  const unclaimedCount = [...placed.values()].filter((entry) => !entry.paint).length
+
   const zoomPercent =
     camera && viewport.w > 0
       ? Math.round((width / camera.w) * (viewport.w / Math.max(width, 1)) * 100)
@@ -337,7 +398,8 @@ export function SystemsMap({ systems }: SystemsMapProps) {
         "grid h-full min-h-0 gap-4",
         selected ? "lg:grid-cols-[minmax(0,1fr)_17rem]" : "grid-cols-1"
       )}
-    >      <div className="relative flex min-h-0 flex-col overflow-hidden border border-hairline bg-[radial-gradient(ellipse_at_center,color-mix(in_oklch,var(--signal)_8%,transparent),transparent_65%),linear-gradient(180deg,color-mix(in_oklch,var(--panel)_90%,black),var(--panel))]">
+    >
+      <div className="relative flex min-h-0 flex-col overflow-hidden border border-hairline bg-[radial-gradient(ellipse_at_center,color-mix(in_oklch,var(--signal)_8%,transparent),transparent_65%),linear-gradient(180deg,color-mix(in_oklch,var(--panel)_90%,black),var(--panel))]">
         <div className="flex shrink-0 items-center justify-between gap-3 border-b border-hairline px-3 py-2">
           <p className="console-label text-muted-foreground">
             Hex chart · {String(occupied).padStart(2, "0")} occupied
@@ -399,20 +461,14 @@ export function SystemsMap({ systems }: SystemsMapProps) {
                   const isSelected = entry?.system.id === selectedId
                   const isHovered = entry?.system.id === hoveredId
                   const fill = entry
-                    ? entry.zone === "red"
-                      ? "color-mix(in oklch, var(--oxide) 28%, var(--card))"
-                      : entry.zone === "amber"
-                        ? "color-mix(in oklch, var(--ochre) 24%, var(--card))"
-                        : "color-mix(in oklch, var(--signal) 18%, var(--card))"
+                    ? entry.paint?.fill ??
+                      "color-mix(in oklch, var(--signal) 18%, var(--card))"
                     : "color-mix(in oklch, var(--card) 55%, transparent)"
                   const stroke = entry
                     ? isSelected || isHovered
                       ? "var(--signal)"
-                      : entry.zone === "red"
-                        ? "color-mix(in oklch, var(--oxide) 70%, white)"
-                        : entry.zone === "amber"
-                          ? "color-mix(in oklch, var(--ochre) 70%, white)"
-                          : "color-mix(in oklch, var(--signal) 55%, white)"
+                      : entry.paint?.stroke ??
+                        "color-mix(in oklch, var(--signal) 55%, white)"
                     : "var(--hairline)"
 
                   const labelX = hex.x
@@ -501,8 +557,25 @@ export function SystemsMap({ systems }: SystemsMapProps) {
                           userSelect: "none",
                         }}
                       >
-                        TL{system.techLevel} · L{system.lawLevel}
+                        {system.controller
+                          ? shortFactionName(system.controller.name)
+                          : "Unclaimed"}
                       </text>
+                      {entry.zone ? (
+                        <circle
+                          cx={labelX + 16}
+                          cy={labelY - 16}
+                          r={3.25}
+                          fill={
+                            entry.zone === "red"
+                              ? "var(--oxide)"
+                              : "var(--ochre)"
+                          }
+                          stroke="var(--card)"
+                          strokeWidth={0.8}
+                          style={{ pointerEvents: "none" }}
+                        />
+                      ) : null}
                       {/* Transparent hit target above labels so clicks always hit the hex. */}
                       <polygon
                         points={corners}
@@ -519,6 +592,9 @@ export function SystemsMap({ systems }: SystemsMapProps) {
                       >
                         <title>
                           {system.name} · {system.location}
+                          {system.controller
+                            ? ` · ${system.controller.name}`
+                            : " · Unclaimed"}
                         </title>
                       </polygon>
                     </g>
@@ -526,6 +602,13 @@ export function SystemsMap({ systems }: SystemsMapProps) {
                 })}
               </g>
             </svg>
+          ) : null}
+          {!selected ? (
+            <ControlLegend
+              controllers={controllers}
+              unclaimedCount={unclaimedCount}
+              overlay
+            />
           ) : null}
         </div>
       </div>
@@ -554,6 +637,21 @@ export function SystemsMap({ systems }: SystemsMapProps) {
               </h2>
             </div>
             <dl className="space-y-1.5 text-sm">
+              <div className="flex justify-between gap-3">
+                <dt className="text-muted-foreground">Controller</dt>
+                <dd className="text-right">
+                  {selected.system.controller ? (
+                    <Link
+                      href={`/factions/${selected.system.controller.id}`}
+                      className="transition-colors hover:text-signal"
+                    >
+                      {selected.system.controller.name}
+                    </Link>
+                  ) : (
+                    "Unclaimed"
+                  )}
+                </dd>
+              </div>
               <div className="flex justify-between gap-3">
                 <dt className="text-muted-foreground">Tech</dt>
                 <dd>
@@ -598,43 +696,68 @@ export function SystemsMap({ systems }: SystemsMapProps) {
             </Link>
           </div>
 
-          <div className="mt-6 space-y-2 border-t border-hairline pt-4">
-            <p className="console-label text-muted-foreground">Legend</p>
-            <ul className="space-y-1.5 text-xs text-muted-foreground">
-              <li className="flex items-center gap-2">
-                <span
-                  className="size-2.5 border border-signal/60"
-                  style={{
-                    background:
-                      "color-mix(in oklch, var(--signal) 18%, var(--card))",
-                  }}
-                />
-                Charted world
-              </li>
-              <li className="flex items-center gap-2">
-                <span
-                  className="size-2.5 border border-ochre/60"
-                  style={{
-                    background:
-                      "color-mix(in oklch, var(--ochre) 24%, var(--card))",
-                  }}
-                />
-                Amber zone
-              </li>
-              <li className="flex items-center gap-2">
-                <span
-                  className="size-2.5 border border-oxide/60"
-                  style={{
-                    background:
-                      "color-mix(in oklch, var(--oxide) 28%, var(--card))",
-                  }}
-                />
-                Red zone
-              </li>
-            </ul>
-          </div>
+          <ControlLegend
+            controllers={controllers}
+            unclaimedCount={unclaimedCount}
+          />
         </aside>
       ) : null}
+    </div>
+  )
+}
+
+function ControlLegend({
+  controllers,
+  unclaimedCount,
+  overlay = false,
+}: {
+  controllers: FactionPaint[]
+  unclaimedCount: number
+  overlay?: boolean
+}) {
+  return (
+    <div
+      className={cn(
+        overlay
+          ? "pointer-events-none absolute inset-x-0 bottom-0 max-h-[40%] overflow-y-auto border-t border-hairline bg-[color-mix(in_oklch,var(--panel)_92%,black)]/95 p-3"
+          : "mt-6 space-y-2 border-t border-hairline pt-4"
+      )}
+    >
+      <p className="console-label text-muted-foreground">Control</p>
+      <ul className={cn("text-xs text-muted-foreground", overlay ? "mt-2 flex flex-wrap gap-x-4 gap-y-1.5" : "space-y-1.5")}>
+        {controllers.map((faction) => (
+          <li key={faction.id} className="flex items-center gap-2">
+            <span
+              className="size-2.5 shrink-0 border"
+              style={{
+                background: faction.fill,
+                borderColor: faction.stroke,
+              }}
+            />
+            {faction.name}
+          </li>
+        ))}
+        {unclaimedCount > 0 ? (
+          <li className="flex items-center gap-2">
+            <span
+              className="size-2.5 shrink-0 border border-signal/60"
+              style={{
+                background:
+                  "color-mix(in oklch, var(--signal) 18%, var(--card))",
+              }}
+            />
+            Unclaimed
+          </li>
+        ) : null}
+        <li className="flex items-center gap-2">
+          <span className="size-2.5 shrink-0 rounded-full border border-card bg-ochre" />
+          Amber zone
+        </li>
+        <li className="flex items-center gap-2">
+          <span className="size-2.5 shrink-0 rounded-full border border-card bg-oxide" />
+          Red zone
+        </li>
+      </ul>
     </div>
   )
 }

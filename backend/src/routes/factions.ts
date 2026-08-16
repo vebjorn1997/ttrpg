@@ -107,6 +107,16 @@ async function loadFactionDetail(id: string, isGm: boolean) {
     )
     .orderBy(asc(systemsTable.name))
 
+  const heldRows = await db
+    .select({
+      id: systemsTable.id,
+      name: systemsTable.name,
+      location: systemsTable.location,
+    })
+    .from(systemsTable)
+    .where(eq(systemsTable.controllerFactionId, id))
+    .orderBy(asc(systemsTable.name))
+
   return {
     ...toFaction(
       row.faction,
@@ -114,6 +124,7 @@ async function loadFactionDetail(id: string, isGm: boolean) {
       isGm,
       row.headquarters ? toSystemRef(row.headquarters) : null,
     ),
+    controlledSystems: heldRows.map(toSystemRef),
     presences: presenceRows.map(({ presence, system }) => ({
       id: presence.id,
       system: toSystemRef(system),

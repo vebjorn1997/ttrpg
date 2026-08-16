@@ -33,6 +33,7 @@ import type {
 } from "@/lib/api-types"
 import { getModule } from "@/lib/modules"
 import { getCurrentUser } from "@/lib/session"
+import { factionTypeLabels } from "@/lib/campaign"
 
 const dataset = getModule("systems")
 
@@ -96,8 +97,17 @@ function OverviewPanel({
 
   return (
     <div className="space-y-6">
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Stat label="Hex" value={system.location} />
+        <Stat
+          label="Controller"
+          value={system.controller?.name ?? "Unclaimed"}
+          detail={
+            system.controller
+              ? factionTypeLabels[system.controller.type]
+              : "No faction currently holds this hex."
+          }
+        />
         <Stat
           label="Tech level"
           value={`TL ${system.techLevel}`}
@@ -173,8 +183,40 @@ function GovernancePanel({
   lawDescription: string | null
 }) {
   return (
-    <div className="grid gap-4 md:grid-cols-2">
+    <div className="space-y-4">
       <section className="border border-hairline bg-card/50 p-5">
+        <p className="console-label text-muted-foreground">Controller</p>
+        {system.controller ? (
+          <>
+            <Link
+              href={`/factions/${system.controller.id}`}
+              className="mt-1 inline-block font-heading text-2xl tracking-wide uppercase text-signal transition-colors hover:text-foreground"
+            >
+              {system.controller.name}
+            </Link>
+            <p className="mt-1 font-heading text-sm tracking-wide uppercase text-foreground/80">
+              {factionTypeLabels[system.controller.type]}
+            </p>
+            <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+              This faction currently holds the hex. Other groups may still have
+              a presence here without ruling the system.
+            </p>
+          </>
+        ) : (
+          <>
+            <p className="mt-1 font-heading text-2xl tracking-wide uppercase text-signal">
+              Unclaimed
+            </p>
+            <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+              No faction currently holds this hex. Assign a controller from the
+              edit form.
+            </p>
+          </>
+        )}
+      </section>
+
+      <div className="grid gap-4 md:grid-cols-2">
+        <section className="border border-hairline bg-card/50 p-5">
         <p className="console-label text-muted-foreground">Tech level</p>
         <p className="mt-1 font-heading text-2xl tracking-wide uppercase text-signal">
           TL {system.techLevel}
@@ -218,7 +260,8 @@ function GovernancePanel({
         >
           Full law level table →
         </Link>
-      </section>
+        </section>
+      </div>
     </div>
   )
 }

@@ -22,6 +22,8 @@ export type SeedSystem = {
     techLevel: number;
     lawLevel: number;
     location: string;
+    /** Resolved to a faction UUID at seed time; not a column. */
+    controllerName: string | null;
     notes: string | null;
     /** Resolved to trait UUIDs at seed time; not a column. */
     traitNames: string[];
@@ -85,6 +87,7 @@ const systems: SeedSystem[] = rows.map((row) => {
         techLevel,
         lawLevel,
         location,
+        controllerName: text(row.controller ?? row.controller_faction),
         notes: text(row.notes),
         traitNames: (row.traits ?? '')
             .split(';')

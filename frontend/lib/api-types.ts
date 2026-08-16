@@ -348,6 +348,12 @@ export type EntityRef = {
   name: string
 }
 
+export type FactionRef = {
+  id: string
+  name: string
+  type: FactionType
+}
+
 /** `notes` is only present on GM responses. */
 export type Faction = {
   id: string
@@ -367,6 +373,7 @@ export type Faction = {
 }
 
 export type FactionDetail = Faction & {
+  controlledSystems: SystemRef[]
   presences: {
     id: string
     system: SystemRef
@@ -623,6 +630,8 @@ export type StarSystem = {
   techLevelName: string | null
   lawLevel: number
   lawLevelName: string | null
+  controllerFactionId: string | null
+  controller: FactionRef | null
   traits: Trait[]
   notes?: string | null
   createdBy: string | null
@@ -654,6 +663,7 @@ export type SystemInput = {
   techLevel: number
   lawLevel: number
   location: string
+  controllerFactionId?: string | null
   notes?: string | null
   traitIds?: string[]
 }

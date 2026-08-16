@@ -21,7 +21,8 @@ import type { Visibility } from '../../lib/campaign-enums'
 /**
  * Master registry of star systems. World profile data (starport class, travel
  * zone, gravity, atmosphere) is expressed through the shared `traits` glossary
- * rather than dedicated columns — see the `System` trait type.
+ * rather than dedicated columns — see the `System` trait type. Political control
+ * is a first-class link to `factions`.
  */
 export const systemsTable = pgTable(
   'systems',
@@ -37,13 +38,22 @@ export const systemsTable = pgTable(
       .references(() => lawlevelTable.lawlevel),
     /** Hex grid coordinate, stored uppercase, e.g. `0101` or `0A0F`. */
     location: varchar('location', { length: 4 }).notNull().unique(),
+    /**
+     * Faction that currently holds the system. Null means unclaimed.
+     * The FK lives in SQL (`systems_controller_faction_id_factions_id_fk`) so
+     * this file does not import `factions` and create a circular type cycle.
+     */
+    controllerFactionId: uuid('controller_faction_id'),
     /** GM-facing notes. Never serialised for players or visitors. */
     notes: text('notes'),
     createdBy: text('created_by').references(() => user.id, { onDelete: 'set null' }),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
   },
-  (t) => [check('systems_location_hex', sql`${t.location} ~ '^[0-9A-F]{4}$'`)],
+  (t) => [
+    check('systems_location_hex', sql`${t.location} ~ '^[0-9A-F]{4}$'`),
+    index('systems_controller_idx').on(t.controllerFactionId),
+  ],
 )
 
 export const systemTraitsTable = pgTable(

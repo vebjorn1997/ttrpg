@@ -32,8 +32,20 @@ export type SystemRef = {
   location: string
 }
 
+export type FactionRef = {
+  id: string
+  name: string
+  type: FactionRow['type']
+}
+
 export function toSystemRef(row: Pick<SystemRow, 'id' | 'name' | 'location'>): SystemRef {
   return { id: row.id, name: row.name, location: row.location }
+}
+
+export function toFactionRef(
+  row: Pick<FactionRow, 'id' | 'name' | 'type'>,
+): FactionRef {
+  return { id: row.id, name: row.name, type: row.type }
 }
 
 export function toFaction(

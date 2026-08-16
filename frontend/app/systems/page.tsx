@@ -160,6 +160,9 @@ export default async function SystemsPage({
 
               <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1">
                 <span className="console-label text-muted-foreground">
+                  {system.controller?.name ?? "Unclaimed"}
+                </span>
+                <span className="console-label text-muted-foreground">
                   TL {system.techLevel}
                   {system.techLevelName ? ` · ${system.techLevelName}` : ""}
                 </span>
