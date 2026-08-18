@@ -11,6 +11,7 @@ import {
 import type { CampaignNpcInput } from "@/lib/api-types"
 import {
   campaignEnum,
+  campaignEquipmentLoadout,
   campaignText,
   campaignTraitIds,
   requireGameMaster,
@@ -31,6 +32,9 @@ function readInput(
     return { ok: false, error: "UPP must be six hex digits, e.g. 7A6B94." }
   }
 
+  const equipmentLoadout = campaignEquipmentLoadout(formData)
+  if (!equipmentLoadout.ok) return equipmentLoadout
+
   return {
     ok: true,
     input: {
@@ -43,6 +47,7 @@ function readInput(
       allegianceFactionId: campaignText(formData, "allegianceFactionId"),
       notes: campaignText(formData, "notes"),
       traitIds: campaignTraitIds(formData),
+      equipmentLoadout: equipmentLoadout.value,
     },
   }
 }

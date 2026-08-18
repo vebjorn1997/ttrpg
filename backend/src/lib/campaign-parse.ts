@@ -121,11 +121,82 @@ export function parseNullableUuid(
   return parseUuid(value, field)
 }
 
+const HEX_COLOR_RE = /^#(?:[0-9a-f]{3}|[0-9a-f]{6})$/i
+
+/** `#rgb` or `#rrggbb`, stored as a lowercase six-digit hex colour. */
+export function parseHexColor(value: unknown, field: string): Parsed<string> {
+  if (typeof value !== 'string' || value.trim() === '') {
+    return invalid(`${field} is required, e.g. #32a852`)
+  }
+  const trimmed = value.trim()
+  if (!HEX_COLOR_RE.test(trimmed)) {
+    return invalid(`${field} must be a hex colour, e.g. #32a852`)
+  }
+  const digits = trimmed.slice(1)
+  const expanded =
+    digits.length === 3 ? digits.split('').map((ch) => ch + ch).join('') : digits
+  return parsed(`#${expanded.toLowerCase()}`)
+}
+
 export function parseUuidList(value: unknown, field: string): Parsed<string[]> {
   if (value === undefined || value === null) return parsed([])
   if (!Array.isArray(value)) return invalid(`${field} must be an array of ids`)
   if (!value.every(isUuid)) return invalid(`${field} contains an invalid id`)
   return parsed([...new Set(value as string[])])
+}
+
+export type EquipmentLoadoutEntry = {
+  equipmentId: string
+  quantity: number
+}
+
+/**
+ * Catalog loadout: omitted / null / [] means none. Accepts either a list of
+ * ids (quantity 1 each) or `{ equipmentId | id, quantity }` objects.
+ */
+export function parseEquipmentLoadout(
+  value: unknown,
+  field = 'equipmentLoadout',
+): Parsed<EquipmentLoadoutEntry[]> {
+  if (value === undefined || value === null) return parsed([])
+  if (!Array.isArray(value)) {
+    return invalid(`${field} must be an array of { equipmentId, quantity }`)
+  }
+
+  if (value.every(isUuid)) {
+    return parsed(
+      [...new Set(value)].map((equipmentId) => ({ equipmentId, quantity: 1 })),
+    )
+  }
+
+  const byId = new Map<string, number>()
+  for (const item of value) {
+    if (!item || typeof item !== 'object') {
+      return invalid(`${field} must be an array of { equipmentId, quantity }`)
+    }
+    const record = item as { equipmentId?: unknown; id?: unknown; quantity?: unknown }
+    const equipmentId = record.equipmentId ?? record.id
+    if (!isUuid(equipmentId)) {
+      return invalid(`${field} contains an invalid equipment id`)
+    }
+    const quantity =
+      record.quantity === undefined
+        ? 1
+        : typeof record.quantity === 'string' && record.quantity.trim() !== ''
+          ? Number(record.quantity)
+          : record.quantity
+    if (typeof quantity !== 'number' || !Number.isInteger(quantity) || quantity < 1) {
+      return invalid(`${field} quantity must be a whole number of 1 or more`)
+    }
+    byId.set(equipmentId, quantity)
+  }
+
+  return parsed(
+    [...byId.entries()].map(([equipmentId, quantity]) => ({
+      equipmentId,
+      quantity,
+    })),
+  )
 }
 
 export function parseStringList(value: unknown, field: string): Parsed<string[]> {

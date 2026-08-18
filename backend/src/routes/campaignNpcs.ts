@@ -15,6 +15,7 @@ import { NPC_STATUSES } from '../lib/campaign-enums'
 import {
   isUuid,
   parseEnum,
+  parseEquipmentLoadout,
   parseNullableText,
   parseNullableUpp,
   parseNullableUuid,
@@ -22,6 +23,12 @@ import {
   parseUuidList,
   readJsonBody,
 } from '../lib/campaign-parse'
+import {
+  assertEquipmentExists,
+  equipmentByNpc,
+  replaceNpcEquipment,
+  type NpcEquipmentItem,
+} from '../lib/campaign-equipment'
 import {
   assertTraitsExist,
   replaceTraitLinks,
@@ -35,6 +42,7 @@ const campaignNpcs = new Hono<{ Variables: ViewerVariables }>()
 campaignNpcs.use('*', attachViewer)
 
 const NO_TRAITS: TraitRow[] = []
+const NO_EQUIPMENT: NpcEquipmentItem[] = []
 
 function loadTraits(npcIds: string[]) {
   return traitsByParent(
@@ -80,7 +88,11 @@ campaignNpcs.get('/', async (c) => {
     .where(filters.length ? and(...filters) : undefined)
     .orderBy(asc(campaignNpcsTable.name))
 
-  const traits = await loadTraits(rows.map((row) => row.npc.id))
+  const npcIds = rows.map((row) => row.npc.id)
+  const [traits, equipment] = await Promise.all([
+    loadTraits(npcIds),
+    equipmentByNpc(npcIds),
+  ])
 
   return c.json(
     rows.map(({ npc, currentLocation, allegiance }) =>
@@ -90,6 +102,7 @@ campaignNpcs.get('/', async (c) => {
         isGm,
         currentLocation ? toSystemRef(currentLocation) : null,
         allegiance ? { id: allegiance.id, name: allegiance.name } : null,
+        equipment.get(npc.id) ?? NO_EQUIPMENT,
       ),
     ),
   )
@@ -99,7 +112,10 @@ async function loadNpcDetail(id: string, isGm: boolean) {
   const [row] = await baseQuery().where(eq(campaignNpcsTable.id, id)).limit(1)
   if (!row) return null
 
-  const traits = await loadTraits([id])
+  const [traits, equipment] = await Promise.all([
+    loadTraits([id]),
+    equipmentByNpc([id]),
+  ])
 
   const presenceRows = await db
     .select({ presence: systemNpcsTable, system: systemsTable })
@@ -124,6 +140,7 @@ async function loadNpcDetail(id: string, isGm: boolean) {
       isGm,
       row.currentLocation ? toSystemRef(row.currentLocation) : null,
       row.allegiance ? { id: row.allegiance.id, name: row.allegiance.name } : null,
+      equipment.get(id) ?? NO_EQUIPMENT,
     ),
     presences: presenceRows.map(({ presence, system }) => ({
       id: presence.id,
@@ -159,6 +176,7 @@ type NpcFields = {
   allegianceFactionId: string | null
   notes: string | null
   traitIds: string[]
+  equipmentLoadout: { equipmentId: string; quantity: number }[]
 }
 
 async function parseNpcBody(
@@ -221,6 +239,16 @@ async function parseNpcBody(
   const traitError = await assertTraitsExist(traitIds.value)
   if (traitError) return { ok: false, error: traitError }
 
+  const equipmentLoadout = parseEquipmentLoadout(
+    body.equipmentLoadout ?? body.equipmentIds,
+  )
+  if (!equipmentLoadout.ok) return equipmentLoadout
+
+  const equipmentError = await assertEquipmentExists(
+    equipmentLoadout.value.map((entry) => entry.equipmentId),
+  )
+  if (equipmentError) return { ok: false, error: equipmentError }
+
   return {
     ok: true,
     value: {
@@ -233,6 +261,7 @@ async function parseNpcBody(
       allegianceFactionId: allegianceFactionId.value,
       notes: notes.value,
       traitIds: traitIds.value,
+      equipmentLoadout: equipmentLoadout.value,
     },
   }
 }
@@ -271,6 +300,7 @@ campaignNpcs.post('/', async (c) => {
     created.id,
     fields.value.traitIds,
   )
+  await replaceNpcEquipment(created.id, fields.value.equipmentLoadout)
 
   return c.json(await loadNpcDetail(created.id, true), 201)
 })
@@ -315,6 +345,7 @@ campaignNpcs.put('/:id', async (c) => {
     id,
     fields.value.traitIds,
   )
+  await replaceNpcEquipment(id, fields.value.equipmentLoadout)
 
   return c.json(await loadNpcDetail(id, true))
 })

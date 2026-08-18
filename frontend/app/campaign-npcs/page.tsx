@@ -110,6 +110,19 @@ export default async function CampaignNpcsPage() {
                 </p>
               ) : null}
 
+              {(npc.equipmentItems ?? []).length > 0 ? (
+                <p className="mt-3 line-clamp-2 text-xs leading-relaxed text-muted-foreground">
+                  Carries{" "}
+                  {(npc.equipmentItems ?? [])
+                    .map((item) =>
+                      item.quantity > 1
+                        ? `${item.name} ×${item.quantity}`
+                        : item.name
+                    )
+                    .join(", ")}
+                </p>
+              ) : null}
+
               {npc.description ? (
                 <p className="mt-3 line-clamp-3 text-sm leading-relaxed text-muted-foreground">
                   {npc.description}

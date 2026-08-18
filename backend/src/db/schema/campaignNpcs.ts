@@ -1,5 +1,6 @@
 import {
   index,
+  integer,
   pgTable,
   primaryKey,
   text,
@@ -10,6 +11,7 @@ import {
 import { systemsTable } from './systems'
 import { factionsTable } from './factions'
 import { traitsTable } from './traits'
+import { equipmentTable } from './equipment'
 import { user } from './auth'
 import type { NpcStatus } from '../../lib/campaign-enums'
 
@@ -58,4 +60,18 @@ export const campaignNpcTraitsTable = pgTable(
       .references(() => traitsTable.id, { onDelete: 'cascade' }),
   },
   (t) => [primaryKey({ columns: [t.npcId, t.traitId] })],
+)
+
+export const campaignNpcEquipmentTable = pgTable(
+  'campaign_npc_equipment',
+  {
+    npcId: uuid('npc_id')
+      .notNull()
+      .references(() => campaignNpcsTable.id, { onDelete: 'cascade' }),
+    equipmentId: uuid('equipment_id')
+      .notNull()
+      .references(() => equipmentTable.id, { onDelete: 'cascade' }),
+    quantity: integer('quantity').notNull().default(1),
+  },
+  (t) => [primaryKey({ columns: [t.npcId, t.equipmentId] })],
 )

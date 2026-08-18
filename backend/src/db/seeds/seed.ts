@@ -312,6 +312,9 @@ const seed = async () => {
         }
 
         for (const faction of factions) {
+            const headquartersSystemId = faction.headquartersName
+                ? systemIdByName[faction.headquartersName]
+                : null;
             const [inserted] = await db
                 .insert(factionsTable)
                 .values({
@@ -319,17 +322,30 @@ const seed = async () => {
                     type: faction.type,
                     description: faction.description,
                     tier: faction.tier,
-                    headquartersSystemId: faction.headquartersName
-                        ? systemIdByName[faction.headquartersName]
-                        : null,
+                    headquartersSystemId,
                     goals: faction.goals,
                     assets: faction.assets,
                     notes: faction.notes,
+                    color: faction.color,
                 })
                 .onConflictDoNothing()
                 .returning({ id: factionsTable.id });
 
-            if (!inserted) continue;
+            if (!inserted) {
+                // Existing factions keep GM edits; only fill a still-empty HQ.
+                if (headquartersSystemId) {
+                    await db
+                        .update(factionsTable)
+                        .set({ headquartersSystemId })
+                        .where(
+                            and(
+                                eq(factionsTable.name, faction.name),
+                                isNull(factionsTable.headquartersSystemId),
+                            ),
+                        );
+                }
+                continue;
+            }
 
             const links = faction.traitNames
                 .map((traitName) => factionTraitIdByName[traitName])

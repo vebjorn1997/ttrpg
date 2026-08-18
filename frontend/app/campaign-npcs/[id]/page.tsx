@@ -5,8 +5,9 @@ import { Pencil } from "lucide-react"
 
 import { CampaignCrumbs } from "@/components/campaign-crumbs"
 import { GmNote, GmOnlyBadge } from "@/components/campaign-fields"
+import { CharacterEquipmentList } from "@/components/character-equipment-list"
 import { TraitBadge } from "@/components/trait-badge"
-import { getCampaignNpc } from "@/lib/api"
+import { getCampaignNpc, getTraits } from "@/lib/api"
 import {
   npcConnectionLabels,
   npcStatusLabels,
@@ -38,9 +39,10 @@ export default async function CampaignNpcDetailPage({
   params: Promise<{ id: string }>
 }) {
   const { id } = await params
-  const [user, result] = await Promise.all([
+  const [user, result, traitsResult] = await Promise.all([
     getCurrentUser(),
     getCampaignNpc(id),
+    getTraits(),
   ])
 
   if (!result.ok || !result.data) notFound()
@@ -139,6 +141,30 @@ export default async function CampaignNpcDetailPage({
           </ul>
         </section>
       ) : null}
+
+      <section className="space-y-3">
+        <div className="flex items-baseline gap-3">
+          <h2 className="font-heading text-sm tracking-[0.16em] uppercase text-viridian">
+            Loadout
+          </h2>
+          <span className="font-mono text-xs text-muted-foreground">
+            {(npc.equipmentItems ?? []).reduce(
+              (total, item) => total + item.quantity,
+              0
+            )}
+          </span>
+        </div>
+        {(npc.equipmentItems ?? []).length === 0 ? (
+          <p className="border border-dashed border-hairline bg-card/30 px-4 py-6 text-center text-sm text-muted-foreground">
+            Nothing from the Emporium on file. Use Edit to issue catalog gear.
+          </p>
+        ) : (
+          <CharacterEquipmentList
+            items={npc.equipmentItems}
+            traits={traitsResult.data ?? []}
+          />
+        )}
+      </section>
 
       {npc.description ? (
         <section className="border border-hairline bg-card/50 p-5">

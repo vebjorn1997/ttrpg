@@ -58,6 +58,43 @@ export function campaignList(formData: FormData, key: string): string[] {
   ]
 }
 
+/**
+ * Paired `equipmentId` / `equipmentQty` fields from the emporium picker.
+ * Duplicate ids collapse to the last quantity.
+ */
+export function campaignEquipmentLoadout(
+  formData: FormData
+): { ok: true; value: { equipmentId: string; quantity: number }[] } | { ok: false; error: string } {
+  const ids = formData
+    .getAll("equipmentId")
+    .filter((value): value is string => typeof value === "string")
+    .map((value) => value.trim())
+    .filter(Boolean)
+  const quantities = formData.getAll("equipmentQty")
+
+  const byId = new Map<string, number>()
+  for (let i = 0; i < ids.length; i++) {
+    const equipmentId = ids[i]
+    const raw = quantities[i]
+    const quantity =
+      typeof raw === "string" && raw.trim() !== "" ? Number(raw) : 1
+
+    if (!Number.isInteger(quantity) || quantity < 1) {
+      return { ok: false, error: "Each piece of equipment needs a quantity of 1 or more." }
+    }
+
+    byId.set(equipmentId, quantity)
+  }
+
+  return {
+    ok: true,
+    value: [...byId.entries()].map(([equipmentId, quantity]) => ({
+      equipmentId,
+      quantity,
+    })),
+  }
+}
+
 /** Narrows a submitted value to a known enum member, falling back to a default. */
 export function campaignEnum<T extends string>(
   formData: FormData,

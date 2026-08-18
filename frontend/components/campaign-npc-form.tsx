@@ -1,6 +1,6 @@
 "use client"
 
-import { useActionState } from "react"
+import { useActionState, useState } from "react"
 import Link from "next/link"
 
 import {
@@ -15,9 +15,19 @@ import {
   fieldClass,
 } from "@/components/campaign-fields"
 import { CampaignTraitPicker } from "@/components/campaign-trait-picker"
+import {
+  CharacterEquipmentPicker,
+  type EquipmentQuantities,
+} from "@/components/character-equipment-picker"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import type { CampaignNpc, Faction, StarSystem, Trait } from "@/lib/api-types"
+import type {
+  CampaignNpc,
+  Equipment,
+  Faction,
+  StarSystem,
+  Trait,
+} from "@/lib/api-types"
 import { emptyFormState, npcStatusOptions } from "@/lib/campaign"
 import { cn } from "@/lib/utils"
 
@@ -27,18 +37,28 @@ export function CampaignNpcForm({
   factions,
   traits,
   traitsError = null,
+  equipmentCatalog = [],
+  equipmentError = null,
 }: {
   npc?: CampaignNpc
   systems: StarSystem[]
   factions: Faction[]
   traits: Trait[]
   traitsError?: string | null
+  equipmentCatalog?: Equipment[]
+  equipmentError?: string | null
 }) {
   const editing = Boolean(npc)
   const [state, formAction, pending] = useActionState(
     editing ? updateCampaignNpcAction : createCampaignNpcAction,
     emptyFormState
   )
+  const [selectedEquipment, setSelectedEquipment] =
+    useState<EquipmentQuantities>(() =>
+      Object.fromEntries(
+        (npc?.equipmentItems ?? []).map((item) => [item.id, item.quantity ?? 1])
+      )
+    )
 
   return (
     <form action={formAction} className="space-y-6">
@@ -142,6 +162,22 @@ export function CampaignNpcForm({
           initialTraitIds={npc?.traits.map((trait) => trait.id)}
           label="Character traits"
           hint="Species, size and other tags live here — pick them from the NPC glossary."
+        />
+      </section>
+
+      <section className="space-y-4 border border-hairline bg-card/50 p-4">
+        <h2 className="font-heading text-sm tracking-[0.16em] uppercase text-viridian">
+          Loadout
+        </h2>
+        <p className="text-xs leading-relaxed text-muted-foreground/80">
+          Wares this character carries. Pick from the Emporium catalog the same
+          way a player sheet does.
+        </p>
+        <CharacterEquipmentPicker
+          catalog={equipmentCatalog}
+          quantities={selectedEquipment}
+          onChange={setSelectedEquipment}
+          error={equipmentError}
         />
       </section>
 

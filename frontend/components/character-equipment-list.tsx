@@ -2,15 +2,15 @@ import { ConsolePanel } from "@/components/console-panel"
 import { RuleText } from "@/components/rule-text"
 import { StatReadout } from "@/components/stat-readout"
 import { TraitBadge } from "@/components/trait-badge"
-import type { CharacterEquipmentItem, Trait } from "@/lib/api-types"
+import type { Equipment, Trait } from "@/lib/api-types"
 import { namedTraitTags } from "@/lib/records"
 import type { RuleLinkEntry } from "@/lib/rule-links"
 import { formatEquipmentCost, formatRangeWithClose } from "@/lib/utils"
 
-function groupedByType(
-  items: CharacterEquipmentItem[]
-): [string, CharacterEquipmentItem[]][] {
-  const byType = new Map<string, CharacterEquipmentItem[]>()
+type LoadoutItem = Equipment & { quantity: number }
+
+function groupedByType(items: LoadoutItem[]): [string, LoadoutItem[]][] {
+  const byType = new Map<string, LoadoutItem[]>()
   for (const item of items) {
     const list = byType.get(item.type) ?? []
     list.push(item)
@@ -22,7 +22,7 @@ function groupedByType(
   return [...byType.entries()].sort(([a], [b]) => a.localeCompare(b))
 }
 
-function statsFor(item: CharacterEquipmentItem): { label: string; value: string; primary?: boolean }[] {
+function statsFor(item: LoadoutItem): { label: string; value: string; primary?: boolean }[] {
   const stats: { label: string; value: string; primary?: boolean }[] = []
   const push = (label: string, value: string | null | undefined, primary = false) => {
     const trimmed = value?.trim()
@@ -46,18 +46,15 @@ export function CharacterEquipmentList({
   items,
   traits = [],
   links = [],
+  emptyMessage = "Nothing from the Emporium on this sheet. Use Edit sheet to lift wares off the black market.",
 }: {
-  items: CharacterEquipmentItem[]
+  items: LoadoutItem[]
   traits?: Trait[]
   links?: RuleLinkEntry[]
+  emptyMessage?: string
 }) {
   if (items.length === 0) {
-    return (
-      <p className="text-sm text-muted-foreground">
-        Nothing from the Emporium on this sheet. Use Edit sheet to lift wares
-        off the black market.
-      </p>
-    )
+    return <p className="text-sm text-muted-foreground">{emptyMessage}</p>
   }
 
   return (

@@ -23,6 +23,10 @@ import {
 } from '../db/schema/systemRelationships'
 import { traitsByParent, type TraitRow } from './campaign-traits'
 import {
+  equipmentByNpc,
+  type NpcEquipmentItem,
+} from './campaign-equipment'
+import {
   iso,
   toCampaignNpc,
   toFaction,
@@ -33,6 +37,7 @@ import {
 } from './campaign-view'
 
 const NO_TRAITS: TraitRow[] = []
+const NO_EQUIPMENT: NpcEquipmentItem[] = []
 
 /** Restrict a junction query to public rows unless the viewer is a GM. */
 function visibilityScope(column: PgColumn, isGm: boolean): SQL | undefined {
@@ -90,12 +95,16 @@ export async function loadSystemNpcs(systemId: string, isGm: boolean) {
       ),
     )
 
-  const traits = await traitsByParent(
-    campaignNpcTraitsTable,
-    campaignNpcTraitsTable.npcId,
-    campaignNpcTraitsTable.traitId,
-    rows.map((row) => row.npc.id),
-  )
+  const npcIds = rows.map((row) => row.npc.id)
+  const [traits, equipment] = await Promise.all([
+    traitsByParent(
+      campaignNpcTraitsTable,
+      campaignNpcTraitsTable.npcId,
+      campaignNpcTraitsTable.traitId,
+      npcIds,
+    ),
+    equipmentByNpc(npcIds),
+  ])
 
   return rows
     .map(({ presence, npc }) => ({
@@ -108,7 +117,14 @@ export async function loadSystemNpcs(systemId: string, isGm: boolean) {
       departureDate: presence.departureDate,
       notes: presence.notes,
       visibility: presence.visibility,
-      npc: toCampaignNpc(npc, traits.get(npc.id) ?? NO_TRAITS, isGm),
+      npc: toCampaignNpc(
+        npc,
+        traits.get(npc.id) ?? NO_TRAITS,
+        isGm,
+        null,
+        null,
+        equipment.get(npc.id) ?? NO_EQUIPMENT,
+      ),
       createdBy: presence.createdBy,
       createdAt: iso(presence.createdAt),
       updatedAt: iso(presence.updatedAt),
@@ -178,12 +194,16 @@ export async function loadSystemPatrons(systemId: string, isGm: boolean) {
       ),
     )
 
-  const traits = await traitsByParent(
-    campaignNpcTraitsTable,
-    campaignNpcTraitsTable.npcId,
-    campaignNpcTraitsTable.traitId,
-    rows.map((row) => row.npc.id),
-  )
+  const npcIds = rows.map((row) => row.npc.id)
+  const [traits, equipment] = await Promise.all([
+    traitsByParent(
+      campaignNpcTraitsTable,
+      campaignNpcTraitsTable.npcId,
+      campaignNpcTraitsTable.traitId,
+      npcIds,
+    ),
+    equipmentByNpc(npcIds),
+  ])
 
   return rows
     .map(({ offer, patron, npc }) => ({
@@ -199,7 +219,14 @@ export async function loadSystemPatrons(systemId: string, isGm: boolean) {
       visibility: offer.visibility,
       patron: toPatron(
         patron,
-        toCampaignNpc(npc, traits.get(npc.id) ?? NO_TRAITS, isGm),
+        toCampaignNpc(
+          npc,
+          traits.get(npc.id) ?? NO_TRAITS,
+          isGm,
+          null,
+          null,
+          equipment.get(npc.id) ?? NO_EQUIPMENT,
+        ),
         isGm,
       ),
       createdBy: offer.createdBy,

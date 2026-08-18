@@ -6,7 +6,7 @@ import { CampaignEntityDeleteButton } from "@/components/campaign-entity-delete-
 import { CampaignNpcForm } from "@/components/campaign-npc-form"
 import { ConsolePanel } from "@/components/console-panel"
 import { deleteCampaignNpcAction } from "@/app/campaign-npcs/actions"
-import { getCampaignNpc, getFactions, getSystems, getTraits } from "@/lib/api"
+import { getCampaignNpc, getEquipment, getFactions, getSystems, getTraits } from "@/lib/api"
 import { getModule } from "@/lib/modules"
 import { requireAdmin } from "@/lib/session"
 
@@ -24,11 +24,12 @@ export default async function EditCampaignNpcPage({
   await requireAdmin()
   const { id } = await params
 
-  const [npc, systems, factions, traits] = await Promise.all([
+  const [npc, systems, factions, traits, equipment] = await Promise.all([
     getCampaignNpc(id),
     getSystems(),
     getFactions(),
     getTraits(),
+    getEquipment(),
   ])
 
   if (!npc.ok || !npc.data) notFound()
@@ -51,6 +52,8 @@ export default async function EditCampaignNpcPage({
           factions={factions.data ?? []}
           traits={traits.data ?? []}
           traitsError={traits.error}
+          equipmentCatalog={equipment.data ?? []}
+          equipmentError={equipment.error}
         />
       </ConsolePanel>
 

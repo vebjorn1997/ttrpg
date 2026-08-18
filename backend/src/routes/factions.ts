@@ -16,6 +16,7 @@ import {
   parseNullableIntInRange,
   parseNullableText,
   parseNullableUuid,
+  parseHexColor,
   parseStringList,
   parseText,
   parseUuidList,
@@ -155,6 +156,7 @@ type FactionFields = {
   headquartersSystemId: string | null
   goals: string | null
   assets: string[]
+  color: string
   notes: string | null
   traitIds: string[]
 }
@@ -198,6 +200,12 @@ async function parseFactionBody(
   const assets = parseStringList(body.assets, 'assets')
   if (!assets.ok) return assets
 
+  const color =
+    body.color === undefined || body.color === null || body.color === ''
+      ? ({ ok: true, value: '#4a6d8c' } as const)
+      : parseHexColor(body.color, 'color')
+  if (!color.ok) return color
+
   const notes = parseNullableText(body.notes, 'notes')
   if (!notes.ok) return notes
 
@@ -217,6 +225,7 @@ async function parseFactionBody(
       headquartersSystemId: headquartersSystemId.value,
       goals: goals.value,
       assets: assets.value,
+      color: color.value,
       notes: notes.value,
       traitIds: traitIds.value,
     },
@@ -251,6 +260,7 @@ factions.post('/', async (c) => {
       headquartersSystemId: fields.value.headquartersSystemId,
       goals: fields.value.goals,
       assets: fields.value.assets,
+      color: fields.value.color,
       notes: fields.value.notes,
       createdBy: c.get('viewerId'),
     })
@@ -300,6 +310,7 @@ factions.put('/:id', async (c) => {
       headquartersSystemId: fields.value.headquartersSystemId,
       goals: fields.value.goals,
       assets: fields.value.assets,
+      color: fields.value.color,
       notes: fields.value.notes,
       updatedAt: new Date(),
     })

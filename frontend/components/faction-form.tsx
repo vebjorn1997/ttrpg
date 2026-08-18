@@ -1,6 +1,6 @@
 "use client"
 
-import { useActionState } from "react"
+import { useActionState, useState } from "react"
 import Link from "next/link"
 
 import { createFactionAction, updateFactionAction } from "@/app/factions/actions"
@@ -16,6 +16,8 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import type { Faction, StarSystem, Trait } from "@/lib/api-types"
 import { emptyFormState, factionTypeOptions } from "@/lib/campaign"
+
+const DEFAULT_COLOR = "#4a6d8c"
 
 export function FactionForm({
   faction,
@@ -33,6 +35,7 @@ export function FactionForm({
     editing ? updateFactionAction : createFactionAction,
     emptyFormState
   )
+  const [color, setColor] = useState(faction?.color ?? DEFAULT_COLOR)
 
   return (
     <form action={formAction} className="space-y-6">
@@ -101,6 +104,31 @@ export function FactionForm({
             </select>
           </Field>
         </div>
+
+        <Field
+          label="Map colour"
+          hint="Hex code used on the star-system chart for worlds this faction holds."
+        >
+          <div className="flex items-center gap-2">
+            <input
+              type="color"
+              aria-label="Pick map colour"
+              value={/^#[0-9a-f]{6}$/i.test(color) ? color : DEFAULT_COLOR}
+              onChange={(event) => setColor(event.target.value)}
+              className="size-8 shrink-0 cursor-pointer border border-hairline bg-background p-0"
+            />
+            <Input
+              name="color"
+              required
+              maxLength={7}
+              pattern="#[0-9A-Fa-f]{6}"
+              value={color}
+              onChange={(event) => setColor(event.target.value)}
+              placeholder="#32a852"
+              className={`${fieldClass} uppercase`}
+            />
+          </div>
+        </Field>
       </section>
 
       <section className="space-y-4 border border-hairline bg-card/50 p-4">

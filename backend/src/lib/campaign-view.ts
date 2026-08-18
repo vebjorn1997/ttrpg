@@ -12,6 +12,7 @@ import type { shipsTable } from '../db/schema/ships'
 import type { patronsTable } from '../db/schema/patrons'
 import type { locationsTable } from '../db/schema/locations'
 import type { TraitRow } from './campaign-traits'
+import type { NpcEquipmentItem } from './campaign-equipment'
 
 export type SystemRow = typeof systemsTable.$inferSelect
 export type FactionRow = typeof factionsTable.$inferSelect
@@ -36,6 +37,7 @@ export type FactionRef = {
   id: string
   name: string
   type: FactionRow['type']
+  color: string
 }
 
 export function toSystemRef(row: Pick<SystemRow, 'id' | 'name' | 'location'>): SystemRef {
@@ -43,9 +45,9 @@ export function toSystemRef(row: Pick<SystemRow, 'id' | 'name' | 'location'>): S
 }
 
 export function toFactionRef(
-  row: Pick<FactionRow, 'id' | 'name' | 'type'>,
+  row: Pick<FactionRow, 'id' | 'name' | 'type' | 'color'>,
 ): FactionRef {
-  return { id: row.id, name: row.name, type: row.type }
+  return { id: row.id, name: row.name, type: row.type, color: row.color }
 }
 
 export function toFaction(
@@ -64,6 +66,7 @@ export function toFaction(
     headquarters,
     goals: row.goals,
     assets: row.assets,
+    color: row.color,
     traits,
     ...gmNotes(isGm, row.notes),
     createdBy: row.createdBy,
@@ -78,6 +81,7 @@ export function toCampaignNpc(
   isGm: boolean,
   currentLocation: SystemRef | null = null,
   allegiance: { id: string; name: string } | null = null,
+  equipmentItems: NpcEquipmentItem[] = [],
 ) {
   return {
     id: row.id,
@@ -91,6 +95,7 @@ export function toCampaignNpc(
     allegianceFactionId: row.allegianceFactionId,
     allegiance,
     traits,
+    equipmentItems,
     ...gmNotes(isGm, row.notes),
     createdBy: row.createdBy,
     createdAt: iso(row.createdAt),

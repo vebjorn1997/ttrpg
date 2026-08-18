@@ -11,6 +11,7 @@ export type SeedFaction = {
     goals: string | null;
     assets: string[];
     notes: string | null;
+    color: string;
     /** Resolved to trait UUIDs at seed time; not a column. */
     traitNames: string[];
 };
@@ -49,6 +50,11 @@ const factions: SeedFaction[] = rows.map((row) => {
         tier = parsed;
     }
 
+    const colorRaw = (row.color?.trim() || '#4a6d8c').toLowerCase()
+    if (!/^#[0-9a-f]{6}$/.test(colorRaw)) {
+        throw new Error(`${name}: color must be a six-digit hex, e.g. #32a852`)
+    }
+
     return {
         name,
         type: typeRaw as FactionType,
@@ -58,6 +64,7 @@ const factions: SeedFaction[] = rows.map((row) => {
         goals: text(row.goals),
         assets: splitList(row.assets),
         notes: text(row.notes),
+        color: colorRaw,
         traitNames: splitList(row.traits),
     };
 });

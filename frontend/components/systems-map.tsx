@@ -47,28 +47,11 @@ type FactionPaint = {
   swatch: string
 }
 
-const FACTION_SWATCHES = [
-  "oklch(0.58 0.13 250)",
-  "oklch(0.62 0.14 75)",
-  "oklch(0.55 0.15 25)",
-  "oklch(0.58 0.12 155)",
-  "oklch(0.56 0.14 310)",
-  "oklch(0.58 0.11 195)",
-  "oklch(0.60 0.13 45)",
-  "oklch(0.57 0.12 340)",
-]
-
-function hashIndex(id: string, modulo: number) {
-  let h = 2166136261
-  for (let i = 0; i < id.length; i++) {
-    h ^= id.charCodeAt(i)
-    h = Math.imul(h, 16777619)
-  }
-  return (h >>> 0) % modulo
-}
+const FALLBACK_SWATCH = "#4a6d8c"
+const HEX_COLOR = /^#(?:[0-9a-f]{3}|[0-9a-f]{6})$/i
 
 function paintForFaction(faction: FactionRef): FactionPaint {
-  const swatch = FACTION_SWATCHES[hashIndex(faction.id, FACTION_SWATCHES.length)]
+  const swatch = HEX_COLOR.test(faction.color) ? faction.color : FALLBACK_SWATCH
   return {
     id: faction.id,
     name: faction.name,

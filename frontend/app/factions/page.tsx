@@ -59,7 +59,12 @@ export default async function FactionsPage() {
               className="group relative h-full border border-hairline bg-card/60 p-4 transition-colors hover:border-oxide/50 hover:bg-oxide/5"
             >
               <div className="flex items-baseline justify-between gap-3">
-                <h2 className="font-heading text-lg tracking-wide uppercase group-hover:text-oxide">
+                <h2 className="flex items-center gap-2 font-heading text-lg tracking-wide uppercase group-hover:text-oxide">
+                  <span
+                    aria-hidden
+                    className="size-2.5 shrink-0 border border-hairline"
+                    style={{ backgroundColor: faction.color }}
+                  />
                   {/* Stretched link: the whole card is the target, but the trait
                       badges below stay separately clickable. */}
                   <Link

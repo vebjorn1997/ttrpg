@@ -115,6 +115,10 @@ export type CharacterEquipmentItem = Equipment & {
   equipped: boolean
 }
 
+export type CampaignNpcEquipmentItem = Equipment & {
+  quantity: number
+}
+
 export type EquipmentLoadoutEntry = {
   equipmentId: string
   quantity: number
@@ -352,6 +356,7 @@ export type FactionRef = {
   id: string
   name: string
   type: FactionType
+  color: string
 }
 
 /** `notes` is only present on GM responses. */
@@ -365,6 +370,7 @@ export type Faction = {
   headquarters: SystemRef | null
   goals: string | null
   assets: string[]
+  color: string
   traits: Trait[]
   notes?: string | null
   createdBy: string | null
@@ -397,6 +403,7 @@ export type CampaignNpc = {
   allegianceFactionId: string | null
   allegiance: EntityRef | null
   traits: Trait[]
+  equipmentItems: CampaignNpcEquipmentItem[]
   notes?: string | null
   createdBy: string | null
   createdAt: string
@@ -676,6 +683,7 @@ export type FactionInput = {
   headquartersSystemId?: string | null
   goals?: string | null
   assets?: string[]
+  color?: string
   notes?: string | null
   traitIds?: string[]
 }
@@ -690,6 +698,7 @@ export type CampaignNpcInput = {
   allegianceFactionId?: string | null
   notes?: string | null
   traitIds?: string[]
+  equipmentLoadout?: EquipmentLoadoutEntry[]
 }
 
 export type ShipInput = {

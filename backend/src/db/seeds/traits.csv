@@ -27,6 +27,27 @@ Rouge Planet,System,"A sunless world cast adrift between stars, frozen and light
 Polluted,System,"Contaminated atmosphere, water, or soil; filters and hazard gear required.",#420D09
 Acid Rain,System,Corrosive precipitation that eats unprotected hull plating and flesh alike. Requires specialised hull plating and vac suits to withstand the corrosive effect.,#420D09
 Stormwracked,System,Wracked by permanent extreme weather; habitation is underground or shielded.,#420D09
+Dust Storm,System,"Seasonal or perpetual particulate storms scour the surface, grounding aircraft and clogging every vent and seal.",#420D09
+Orbital Debris,System,A dense shell of wreckage and fragmented satellites makes approach hazardous; shields and careful navigation are mandatory.,#420D09
+Dangerous Wildlife,System,"Native fauna is aggressively predatory, venomous, or territorial; outside the walls, you are prey.",#420D09
+Megafauna,System,"Colossal creatures roam the landscape, capable of flattening settlements or crushing starships that set down in the wrong valley.",#420D09
+Volcanic Activity,System,"Constant eruptions, lava flows, and toxic gas vents reshape the terrain daily; geothermal power is abundant but so is sudden death.",#420D09
+Food Shortage,System,The population cannot be sustained by local agriculture or imports; rationing is strict and starvation is a real threat.,#420D09
+Energy Crisis,System,"Power generation is failing, outdated, or overtaxed; rolling blackouts cripple industry and life support teeters on the edge.",#420D09
+Water Scarcity,System,"Potable water is vanishingly rare; what exists is tightly controlled, heavily recycled, or shipped in at ruinous cost.",#420D09
+Import Dependent,System,The system produces almost nothing of its own; basic necessities—from food to machine parts—must arrive by spaceliner.,#420D09
+Fuel Shortage,System,"Refineries are dry, reserves are depleted, or the fuel is contaminated; ships are stranded and prices are extortionate.",#420D09
+Mining Boom,System,"A valuable strike has triggered a gold-rush influx of prospectors, claim-jumpers, and speculators; the frontier is lawless and rich.",#420D09
+Dutch Disease,System,A single lucrative export has inflated costs and hollowed out all other industries; the economy is a one-legged stool.,#420D09
+Labor Shortage,System,"There is more work than bodies; wages are sky-high, automation is patchy, and every ship brings recruiters rather than tourists.",#420D09
+Ethnic Tension,System,"Competing cultural, species, or tribal factions are one spark away from open conflict; the streets are divided and armed.",#420D09
+Shipping Shortage,System,There are not enough hulls or merchants willing to call here; cargo sits in warehouses while captains chase better-paying routes.,#420D09
+Drug Shortage,System,"Whether medicinal, anagathic, or recreational, the supply has dried up; withdrawal, black-market violence, and untreated illness follow.",#420D09
+Black Market,System,"Official channels are choked by regulation, scarcity, or corruption; everything from rations to rifles moves through back rooms.",#420D09
+Agriworld,System,"Vast plantations, orbital greenhouses, or engineered breadbaskets feed entire subsectors; the soil is the only thing that matters here.",#420D09
+Mining World,System,"The crust has been flayed open by strip-mines, deep-core shafts, and orbital extractors; wealth flows out by the megaton.",#420D09
+Forge World,System,The sky glows with foundries and the ground shakes with manufactories; this planet builds the machines that run the empire.,#420D09
+Embargoed,System,"The system is suffering from an embargo, all travel to and from the planet is strictly limited to pre approved personnel.",#420D09
 Red Zone,System,"Interdicted; landing is legally prohibited due to extreme danger, active conflict, deadly plagues, dangerous alien artifacts or imperial edict.",#420D09
 Amber Zone,System,Hazardous; caution is advised -- conditions are risky but travel is not outright forbidden.,#420D09
 Quarantined ,System,Biological or environmental lockdown; no entry or exit permitted under penalty.,#420D09

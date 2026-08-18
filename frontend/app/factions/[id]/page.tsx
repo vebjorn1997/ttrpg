@@ -68,7 +68,7 @@ export default async function FactionDetailPage({
         }
       />
 
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <div className="border border-hairline bg-card/50 p-4">
           <p className="console-label text-muted-foreground">Type</p>
           <p className="mt-1 font-heading text-lg tracking-wide uppercase text-oxide">
@@ -97,6 +97,19 @@ export default async function FactionDetailPage({
           ) : (
             <p className="mt-1 text-sm text-muted-foreground">No fixed base</p>
           )}
+        </div>
+        <div className="border border-hairline bg-card/50 p-4">
+          <p className="console-label text-muted-foreground">Map colour</p>
+          <div className="mt-2 flex items-center gap-2">
+            <span
+              aria-hidden
+              className="size-6 shrink-0 border border-hairline"
+              style={{ backgroundColor: faction.color }}
+            />
+            <p className="font-mono text-sm uppercase tracking-[0.14em] text-foreground/85">
+              {faction.color}
+            </p>
+          </div>
         </div>
       </div>
 

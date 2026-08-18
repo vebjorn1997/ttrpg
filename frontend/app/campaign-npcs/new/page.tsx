@@ -3,7 +3,7 @@ import type { Metadata } from "next"
 import { CampaignCrumbs } from "@/components/campaign-crumbs"
 import { CampaignNpcForm } from "@/components/campaign-npc-form"
 import { ConsolePanel } from "@/components/console-panel"
-import { getFactions, getSystems, getTraits } from "@/lib/api"
+import { getFactions, getSystems, getTraits, getEquipment } from "@/lib/api"
 import { getModule } from "@/lib/modules"
 import { requireAdmin } from "@/lib/session"
 
@@ -17,10 +17,11 @@ export const metadata: Metadata = {
 export default async function NewCampaignNpcPage() {
   await requireAdmin()
 
-  const [systems, factions, traits] = await Promise.all([
+  const [systems, factions, traits, equipment] = await Promise.all([
     getSystems(),
     getFactions(),
     getTraits(),
+    getEquipment(),
   ])
 
   return (
@@ -40,6 +41,8 @@ export default async function NewCampaignNpcPage() {
           factions={factions.data ?? []}
           traits={traits.data ?? []}
           traitsError={traits.error}
+          equipmentCatalog={equipment.data ?? []}
+          equipmentError={equipment.error}
         />
       </ConsolePanel>
     </div>

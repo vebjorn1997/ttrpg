@@ -36,7 +36,11 @@ export {
   systemTimelineTable,
 } from './systems';
 export { factionsTable, factionTraitsTable } from './factions';
-export { campaignNpcsTable, campaignNpcTraitsTable } from './campaignNpcs';
+export {
+  campaignNpcsTable,
+  campaignNpcTraitsTable,
+  campaignNpcEquipmentTable,
+} from './campaignNpcs';
 export { shipsTable, shipTraitsTable } from './ships';
 export { patronsTable } from './patrons';
 export { locationsTable, locationTraitsTable } from './locations';

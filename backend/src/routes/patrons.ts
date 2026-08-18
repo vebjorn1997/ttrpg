@@ -21,6 +21,10 @@ import {
   readJsonBody,
 } from '../lib/campaign-parse'
 import { traitsByParent, type TraitRow } from '../lib/campaign-traits'
+import {
+  equipmentByNpc,
+  type NpcEquipmentItem,
+} from '../lib/campaign-equipment'
 import { toCampaignNpc, toPatron, toSystemRef } from '../lib/campaign-view'
 
 const patrons = new Hono<{ Variables: ViewerVariables }>()
@@ -28,6 +32,7 @@ const patrons = new Hono<{ Variables: ViewerVariables }>()
 patrons.use('*', attachViewer)
 
 const NO_TRAITS: TraitRow[] = []
+const NO_EQUIPMENT: NpcEquipmentItem[] = []
 
 function baseQuery() {
   return db
@@ -44,16 +49,31 @@ patrons.get('/', async (c) => {
     .where(search ? ilike(campaignNpcsTable.name, `%${search}%`) : undefined)
     .orderBy(asc(campaignNpcsTable.name))
 
-  const traits = await traitsByParent(
-    campaignNpcTraitsTable,
-    campaignNpcTraitsTable.npcId,
-    campaignNpcTraitsTable.traitId,
-    rows.map((row) => row.npc.id),
-  )
+  const npcIds = rows.map((row) => row.npc.id)
+  const [traits, equipment] = await Promise.all([
+    traitsByParent(
+      campaignNpcTraitsTable,
+      campaignNpcTraitsTable.npcId,
+      campaignNpcTraitsTable.traitId,
+      npcIds,
+    ),
+    equipmentByNpc(npcIds),
+  ])
 
   return c.json(
     rows.map(({ patron, npc }) =>
-      toPatron(patron, toCampaignNpc(npc, traits.get(npc.id) ?? NO_TRAITS, isGm), isGm),
+      toPatron(
+        patron,
+        toCampaignNpc(
+          npc,
+          traits.get(npc.id) ?? NO_TRAITS,
+          isGm,
+          null,
+          null,
+          equipment.get(npc.id) ?? NO_EQUIPMENT,
+        ),
+        isGm,
+      ),
     ),
   )
 })
@@ -62,12 +82,15 @@ async function loadPatronDetail(id: string, isGm: boolean) {
   const [row] = await baseQuery().where(eq(patronsTable.id, id)).limit(1)
   if (!row) return null
 
-  const traits = await traitsByParent(
-    campaignNpcTraitsTable,
-    campaignNpcTraitsTable.npcId,
-    campaignNpcTraitsTable.traitId,
-    [row.npc.id],
-  )
+  const [traits, equipment] = await Promise.all([
+    traitsByParent(
+      campaignNpcTraitsTable,
+      campaignNpcTraitsTable.npcId,
+      campaignNpcTraitsTable.traitId,
+      [row.npc.id],
+    ),
+    equipmentByNpc([row.npc.id]),
+  ])
 
   const offerRows = await db
     .select({ offer: systemPatronsTable, system: systemsTable })
@@ -86,7 +109,14 @@ async function loadPatronDetail(id: string, isGm: boolean) {
   return {
     ...toPatron(
       row.patron,
-      toCampaignNpc(row.npc, traits.get(row.npc.id) ?? NO_TRAITS, isGm),
+      toCampaignNpc(
+        row.npc,
+        traits.get(row.npc.id) ?? NO_TRAITS,
+        isGm,
+        null,
+        null,
+        equipment.get(row.npc.id) ?? NO_EQUIPMENT,
+      ),
       isGm,
     ),
     offers: offerRows.map(({ offer, system }) => ({

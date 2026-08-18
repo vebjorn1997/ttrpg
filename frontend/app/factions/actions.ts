@@ -29,6 +29,12 @@ function readInput(
     return { ok: false, error: "Tier must be a whole number from 1 to 5." }
   }
 
+  const HEX = /^#[0-9A-Fa-f]{6}$/
+  const color = campaignText(formData, "color")
+  if (!color || !HEX.test(color)) {
+    return { ok: false, error: "Map colour must be a hex code, e.g. #32a852." }
+  }
+
   return {
     ok: true,
     input: {
@@ -39,6 +45,7 @@ function readInput(
       headquartersSystemId: campaignText(formData, "headquartersSystemId"),
       goals: campaignText(formData, "goals"),
       assets: campaignList(formData, "assets"),
+      color: color.toLowerCase(),
       notes: campaignText(formData, "notes"),
       traitIds: campaignTraitIds(formData),
     },
@@ -59,6 +66,8 @@ export async function createFactionAction(
   if (!result.ok) return { error: result.error, success: null }
 
   revalidatePath("/factions")
+  revalidatePath("/systems")
+  revalidatePath("/systems/map")
   redirect(`/factions/${result.data.id}`)
 }
 
@@ -80,6 +89,8 @@ export async function updateFactionAction(
 
   revalidatePath("/factions")
   revalidatePath(`/factions/${id}`)
+  revalidatePath("/systems")
+  revalidatePath("/systems/map")
   redirect(`/factions/${id}`)
 }
 
@@ -97,5 +108,7 @@ export async function deleteFactionAction(
   if (!result.ok) return { error: result.error, success: null }
 
   revalidatePath("/factions")
+  revalidatePath("/systems")
+  revalidatePath("/systems/map")
   redirect("/factions")
 }
